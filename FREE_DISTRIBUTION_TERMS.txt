@@ -1,0 +1,6 @@
+AUTONOMÍA PIANO — DISTRIBUCIÓN GRATUITA v39
+
+La aplicación se distribuye gratuitamente a los usuarios finales en esta versión.
+El código, diseño, metodología pedagógica, textos y materiales originales siguen perteneciendo a su titular y no se convierten automáticamente en software de código abierto.
+No se otorga permiso para vender la aplicación o presentarla como un producto propio sin autorización del titular.
+Los usuarios pueden instalarla y utilizarla gratuitamente para aprendizaje personal y educativo.
