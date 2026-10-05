@@ -1,0 +1,1 @@
+{"name":"autonomia-piano","version":"40.1.0","private":true,"type":"commonjs","scripts":{"start":"node server.js"},"engines":{"node":">=20"}}

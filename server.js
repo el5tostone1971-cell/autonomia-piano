@@ -1,0 +1,6 @@
+const http=require('http'),fs=require('fs'),path=require('path'),{URL}=require('url');
+const PORT=Number(process.env.PORT||10000),ROOT=__dirname;
+const MIME={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.webmanifest':'application/manifest+json'};
+function json(res,status,obj){res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store'});res.end(JSON.stringify(obj))}
+const server=http.createServer((req,res)=>{const u=new URL(req.url,'http://localhost');if(u.pathname==='/api/v1/health')return json(res,200,{ok:true,service:'autonomia-piano',version:'40.1',time:new Date().toISOString()});let p=u.pathname==='/'?'/index.html':decodeURIComponent(u.pathname);const file=path.normalize(path.join(ROOT,p));if(!file.startsWith(ROOT)||!fs.existsSync(file)||fs.statSync(file).isDirectory())return json(res,404,{error:'not_found'});res.writeHead(200,{'content-type':MIME[path.extname(file)]||'application/octet-stream','cache-control':'no-cache'});fs.createReadStream(file).pipe(res)});
+server.listen(PORT,'0.0.0.0',()=>console.log('Autonomía Piano v40.1 escuchando en '+PORT));

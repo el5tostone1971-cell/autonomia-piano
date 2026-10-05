@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: autonomia-piano
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/v1/health
