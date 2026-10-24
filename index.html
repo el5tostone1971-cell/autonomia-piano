@@ -33,7 +33,7 @@ h1,h2,h3{letter-spacing:-.02em}
 
 /* Navegación y portada orientadas a alumnos nuevos */
 .nav{align-content:start}.nav-group{grid-column:1/-1;border:1px solid var(--line);border-radius:12px;background:rgba(18,26,46,.55);padding:5px;min-width:0}.nav-group summary{cursor:pointer;list-style:none;padding:10px 8px;font-size:13px;font-weight:750;color:#cbd5ee}.nav-group summary::-webkit-details-marker{display:none}.nav-group summary:after{content:"＋";float:right;color:var(--muted)}.nav-group[open] summary:after{content:"−"}.nav-group button{width:100%;font-size:13px;padding:9px 10px;margin-top:4px}.piano-welcome{margin-bottom:16px}.piano-welcome h1{margin:4px 0 8px;font-size:clamp(1.7rem,4vw,2.35rem)}.piano-welcome p{max-width:680px}.piano-progress{display:grid;grid-template-columns:1fr minmax(180px,.7fr);gap:18px;align-items:center;margin-bottom:16px}.piano-progress h2{margin:0 0 6px}.piano-progress-count strong{font-size:28px;display:inline-block;margin-right:6px}.piano-progress-count span{color:var(--muted);font-size:13px}.piano-progress-count .progress{margin-top:8px}.piano-progress-count .progress i{display:block;height:100%;background:var(--good);border-radius:99px}.piano-progress-count p{font-size:12px;margin:6px 0 0}.home-welcome{margin:0 0 18px;padding:6px 2px 2px}.home-welcome h1{max-width:760px;margin:14px 0 10px}.home-welcome p{max-width:700px;font-size:16px;line-height:1.6}.home-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.home-choice{display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-width:0}.home-choice h2{font-size:19px}.home-choice p{line-height:1.5;min-height:48px}.home-choice .btn{margin-top:auto}.home-primary{border-color:#7c5cff;box-shadow:inset 0 0 0 1px rgba(124,92,255,.25)}.home-number{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#211b4b;color:#c4b5fd;font-size:16px;font-weight:800}.home-progress{display:grid;grid-template-columns:1fr minmax(140px,.7fr) auto;align-items:center;gap:18px;margin-top:16px}.home-progress h2{font-size:18px}.home-progress-bar .muted{font-size:12px;margin-top:6px}@media(max-width:1050px){.home-actions{grid-template-columns:1fr}.home-choice{display:grid;grid-template-columns:36px 1fr;align-items:start}.home-choice .btn{grid-column:2;justify-self:start}.home-choice p{min-height:0}.home-progress{grid-template-columns:1fr}.layout{grid-template-columns:205px 1fr}}@media(max-width:760px){.piano-progress{grid-template-columns:1fr}.layout{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line);padding:10px}.nav{grid-template-columns:1fr 1fr;gap:8px}.nav>button{grid-column:1/-1}.nav-group{align-self:start}.main{padding:16px}.home-welcome h1{font-size:32px}.home-progress{padding:16px}}
-</style></head><body><div id="buildVersion" style="position:fixed;right:8px;bottom:8px;z-index:9999;font-size:11px;opacity:.55;background:#fff;padding:3px 6px;border-radius:8px">Autonomía Piano v40.3 · Método de Autonomía Progresiva · Teoría integrada</div><div class="app"><header class="top"><div class="brand">🎹 Autonomía <span>Piano</span></div><div class="top-actions"><button class="btn small" id="micBtn">🎙 Micrófono</button><button class="btn small" id="midiBtn">MIDI</button><button class="btn small" id="diagBtn">Diagnóstico</button><button class="btn small" id="retryBtn" style="display:none" type="button">↻ Reiniciar ejercicio</button></div></header><div class="layout"><aside><nav class="nav" id="nav"><button data-view="home" class="active">🏠 Inicio</button><button data-view="course">Lecciones</button><button data-view="practice">Práctica</button><button data-view="repertoire">Melodías</button><button data-view="keyboard">Mapa del teclado</button><button data-view="theory">Teoría musical</button><details class="nav-group"><summary>🎹 Más práctica</summary><button data-view="reading">Lectura musical</button><button data-view="rhythmReading">Ritmo</button><button data-view="twoHands">Tocar con dos manos</button><button data-view="phrases">Frases musicales</button><button data-view="technique">Técnica</button><button data-view="ear">Entrenamiento auditivo</button><button data-view="earAdvanced">Oído avanzado</button><button data-view="accompaniment">Acompañamiento</button><button data-view="midiStudio">Estudio MIDI avanzado</button></details><details class="nav-group"><summary>📈 Progreso y herramientas</summary><button data-view="progress">Mi progreso</button><button data-view="spaced">Repaso inteligente</button><button data-view="teacher">Profesor IA</button><button data-view="resources">Recursos</button><button data-view="settings">Sistema y ajustes</button></details></nav><div class="phase"><b id="phaseName">Fase 1 · Conexión</b><div class="muted" style="font-size:13px;margin:8px 0">Día <span id="daySide">1</span> / 90</div><div class="progress"><i id="phaseBar" style="width:6%"></i></div></div></aside><main class="main" id="main"></main></div></div><div class="toast" id="toast"></div><script>'use strict';
+</style></head><body><div id="buildVersion" style="position:fixed;right:8px;bottom:8px;z-index:9999;font-size:11px;opacity:.55;background:#fff;padding:3px 6px;border-radius:8px">Autonomía Piano v40.3 · Método de Autonomía Progresiva · Teoría integrada</div><div class="app"><header class="top"><div class="brand">🎹 Autonomía <span>Piano</span></div><div class="top-actions"><label for="pianoLanguage" class="muted" style="font-size:12px;align-self:center">Idioma</label><select id="pianoLanguage" class="btn small" aria-label="Idioma" onchange="changePianoLanguage(this.value)"><option value="es">Español</option><option value="pt">Português</option></select><button class="btn small" id="micBtn">🎙 Micrófono</button><button class="btn small" id="midiBtn">MIDI</button><button class="btn small" id="diagBtn">Diagnóstico</button><button class="btn small" id="retryBtn" style="display:none" type="button">↻ Reiniciar ejercicio</button></div></header><div class="layout"><aside><nav class="nav" id="nav"><button data-view="home" class="active">🏠 Inicio</button><button data-view="course">Lecciones</button><button data-view="practice">Práctica</button><button data-view="repertoire">Melodías</button><button data-view="keyboard">Mapa del teclado</button><button data-view="theory">Teoría musical</button><details class="nav-group"><summary>🎹 Más práctica</summary><button data-view="reading">Lectura musical</button><button data-view="rhythmReading">Ritmo</button><button data-view="twoHands">Tocar con dos manos</button><button data-view="phrases">Frases musicales</button><button data-view="technique">Técnica</button><button data-view="ear">Entrenamiento auditivo</button><button data-view="earAdvanced">Oído avanzado</button><button data-view="accompaniment">Acompañamiento</button><button data-view="midiStudio">Estudio MIDI avanzado</button></details><details class="nav-group"><summary>📈 Progreso y herramientas</summary><button data-view="progress">Mi progreso</button><button data-view="spaced">Repaso inteligente</button><button data-view="teacher">Profesor IA</button><button data-view="resources">Recursos</button><button data-view="settings">Sistema y ajustes</button></details></nav><div class="phase"><b id="phaseName">Fase 1 · Conexión</b><div class="muted" style="font-size:13px;margin:8px 0">Día <span id="daySide">1</span> / 90</div><div class="progress"><i id="phaseBar" style="width:6%"></i></div></div></aside><main class="main" id="main"></main></div></div><div class="toast" id="toast"></div><script>'use strict';
 const KEY='autonomia-piano-v6.1';
 let currentLessonId=null;
 let adaptiveRunActive=false;
@@ -143,7 +143,90 @@ function showNextLessonScreen(done,next){
 }
 function shell(title,sub,body){return `<div class="card"><div class="pill">Método de Autonomía Progresiva</div><h1>${title}</h1><p class="muted">${sub}</p>${body}</div>`}
 function navActive(v){document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v))}
-function showHTML(html){const main=document.getElementById('main');if(main)main.innerHTML=html;window.scrollTo({top:0,behavior:'smooth'});renderSide()}
+let pianoLanguage='es';
+try{pianoLanguage=localStorage.getItem('autonomia-piano-language')==='pt'?'pt':'es'}catch(e){}
+const pianoPT=[
+['Tu camino empieza con una nota','Seu caminho começa com uma nota'],
+['Seguimos desde donde estás.','Vamos continuar de onde você está.'],
+['Una lección a la vez. Practicá diez minutos por día y avanzá a tu ritmo.','Uma lição de cada vez. Pratique dez minutos por dia e avance no seu ritmo.'],
+['Empezar primera lección','Começar a primeira lição'],
+['Continuar aprendiendo','Continuar aprendendo'],
+['Empezá por acá','Comece por aqui'],
+['Tu aprendizaje','Seu aprendizado'],
+['Si recién empezás, abrí la primera lección. La escuela te guía paso a paso; no hace falta usar todas las herramientas de golpe.','Se você está começando, abra a primeira lição. A escola guia você passo a passo; não precisa usar todas as ferramentas de uma vez.'],
+['Tu próxima lección es: ','Sua próxima lição é: '],
+['Seguí en orden y repetí las actividades que necesites.','Siga a ordem e repita as atividades de que precisar.'],
+['lecciones','lições'],
+['completado · tu avance se guarda en este dispositivo.','concluído · seu progresso fica salvo neste dispositivo.'],
+['PRIMER PASO','PRIMEIRO PASSO'],
+['Aprendé los fundamentos y avanzá en orden con el curso progresivo de 90 días.','Aprenda os fundamentos e avance em ordem no curso progressivo de 90 dias.'],
+['Ver lecciones','Ver lições'],
+['Usá el teclado para entrenar notas y movimientos sin seguir una lección estructurada.','Use o teclado para treinar notas e movimentos sem seguir uma lição estruturada.'],
+['Ir a práctica','Ir para a prática'],
+['Lecciones','Lições'],
+['Práctica','Prática'],
+['Melodías','Melodias'],
+['Mapa del teclado','Mapa do teclado'],
+['Teoría musical','Teoria musical'],
+['Más práctica','Mais prática'],
+['Lectura musical','Leitura musical'],
+['Ritmo','Ritmo'],
+['Tocar con dos manos','Tocar com as duas mãos'],
+['Frases musicales','Frases musicais'],
+['Técnica','Técnica'],
+['Entrenamiento auditivo','Treinamento auditivo'],
+['Oído avanzado','Ouvido avançado'],
+['Acompañamiento','Acompanhamento'],
+['Estudio MIDI avanzado','Estúdio MIDI avançado'],
+['Progreso y herramientas','Progresso e ferramentas'],
+['Mi progreso','Meu progresso'],
+['Repaso inteligente','Revisão inteligente'],
+['Profesor IA','Professor IA'],
+['Recursos','Recursos'],
+['Sistema y ajustes','Sistema e configurações'],
+['Micrófono','Microfone'],
+['Diagnóstico','Diagnóstico'],
+['Reiniciar ejercicio','Reiniciar exercício'],
+['Fase 1 · Conexión','Fase 1 · Conexão'],
+['Día ','Dia '],
+['Método de Autonomía Progresiva','Método de Autonomia Progressiva'],
+['Sección no disponible','Seção indisponível'],
+['Esta sección todavía no está disponible en esta versión.','Esta seção ainda não está disponível nesta versão.'],
+['Podés volver a Inicio y continuar con el curso.','Você pode voltar ao Início e continuar o curso.'],
+['Tu progreso','Seu progresso'],
+['Entrenar','Treinar'],
+['Repetir','Repetir'],
+['bloqueado','bloqueado'],
+['Continuar','Continuar'],
+['Guardar','Salvar'],
+['Cancelar','Cancelar'],
+['Volver','Voltar'],
+['Siguiente','Próximo'],
+['Anterior','Anterior'],
+['Correcto','Correto'],
+['Incorrecto','Incorreto'],
+['Comprobar','Verificar'],
+['Escuchá','Ouça'],
+['Tocá','Toque'],
+['Encontrá','Encontre'],
+['Elegí','Escolha'],
+['Empezar','Começar'],
+['Terminar','Concluir'],
+['Configuración','Configurações'],
+['Duración','Duração'],
+['Velocidad','Velocidade'],
+['Puntaje','Pontuação'],
+['Notas','Notas'],
+['Ejercicio','Exercício'],
+['Objetivo','Objetivo'],
+['Consejo','Dica'],
+['Resumen','Resumo']
+];
+function pianoTranslateHTML(html){if(pianoLanguage!=='pt')return html;let out=html;for(const [es,pt] of pianoPT)out=out.split(es).join(pt);return out}
+function applyPianoLanguage(){document.documentElement.lang=pianoLanguage;const sel=document.getElementById('pianoLanguage');if(sel)sel.value=pianoLanguage;const labels={'home':'🏠 Início','course':'Lições','practice':'Prática','repertoire':'Melodias','keyboard':'Mapa do teclado','theory':'Teoria musical','reading':'Leitura musical','rhythmReading':'Ritmo','twoHands':'Tocar com as duas mãos','phrases':'Frases musicais','technique':'Técnica','ear':'Treinamento auditivo','earAdvanced':'Ouvido avançado','accompaniment':'Acompanhamento','midiStudio':'Estúdio MIDI avançado','progress':'Meu progresso','spaced':'Revisão inteligente','teacher':'Professor IA','resources':'Recursos','settings':'Sistema e configurações'};document.querySelectorAll('#nav button[data-view]').forEach(b=>{const v=b.dataset.view;if(pianoLanguage==='pt'&&labels[v])b.textContent=labels[v];else{const es={'home':'🏠 Inicio','course':'Lecciones','practice':'Práctica','repertoire':'Melodías','keyboard':'Mapa del teclado','theory':'Teoría musical','reading':'Lectura musical','rhythmReading':'Ritmo','twoHands':'Tocar con dos manos','phrases':'Frases musicales','technique':'Técnica','ear':'Entrenamiento auditivo','earAdvanced':'Oído avanzado','accompaniment':'Acompañamiento','midiStudio':'Estudio MIDI avanzado','progress':'Mi progreso','spaced':'Repaso inteligente','teacher':'Profesor IA','resources':'Recursos','settings':'Sistema y ajustes'};if(es[v])b.textContent=es[v]}});const sums=document.querySelectorAll('#nav details summary');if(sums[0])sums[0].textContent=pianoLanguage==='pt'?'🎹 Mais prática':'🎹 Más práctica';if(sums[1])sums[1].textContent=pianoLanguage==='pt'?'📈 Progresso e ferramentas':'📈 Progreso y herramientas';const mic=document.getElementById('micBtn');if(mic)mic.textContent=pianoLanguage==='pt'?'🎙 Microfone':'🎙 Micrófono';const diag=document.getElementById('diagBtn');if(diag)diag.textContent=pianoLanguage==='pt'?'Diagnóstico':'Diagnóstico';const phaseName=document.getElementById('phaseName');if(phaseName&&pianoLanguage==='pt')phaseName.textContent=phaseName.textContent.replace('Conexión','Conexão');else if(phaseName)phaseName.textContent=phaseName.textContent.replace('Conexão','Conexión');const dayLabel=document.querySelector('.phase .muted');if(dayLabel&&pianoLanguage==='pt')dayLabel.innerHTML=dayLabel.innerHTML.replace('Día ','Dia ');else if(dayLabel)dayLabel.innerHTML=dayLabel.innerHTML.replace('Dia ','Día ')}
+function changePianoLanguage(value){pianoLanguage=value==='pt'?'pt':'es';try{localStorage.setItem('autonomia-piano-language',pianoLanguage)}catch(e){}applyPianoLanguage();show(activeView||'home')}
+let activeView='home';
+function showHTML(html){const main=document.getElementById('main');if(main)main.innerHTML=pianoTranslateHTML(html);window.scrollTo({top:0,behavior:'smooth'});renderSide()}
 
 const GOD_FEATURES=[
  ['01','Modo Cirugía','Práctica por secciones, loop, manos, tempo y repetición inteligente.','ok'],
@@ -282,7 +365,7 @@ function openTheory(id){const l=THEORY_LESSONS.find(x=>x.id===id);if(!l)return;s
 function answerTheory(id,i){const l=THEORY_LESSONS.find(x=>x.id===id);const f=document.getElementById('theoryFeedback');if(!l||!f)return;if(i!==l.correct){f.textContent='Todavía no. Volvé a mirar la explicación y probá de nuevo.';f.className='feedback bad';return}const first=!theoryDone(id);state.theory.completed[id]=true;if(first){state.theory.xp=(state.theory.xp||0)+10;state.xp+=10}saveState();f.textContent=first?'✓ Correcto. Concepto incorporado · +10 XP':'✓ Correcto. Concepto ya incorporado.';f.className='feedback good';setTimeout(()=>show('theory'),500)}
 function theoryBootstrap(){if(!state.theory||typeof state.theory!=='object')state.theory={completed:{},xp:0};if(!state.theory.completed)state.theory.completed={}}
 
-function show(v){clearTimeout(window._nextTimer);currentLessonId=null;const rb=document.getElementById('retryBtn');if(rb)rb.style.display='none';navActive(v);theoryBootstrap();if(v!=='theory'&&theoryGate(v))return;const views={home:home,course:course,practice:practice,keyboard:keyboardMap,reading:reading,theory:theoryView,rhythmReading:rhythmReading,twoHands:twoHands,phrases:phrases,technique:technique,midiStudio:midiStudio,repertoire:repertoire,ear:ear,earAdvanced:earAdvanced,accompaniment:accompaniment,progress:progress,teacher:teacher,settings:settings,resources:resources,spaced:spacedView};if(views[v])showHTML(views[v]());else showHTML(shell('Sección no disponible','Esta sección todavía no está disponible en esta versión.','<div class="note-box">Podés volver a Inicio y continuar con el curso.</div>'))}
+function show(v){activeView=v;clearTimeout(window._nextTimer);currentLessonId=null;const rb=document.getElementById('retryBtn');if(rb)rb.style.display='none';navActive(v);theoryBootstrap();if(v!=='theory'&&theoryGate(v))return;const views={home:home,course:course,practice:practice,keyboard:keyboardMap,reading:reading,theory:theoryView,rhythmReading:rhythmReading,twoHands:twoHands,phrases:phrases,technique:technique,midiStudio:midiStudio,repertoire:repertoire,ear:ear,earAdvanced:earAdvanced,accompaniment:accompaniment,progress:progress,teacher:teacher,settings:settings,resources:resources,spaced:spacedView};if(views[v])showHTML(views[v]());else showHTML(shell('Sección no disponible','Esta sección todavía no está disponible en esta versión.','<div class="note-box">Podés volver a Inicio y continuar con el curso.</div>'))}
 function lessonCard(l){const done=!!state.lessons[l.id],locked=l.day>state.day;return `<div class="card lesson"><div><div class="tag">Día ${l.day} · ${l.skill}</div><h2>${l.title}</h2><p class="muted">${l.desc}</p></div><button class="btn ${done?'good':'primary'}" ${locked?'disabled':''} onclick="openLesson('${l.id}')">${done?'↻ Repetir':'Entrenar'}${locked?' · bloqueado':''}</button></div>`}
 function home(){const next=LESSONS.find(l=>!state.lessons[l.id])||LESSONS[LESSONS.length-1];const completed=LESSONS.filter(l=>state.lessons[l.id]).length;const fresh=completed===0;const pct=Math.round(completed/LESSONS.length*100);return `<section class="hero piano-welcome"><div class="pill">🎹 AUTONOMÍA PIANO</div><h1>${fresh?'Tu camino empieza con una nota':'Seguimos desde donde estás.'}</h1><p class="muted">Una lección a la vez. Practicá diez minutos por día y avanzá a tu ritmo.</p><button class="btn primary" onclick="openLesson('${next.id}')">${fresh?'Empezar primera lección':'Continuar aprendiendo'} →</button></section><section class="card piano-progress"><div><h2>${fresh?'Empezá por acá':'Tu aprendizaje'}</h2><p class="muted">${fresh?'Si recién empezás, abrí la primera lección. La escuela te guía paso a paso; no hace falta usar todas las herramientas de golpe.':'Tu próxima lección es: '+next.title+'. Seguí en orden y repetí las actividades que necesites.'}</p></div><div class="piano-progress-count"><strong>${completed}</strong><span>/ ${LESSONS.length} lecciones</span><div class="progress"><i style="width:${pct}%"></i></div><p class="muted">${pct}% completado · tu avance se guarda en este dispositivo.</p></div></section><div class="home-actions"><article class="card home-choice home-primary"><div><span class="pill">PRIMER PASO</span><h2>Lecciones</h2><p class="muted">Aprendé los fundamentos y avanzá en orden con el curso progresivo de 90 días.</p><button class="btn primary" onclick="show('course')">Ver lecciones →</button></div></article><article class="card home-choice"><div><h2>Práctica</h2><p class="muted">Usá el teclado para entrenar notas y movimientos sin seguir una lección estructurada.</p><button class="btn" onclick="show('practice')">Ir a práctica</button></div></article><article class="card home-choice"><div><h2>Teoría musical</h2><p class="muted">Entendé las notas, el ritmo y los conceptos que después vas a aplicar al piano.</p><button class="btn" onclick="show('theory')">Aprender teoría</button></div></article><article class="card home-choice"><div><h2>Melodías</h2><p class="muted">Llevá lo aprendido a piezas y ejercicios musicales.</p><button class="btn" onclick="show('repertoire')">Ver melodías</button></div></article></div>${adaptiveCard()}`}
 function curriculumForDay(d){const phase=d<=15?1:d<=45?2:d<=70?3:4;const sets={1:[['Geografía del teclado','Encontrar notas por patrones de teclas negras.'],['Técnica básica','Dedos relajados, muñeca estable y movimientos mínimos.'],['Pulso','Metrónomo y ataques regulares.'],['Oído','Escuchar, cantar y reproducir intervalos simples.']],2:[['Manos separadas','Bloques de 2–4 compases por mano.'],['Memoria','Retirar ayudas visuales gradualmente.'],['Coordinación','Unir manos después de consolidarlas por separado.'],['Lectura','Reconocer patrones sin depender de barras descendentes.']],3:[['Cifrado americano','Leer C, G, Am, F y sus funciones básicas.'],['Acompañamiento','Mano izquierda dirige el Style; derecha toca melodía.'],['Cambios','Cambios de acorde con pulso continuo.'],['Oído armónico','Identificar mayor/menor y progresiones frecuentes.']],4:[['Memoria','Canciones completas sin caída de notas.'],['Oído','Reproducir frases después de escucharlas.'],['Cifrado','Tocar desde una hoja de acordes.'],['Autonomía','Resolver errores sin instrucciones nota por nota.']]};const a=sets[phase];return a[(d-1)%a.length]}
@@ -789,4 +872,5 @@ function productionStatusText(){return productionReadiness().map(x=>(x[1]?'✓ '
 function exportArchitecturePackage(){const snap=autonomiaSnapshot();queueSyncEvent('snapshot.exported',{schemaVersion:snap.schemaVersion});return snap;}
 /* ===== END v39 PRODUCT ARCHITECTURE ===== */
 
+applyPianoLanguage();
 </script><div id="v25ProductFooter" style="max-width:1180px;margin:28px auto 18px;padding:14px 18px;color:#8fa4bc;font-size:12px;text-align:center;border-top:1px solid #203550">Autonomía Piano v40.3 · Método de Autonomía Progresiva · Teoría integrada · Cuenta opcional · Monetización sin cobrar al alumno.</div></body></html>
