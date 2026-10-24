@@ -967,7 +967,8 @@ function runStartupSelfCheck(){
  console.info('[Autonomía Piano] Autodiagnóstico de inicio',results);
  return results
 }
-bind();renderSide();try{show('home')};setTimeout(runStartupSelfCheck,250)catch(e){const m=document.getElementById('main');if(m)m.innerHTML='<section class="card"><h1>No se pudo cargar Inicio</h1><p>La aplicación detectó un error al construir la pantalla inicial.</p><pre style="white-space:pre-wrap;color:#fca5a5"></pre><button class="btn" onclick="location.reload()">Recargar aplicación</button></section>';const p=m?.querySelector('pre');if(p)p.textContent=(e&&e.stack)||String(e);console.error('Error al cargar Inicio:',e)}
+bind();renderSide();try{show('home')}catch(e){const m=document.getElementById('main');if(m)m.innerHTML='<section class="card"><h1>No se pudo cargar Inicio</h1><p>La aplicación detectó un error al construir la pantalla inicial.</p><pre style="white-space:pre-wrap;color:#fca5a5"></pre><button class="btn" onclick="location.reload()">Recargar aplicación</button></section>';const p=m?.querySelector('pre');if(p)p.textContent=(e&&e.stack)||String(e);console.error('Error al cargar Inicio:',e)}
+setTimeout(runStartupSelfCheck,250)
 
 
 /* ===== AUTONOMÍA PIANO v36 — INTEGRATION PATCH ===== */
