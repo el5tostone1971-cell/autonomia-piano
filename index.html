@@ -395,6 +395,7 @@ const pianoPT=[
 ['Escuchá y elegí','Ouça e escolha'],
 ['Elegí la respuesta correcta','Escolha a resposta correta'],
 ['Volvé mañana para mantener el hábito.','Volte amanhã para manter o hábito.']
+];
 function pianoTranslateHTML(html){if(pianoLanguage!=='pt')return html;let out=html;for(const [es,pt] of pianoPT)out=out.split(es).join(pt);return out}
 function pianoTranslateText(text){if(pianoLanguage!=='pt')return text;let out=String(text);for(const [es,pt] of pianoPT)out=out.split(es).join(pt);return out}
 function pianoTranslateLessonContent(){if(pianoLanguage!=='pt')return;const main=document.getElementById('main');if(main){const walker=document.createTreeWalker(main,NodeFilter.SHOW_TEXT);const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);for(const node of nodes){if(node.nodeValue&&node.nodeValue.trim())node.nodeValue=pianoTranslateText(node.nodeValue)}}document.querySelectorAll('#main input[placeholder],#main textarea[placeholder],#main button[aria-label],#main input[aria-label]').forEach(el=>{for(const attr of ['placeholder','aria-label'])if(el.hasAttribute(attr))el.setAttribute(attr,pianoTranslateText(el.getAttribute(attr))) })}
