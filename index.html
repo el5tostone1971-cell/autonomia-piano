@@ -101,7 +101,17 @@ const PHASES=[
 {from:71,to:90,name:'Fase 4 · Desconexión',theme:'repertorio, oído y autonomía'}
 ];
 function clone(o){return JSON.parse(JSON.stringify(o));}
-function loadState(){for(const key of [KEY,'autonomia-piano-progress-backup','autonomia-piano-v6','autonomia-piano-v5','autonomia-piano-v4']){try{const text=localStorage.getItem(key);if(!text)continue;const raw=JSON.parse(text);if(!raw||typeof raw!=='object')continue;const out=normalizeState(raw);try{localStorage.setItem(KEY,JSON.stringify(out))}catch(e){}return out}catch(e){}}return clone(defaultState)}
+function loadState(){
+ const candidates=[];
+ for(const key of [KEY,'autonomia-piano-progress-backup','autonomia-piano-v6','autonomia-piano-v5','autonomia-piano-v4']){
+  try{const text=localStorage.getItem(key);if(!text)continue;const raw=JSON.parse(text);if(!raw||typeof raw!=='object')continue;const out=normalizeState(raw);const completed=Object.values(out.lessons||{}).filter(Boolean).length;candidates.push({key,out,completed,score:completed*100000+Number(out.xp||0)*10+Number(out.day||1)})}catch(e){}
+ }
+ if(!candidates.length)return clone(defaultState);
+ candidates.sort((a,b)=>b.score-a.score);
+ const best=candidates[0].out;
+ try{const snap=JSON.stringify(best);localStorage.setItem(KEY,snap);localStorage.setItem('autonomia-piano-progress-backup',snap)}catch(e){}
+ return best
+}
 function normalizeState(s){const out=clone(defaultState);Object.assign(out,s);out.day=Number.isFinite(+s.day)?Math.min(90,Math.max(1,+s.day)):1;out.xp=Number.isFinite(+s.xp)?Math.max(0,+s.xp):0;out.lessons=(s.lessons&&typeof s.lessons==='object')?s.lessons:{};
  // Reparación automática de progreso: si el día actual ya figura como completado, avanzar hasta el primer día pendiente.
  while(out.day<90){const current=LESSONS.find(x=>x.day===out.day);if(!current||!out.lessons[current.id])break;out.day++;}out.skills=Object.assign({},defaultState.skills,s.skills||{});for(const k of Object.keys(out.skills))out.skills[k]=Math.min(100,Math.max(0,Number(out.skills[k])||0));out.diagnostics=Object.assign({},defaultState.diagnostics,s.diagnostics||{});out.diagnostics.counts=Object.assign({},defaultState.diagnostics.counts,(s.diagnostics&&s.diagnostics.counts)||{});out.diagnostics.history=Array.isArray(out.diagnostics.history)?out.diagnostics.history.slice(-30):[];out.diagnostics.adaptiveRuns=Math.max(0,Number(out.diagnostics.adaptiveRuns)||0);out.diagnostics.adaptiveLast=String(out.diagnostics.adaptiveLast||'');out.teacher=Object.assign({},defaultState.teacher,s.teacher||{});out.teacher.history=Array.isArray(out.teacher.history)?out.teacher.history.slice(-20):[];out.teacher.lastTopic=String(out.teacher.lastTopic||'');
@@ -968,7 +978,13 @@ function runStartupSelfCheck(){
  return results
 }
 bind();renderSide();try{show('home')}catch(e){const m=document.getElementById('main');if(m)m.innerHTML='<section class="card"><h1>No se pudo cargar Inicio</h1><p>La aplicación detectó un error al construir la pantalla inicial.</p><pre style="white-space:pre-wrap;color:#fca5a5"></pre><button class="btn" onclick="location.reload()">Recargar aplicación</button></section>';const p=m?.querySelector('pre');if(p)p.textContent=(e&&e.stack)||String(e);console.error('Error al cargar Inicio:',e)}
-setTimeout(runStartupSelfCheck,250)
+setTimeout(runStartupSelfCheck,250);
+function persistProgressOnExit(){
+ try{const snapshot=JSON.stringify(state);localStorage.setItem(KEY,snapshot);localStorage.setItem('autonomia-piano-progress-backup',snapshot)}catch(e){console.error('No se pudo guardar el progreso al salir',e)}
+}
+window.addEventListener('pagehide',persistProgressOnExit);
+window.addEventListener('beforeunload',persistProgressOnExit);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persistProgressOnExit()});
 
 
 /* ===== AUTONOMÍA PIANO v36 — INTEGRATION PATCH ===== */
