@@ -894,7 +894,7 @@ function repertoireNotation(p){
  const hidden=repertoireStarted&&repertoireStage>=2;
  if(hidden)return `<div class="note-box"><div class="target">🎼 Memoria activa</div><div class="muted">La partitura está oculta. Tocá desde la memoria.</div></div>`;
  const naturalIndex={C:0,D:1,E:2,F:3,G:4,A:5,B:6};
- const midiToLetter=n=>({0:'C',2:'D',4:'E',5:'F',7:'G',9:'A',11:'B'})[n%12];
+ const midiToLetter=n=>({0:'C',1:'C',2:'D',3:'D',4:'E',5:'F',6:'F',7:'G',8:'G',9:'A',10:'A',11:'B'})[((n%12)+12)%12];
  const diatonic=n=>Math.floor(n/12)*7+naturalIndex[midiToLetter(n)];
  const y=n=>92-(diatonic(n)-diatonic(64))*5;
  const glyph=(d)=>d===2?'𝅗𝅥':d===0.5?'♪':'♩';
