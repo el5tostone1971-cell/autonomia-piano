@@ -962,6 +962,7 @@ function dateISOPlus(days){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.g
 function dueLabel(iso){const d=new Date(iso);return d.toLocaleDateString('es-AR');}
 function scheduleSpaced(id,success=true){
  const l=LESSONS.find(x=>x.id===id); if(!l)return;
+ state.god=state.god||{};state.god.spaced=state.god.spaced||{queue:[],lastReview:'',intervals:[1,2,4,7,14,30]};state.god.spaced.queue=Array.isArray(state.god.spaced.queue)?state.god.spaced.queue:[];state.god.spaced.intervals=[1,2,4,7,14,30];
  const q=state.god.spaced.queue||[]; let item=q.find(x=>x.id===id); const isNew=!item;
  if(!item){item={id,label:l.title,skill:l.skill,intervalIndex:0,reps:0,streak:0,successes:0,failures:0,dueAt:null,lastResult:null,lastAt:null};q.push(item)}
  if(success){item.reps++;item.streak++;item.successes++;if(!isNew)item.intervalIndex=Math.min(5,item.intervalIndex+1);item.lastResult='success';}
