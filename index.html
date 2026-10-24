@@ -120,7 +120,54 @@ function normalizeState(s){const out=clone(defaultState);Object.assign(out,s);ou
  out.god.practice=Object.assign({tempo:72,section:0,loop:false,hand:'both',mode:'surgery',piece:'rp1',rounds:0,clean:0,errors:0,lastScore:0,lastMessage:''},out.god.practice||{});out.god.sight=Object.assign({score:0,attempts:0,history:[]},out.god.sight||{});out.god.sight.history=Array.isArray(out.god.sight.history)?out.god.sight.history.slice(-30):[];
  out.god.spaced=Object.assign({queue:[],lastReview:'',intervals:[1,2,4,7,14,30]},out.god.spaced||{});out.god.spaced.queue=Array.isArray(out.god.spaced.queue)?out.god.spaced.queue:[];
  out.god.imports=Array.isArray(out.god.imports)?out.god.imports.slice(-50):[];out.god.micro=Object.assign({seen:[],last:''},out.god.micro||{});out.god.micro.seen=Array.isArray(out.god.micro.seen)?out.god.micro.seen.slice(-50):[];out.god.performance=Object.assign({velocity:0,duration:0,timing:0,pedal:0,velocityConsistency:0,durationConsistency:0,timingConsistency:0,chordTightness:0,dynamicsRange:0,balance:50,score:0,sessions:[]},out.god.performance||{});out.god.performance.sessions=Array.isArray(out.god.performance.sessions)?out.god.performance.sessions.slice(-30):[];out.god.library=Array.isArray(out.god.library)?out.god.library.slice(-100):[];out.theory=(s.theory&&typeof s.theory==='object')?s.theory:{completed:{},xp:0};out.theory.completed=(out.theory.completed&&typeof out.theory.completed==='object')?out.theory.completed:{};out.theory.xp=Math.max(0,Number(out.theory.xp)||0);return out}
-let storageWarningShown=false;function saveState(){let ok=false;try{const snapshot=JSON.stringify(state);localStorage.setItem(KEY,snapshot);ok=localStorage.getItem(KEY)===snapshot;if(ok){try{localStorage.setItem('autonomia-piano-progress-backup',snapshot)}catch(e){}}}catch(e){ok=false}if(!ok&&!storageWarningShown){storageWarningShown=true;try{toast('⚠️ El navegador no está guardando el progreso. Revisá el almacenamiento del sitio y no borres sus datos.')}catch(e){}}renderSide();return ok}
+let storageWarningShown=false;
+function saveState(){
+ let ok=false,snapshot='';
+ try{snapshot=JSON.stringify(state);localStorage.setItem(KEY,snapshot);ok=localStorage.getItem(KEY)===snapshot;if(ok){try{localStorage.setItem('autonomia-piano-progress-backup',snapshot)}catch(e){}}}catch(e){ok=false}
+ // Segundo almacenamiento independiente: permite recuperar el progreso si localStorage falla o queda desactualizado.
+ try{writeProgressIndexedDB(snapshot)}catch(e){console.warn('[Autonomía Piano] Respaldo IndexedDB no disponible',e)}
+ if(!ok&&!storageWarningShown){storageWarningShown=true;try{toast('⚠️ No se pudo verificar el guardado local. El progreso se intentará respaldar también.')}catch(e){}}
+ renderSide();return ok
+}
+const PROGRESS_DB='autonomia-piano-progress-db-v1';
+function openProgressDB(){
+ return new Promise((resolve,reject)=>{
+  if(!('indexedDB' in window)){reject(new Error('IndexedDB no disponible'));return}
+  let req;try{req=indexedDB.open(PROGRESS_DB,1)}catch(e){reject(e);return}
+  req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains('progress'))db.createObjectStore('progress')};
+  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error('No se pudo abrir IndexedDB'));
+ })
+}
+function writeProgressIndexedDB(snapshot){
+ if(!snapshot)return;
+ openProgressDB().then(db=>new Promise((resolve,reject)=>{
+  let tx;try{tx=db.transaction('progress','readwrite');tx.objectStore('progress').put({snapshot,updatedAt:Date.now()},'current')}catch(e){db.close();reject(e);return}
+  tx.oncomplete=()=>{db.close();resolve(true)};tx.onerror=()=>{const e=tx.error;db.close();reject(e||new Error('Error escribiendo respaldo'))};tx.onabort=()=>{db.close();reject(tx.error||new Error('Respaldo cancelado'))}
+ })).catch(e=>console.warn('[Autonomía Piano] No se pudo escribir respaldo IndexedDB',e));
+}
+function progressScore(s){
+ const lessons=s&&s.lessons&&typeof s.lessons==='object'?s.lessons:{};
+ return Object.values(lessons).filter(Boolean).length*100000+Math.max(0,Number(s&&s.xp)||0)*10+Math.max(1,Number(s&&s.day)||1)
+}
+async function restoreProgressIndexedDB(){
+ try{
+  const db=await openProgressDB();
+  const record=await new Promise((resolve,reject)=>{
+   let tx;try{tx=db.transaction('progress','readonly');const req=tx.objectStore('progress').get('current');req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error||new Error('No se pudo leer respaldo'))}catch(e){reject(e)}
+  });
+  db.close();
+  if(!record||!record.snapshot)return {ok:true,restored:false};
+  const saved=normalizeState(JSON.parse(record.snapshot));
+  if(progressScore(saved)>progressScore(state)){
+   state=saved;
+   try{const snap=JSON.stringify(state);localStorage.setItem(KEY,snap);localStorage.setItem('autonomia-piano-progress-backup',snap)}catch(e){}
+   renderSide();show(activeView||'home');
+   console.info('[Autonomía Piano] Progreso recuperado desde respaldo independiente');
+   return {ok:true,restored:true,completed:Object.values(state.lessons||{}).filter(Boolean).length};
+  }
+  return {ok:true,restored:false,completed:Object.values(state.lessons||{}).filter(Boolean).length};
+ }catch(e){console.warn('[Autonomía Piano] No se pudo leer respaldo IndexedDB',e);return {ok:false,error:String(e)}}
+}
 function toast(msg){const t=document.getElementById('toast');if(!t)return;t.textContent=pianoTranslateText(msg);t.classList.add('show');clearTimeout(window._toastTimer);window._toastTimer=setTimeout(()=>t.classList.remove('show'),2600)}
 function phase(){return PHASES.find(p=>state.day>=p.from&&state.day<=p.to)||PHASES[0]}
 function renderSide(){const p=phase();const n=document.getElementById('phaseName'),d=document.getElementById('daySide'),b=document.getElementById('phaseBar');if(n)n.textContent=p.name;if(d)d.textContent=state.day;if(b)b.style.width=Math.round(((state.day-p.from+1)/(p.to-p.from+1))*100)+'%'}
@@ -979,8 +1026,10 @@ function runStartupSelfCheck(){
 }
 bind();renderSide();try{show('home')}catch(e){const m=document.getElementById('main');if(m)m.innerHTML='<section class="card"><h1>No se pudo cargar Inicio</h1><p>La aplicación detectó un error al construir la pantalla inicial.</p><pre style="white-space:pre-wrap;color:#fca5a5"></pre><button class="btn" onclick="location.reload()">Recargar aplicación</button></section>';const p=m?.querySelector('pre');if(p)p.textContent=(e&&e.stack)||String(e);console.error('Error al cargar Inicio:',e)}
 setTimeout(runStartupSelfCheck,250);
+// Recuperación automática al iniciar: si el respaldo independiente tiene más avance, restaurarlo.
+setTimeout(()=>restoreProgressIndexedDB().then(r=>{if(!r.ok)console.warn('[Autonomía Piano] Respaldo no disponible; se conserva el progreso local')}),700);
 function persistProgressOnExit(){
- try{const snapshot=JSON.stringify(state);localStorage.setItem(KEY,snapshot);localStorage.setItem('autonomia-piano-progress-backup',snapshot)}catch(e){console.error('No se pudo guardar el progreso al salir',e)}
+ try{const snapshot=JSON.stringify(state);localStorage.setItem(KEY,snapshot);localStorage.setItem('autonomia-piano-progress-backup',snapshot);writeProgressIndexedDB(snapshot)}catch(e){console.error('No se pudo guardar el progreso al salir',e)}
 }
 window.addEventListener('pagehide',persistProgressOnExit);
 window.addEventListener('beforeunload',persistProgressOnExit);
