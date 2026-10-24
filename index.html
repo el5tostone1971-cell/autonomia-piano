@@ -937,7 +937,37 @@ function bind(){document.querySelectorAll('#nav button').forEach(b=>b.addEventLi
 window.addEventListener('beforeinstallprompt',e=>{state.god=state.god||{};state.god.installable=true;window._installPrompt=e;saveState()});
 if('serviceWorker' in navigator && location.protocol!=='file:'){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
 window.addEventListener('keydown',e=>{if(e.repeat||e.target?.matches('input,textarea,select,[contenteditable=true]'))return;const map={a:60,w:61,s:62,e:63,d:64,f:65,t:66,g:67,y:68,h:69,u:70,j:71,k:72};const n=map[e.key.toLowerCase()];if(n!=null)pressKey(n)})
-bind();renderSide();try{show('home')}catch(e){const m=document.getElementById('main');if(m)m.innerHTML='<section class="card"><h1>No se pudo cargar Inicio</h1><p>La aplicación detectó un error al construir la pantalla inicial.</p><pre style="white-space:pre-wrap;color:#fca5a5"></pre><button class="btn" onclick="location.reload()">Recargar aplicación</button></section>';const p=m?.querySelector('pre');if(p)p.textContent=(e&&e.stack)||String(e);console.error('Error al cargar Inicio:',e)}
+function runStartupSelfCheck(){
+ const results=[];
+ const check=(name,ok,detail='')=>results.push({name,ok:!!ok,detail});
+ try{check('Estado principal',!!state&&typeof state==='object'&&state.lessons&&typeof state.lessons==='object')}catch(e){check('Estado principal',false,e.message)}
+ check('Catálogo de lecciones',Array.isArray(LESSONS)&&LESSONS.length>=90,'lecciones cargadas: '+(Array.isArray(LESSONS)?LESSONS.length:0));
+ check('Funciones esenciales',typeof show==='function'&&typeof saveState==='function'&&typeof completeCore==='function');
+ check('Motor de ejercicios',typeof findLesson==='function'&&typeof genericLesson==='function');
+ check('Motor de audio',typeof tone==='function'&&typeof audio==='function');
+ let storageOk=false;
+ try{const k='autonomia-piano-selftest-'+Date.now(),v='ok-'+Math.random();localStorage.setItem(k,v);storageOk=localStorage.getItem(k)===v;localStorage.removeItem(k)}catch(e){}
+ check('Almacenamiento del navegador',storageOk,storageOk?'lectura y escritura confirmadas':'no permite lectura/escritura');
+ let progressOk=false;
+ try{const snap=JSON.stringify(state);progressOk=!!snap&&snap!=='{}'&&snap.length>10}catch(e){}
+ check('Progreso serializable',progressOk);
+ let backupOk=false;
+ try{const backup=localStorage.getItem('autonomia-piano-progress-backup');backupOk=!backup||!!JSON.parse(backup)}catch(e){}
+ check('Respaldo local legible',backupOk);
+ const failed=results.filter(x=>!x.ok);
+ state.god=state.god||{};
+ state.god.startupCheck={at:new Date().toISOString(),passed:results.length-failed.length,total:results.length,failed:failed.map(x=>x.name)};
+ try{localStorage.setItem('autonomia-piano-last-selfcheck',JSON.stringify(state.god.startupCheck))}catch(e){}
+ if(failed.length){
+  const msg='Autodiagnóstico al iniciar: '+(results.length-failed.length)+'/'+results.length+' correctas. Revisar: '+failed.map(x=>x.name).join(', ')+'.';
+  try{toast('⚠️ '+msg)}catch(e){}
+ }else{
+  try{toast('✓ Autodiagnóstico al iniciar: '+results.length+'/'+results.length+' comprobaciones básicas correctas.')}catch(e){}
+ }
+ console.info('[Autonomía Piano] Autodiagnóstico de inicio',results);
+ return results
+}
+bind();renderSide();try{show('home')};setTimeout(runStartupSelfCheck,250)catch(e){const m=document.getElementById('main');if(m)m.innerHTML='<section class="card"><h1>No se pudo cargar Inicio</h1><p>La aplicación detectó un error al construir la pantalla inicial.</p><pre style="white-space:pre-wrap;color:#fca5a5"></pre><button class="btn" onclick="location.reload()">Recargar aplicación</button></section>';const p=m?.querySelector('pre');if(p)p.textContent=(e&&e.stack)||String(e);console.error('Error al cargar Inicio:',e)}
 
 
 /* ===== AUTONOMÍA PIANO v36 — INTEGRATION PATCH ===== */
