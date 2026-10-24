@@ -908,10 +908,16 @@ const repertoireLibrary=[
  {id:'rp6',title:'Luz',level:2,focus:'Ritmo + articulación',tempo:88,notes:[64,64,67,69,67,65,64,62,60],dur:[.5,.5,1,1,1,.5,.5,1,2],tags:['Corcheas','Ritmo']},
  {id:'rp7',title:'Maré',level:3,focus:'Dos manos',tempo:92,notes:[60,64,67,69,72,69,67,64,60],dur:[1,1,1,1,1,1,1,1,2],tags:['Dos manos','Autonomía']},
  {id:'rp8',title:'Puesta',level:3,focus:'Acordes + melodía',tempo:96,notes:[67,69,72,74,72,69,67,65,64],dur:[1,1,1,1,1,1,1,1,2],tags:['Acordes','Melodía']},
- {id:'rp9',title:'Horizonte II',level:4,focus:'Memoria sin pantalla',tempo:104,notes:[64,67,69,72,74,72,69,67,65,64],dur:[1,1,1,1,1,1,1,1,1,2],tags:['Memoria','Autonomía']}
+ {id:'rp9',title:'Horizonte II',level:4,focus:'Memoria sin pantalla',tempo:104,notes:[64,67,69,72,74,72,69,67,65,64],dur:[1,1,1,1,1,1,1,1,1,2],tags:['Memoria','Autonomía']},
+ {id:'rp10',title:'Samba da Praia',level:1,focus:'Música brasileña · pulso y síncopa',tempo:92,notes:[60,64,67,69,67,64,60,62,64,60],dur:[1,0.5,0.5,1,1,0.5,0.5,1,1,2],tags:['Brasil','Síncopa','Original']},
+ {id:'rp11',title:'Pop de Estrada',level:2,focus:'Pop internacional · melodía y fraseo',tempo:96,notes:[67,67,69,72,72,69,67,64,65,67,64],dur:[1,1,1,1,1,1,1,1,1,1,2],tags:['Pop','Fraseo','Original']},
+ {id:'rp12',title:'Rock de Garagem',level:2,focus:'Rock clásico · riff y repetición',tempo:112,notes:[60,60,63,65,60,60,67,65,63,60],dur:[1,0.5,0.5,1,1,0.5,0.5,1,1,2],tags:['Rock clásico','Riff','Original']},
+ {id:'rp13',title:'Cumbia de Pipa',level:2,focus:'Cumbia · acentos y patrón repetitivo',tempo:100,notes:[64,64,67,69,67,64,62,62,65,67,65,62],dur:[0.5,0.5,1,1,1,1,0.5,0.5,1,1,1,2],tags:['Cumbia','Acentos','Original']},
+ {id:'rp14',title:'Rock and Roll 12',level:3,focus:'Rock and roll · energía y frase de blues',tempo:120,notes:[60,63,65,66,67,66,65,63,60,67,65,63],dur:[0.5,0.5,1,0.5,0.5,1,0.5,0.5,1,1,1,2],tags:['Rock and roll','Blues','Original']},
+ {id:'rp15',title:'Ginga Pop',level:3,focus:'Brasil + pop · melodía y coordinación',tempo:104,notes:[62,64,67,69,71,69,67,64,62,60],dur:[1,1,0.5,0.5,1,1,1,1,1,2],tags:['Brasil','Pop','Dos manos','Original']}
 ];
 function repertoireLibraryView(){
- const xp=state?.xp||0; const unlocked=Math.max(1,Math.min(9,1+Math.floor(xp/120)));
+ const xp=state?.xp||0; const unlocked=Math.max(1,Math.min(repertoireLibrary.length,1+Math.floor(xp/120)));
  return `<div class="card"><h2>Biblioteca progresiva</h2><p class="muted">Piezas originales ordenadas por dificultad. Cada una trabaja una competencia distinta.</p><div class="repertoireLibrary">${repertoireLibrary.map((r,i)=>{const ok=i<unlocked; const pct=state?.repertoireProgress?.[r.id]||0; return `<div class="repCard ${ok?'':'repLocked'}"><h3>${r.title}</h3><div class="repMeta">Nivel ${r.level} · ${r.focus} · ♩=${r.tempo}</div><div class="repSkill">${r.tags.map(t=>`<span class="repTag">${t}</span>`).join('')}</div><div class="repProgress"><span style="width:${pct}%"></span></div><div class="repMeta">${ok?`${pct}% consolidado`:'🔒 Seguí avanzando en el curso'}</div><button class="btn" ${ok?'':'disabled'} onclick="selectLibraryPiece('${r.id}')">${pct?'Continuar':'Entrenar'}</button></div>`}).join('')}</div></div>`;
 }
 function selectLibraryPiece(id){const r=repertoireLibrary.find(x=>x.id===id); if(!r)return; repertoirePiece=r; repertoireStage=0; repertoireInput=[]; repertoireStarted=false; show('repertoire'); toast('Pieza seleccionada: '+r.title);}
