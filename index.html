@@ -919,7 +919,7 @@ function bind(){document.querySelectorAll('#nav button').forEach(b=>b.addEventLi
 window.addEventListener('beforeinstallprompt',e=>{state.god=state.god||{};state.god.installable=true;window._installPrompt=e;saveState()});
 if('serviceWorker' in navigator && location.protocol!=='file:'){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
 window.addEventListener('keydown',e=>{if(e.repeat||e.target?.matches('input,textarea,select,[contenteditable=true]'))return;const map={a:60,w:61,s:62,e:63,d:64,f:65,t:66,g:67,y:68,h:69,u:70,j:71,k:72};const n=map[e.key.toLowerCase()];if(n!=null)pressKey(n)})
-bind();renderSide();show('home');
+bind();renderSide();try{show('home')}catch(e){const m=document.getElementById('main');if(m)m.innerHTML='<section class="card"><h1>No se pudo cargar Inicio</h1><p>La aplicación detectó un error al construir la pantalla inicial.</p><pre style="white-space:pre-wrap;color:#fca5a5"></pre><button class="btn" onclick="location.reload()">Recargar aplicación</button></section>';const p=m?.querySelector('pre');if(p)p.textContent=(e&&e.stack)||String(e);console.error('Error al cargar Inicio:',e)}
 
 
 /* ===== AUTONOMÍA PIANO v36 — INTEGRATION PATCH ===== */
@@ -1045,4 +1045,4 @@ function exportArchitecturePackage(){const snap=autonomiaSnapshot();queueSyncEve
 /* ===== END v39 PRODUCT ARCHITECTURE ===== */
 
 applyPianoLanguage();
-</script><div id="v25ProductFooter" style="max-width:1180px;margin:28px auto 18px;padding:14px 18px;color:#8fa4bc;font-size:12px;text-align:center;border-top:1px solid #203550">Autonomía Piano v40.6 · Método de Autonomía Progresiva · Teoría integrada · Cuenta opcional · Monetización sin cobrar al alumno.</div></body></html>
+</script><div id="v25ProductFooter" style="max-width:1180px;margin:28px auto 18px;padding:14px 18px;color:#8fa4bc;font-size:12px;text-align:center;border-top:1px solid #203550">Autonomía Piano v40.7 · Método de Autonomía Progresiva · Teoría integrada · Cuenta opcional · Monetización sin cobrar al alumno.</div></body></html>
