@@ -1,0 +1,34 @@
+name: Piano browser smoke tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install browser test runner
+        run: npm install --no-save playwright
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start application
+        run: |
+          node server.js > /tmp/autonomia-piano.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:10000/api/v1/health; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/autonomia-piano.log
+          exit 1
+      - name: Test note display and persistence after reload
+        run: node smoke_test.cjs
