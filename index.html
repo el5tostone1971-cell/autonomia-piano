@@ -1170,8 +1170,8 @@ async function playFullArrangement(){
  }
  if(token!==fullArrangementToken)return;
  keys.forEach(k=>{k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex='';k.style.background='';k.style.color=''});
- if(status)status.textContent='✓ Terminó la canción. Se detuvieron la melodía y todos los instrumentos.';
  stopBackingTrack();
+ if(status)status.textContent='✓ Terminó la canción. Se detuvieron la melodía y todos los instrumentos.';
 }
 function stopFullArrangement(){fullArrangementToken++;if(fullArrangementTimer){clearTimeout(fullArrangementTimer);fullArrangementTimer=null}}
 function stopBackingTrack(){
