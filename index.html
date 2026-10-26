@@ -101,16 +101,34 @@ const PHASES=[
 {from:71,to:90,name:'Fase 4 · Desconexión',theme:'repertorio, oído y autonomía'}
 ];
 function clone(o){return JSON.parse(JSON.stringify(o));}
+function mergeProgressStates(base,incoming){
+ const a=normalizeState(base||defaultState),b=normalizeState(incoming||defaultState);
+ const out=clone(progressScore(b)>progressScore(a)?b:a);
+ out.lessons=Object.assign({},a.lessons||{},b.lessons||{});
+ for(const id of new Set([...Object.keys(a.lessons||{}),...Object.keys(b.lessons||{})]))out.lessons[id]=!!(a.lessons?.[id]||b.lessons?.[id]);
+ out.theory=out.theory||{completed:{},xp:0};out.theory.completed=Object.assign({},a.theory?.completed||{},b.theory?.completed||{});
+ for(const id of new Set([...Object.keys(a.theory?.completed||{}),...Object.keys(b.theory?.completed||{})]))out.theory.completed[id]=!!(a.theory?.completed?.[id]||b.theory?.completed?.[id]);
+ out.theory.xp=Math.max(Number(a.theory?.xp)||0,Number(b.theory?.xp)||0);
+ out.repertoireProgress=Object.assign({},a.repertoireProgress||{},b.repertoireProgress||{});
+ for(const id of new Set([...Object.keys(a.repertoireProgress||{}),...Object.keys(b.repertoireProgress||{})]))out.repertoireProgress[id]=Math.max(Number(a.repertoireProgress?.[id])||0,Number(b.repertoireProgress?.[id])||0);
+ out.repertoireMilestones=Object.assign({},a.repertoireMilestones||{},b.repertoireMilestones||{});
+ for(const id of new Set([...Object.keys(a.repertoireMilestones||{}),...Object.keys(b.repertoireMilestones||{})]))out.repertoireMilestones[id]=Object.assign({},a.repertoireMilestones?.[id]||{},b.repertoireMilestones?.[id]||{});
+ out.skills=Object.assign({},a.skills||{},b.skills||{});for(const k of Object.keys(out.skills))out.skills[k]=Math.max(Number(a.skills?.[k])||0,Number(b.skills?.[k])||0);
+ out.xp=Math.max(Number(a.xp)||0,Number(b.xp)||0);out.day=Math.max(Number(a.day)||1,Number(b.day)||1);
+ out.streak=Math.max(Number(a.streak)||0,Number(b.streak)||0);out.lastPractice=[a.lastPractice,b.lastPractice].filter(Boolean).sort().pop()||'';
+ out.god=Object.assign({},a.god||{},b.god||{});
+ if(a.god||b.god){out.god.spaced=Object.assign({},a.god?.spaced||{},b.god?.spaced||{});const q=[...(a.god?.spaced?.queue||[]),...(b.god?.spaced?.queue||[])];out.god.spaced.queue=[...new Map(q.map(x=>[x.id||JSON.stringify(x),x])).values()];}
+ return normalizeState(out)
+}
 function loadState(){
  const candidates=[];
  for(const key of [KEY,'autonomia-piano-progress-backup','autonomia-piano-v6','autonomia-piano-v5','autonomia-piano-v4']){
-  try{const text=localStorage.getItem(key);if(!text)continue;const raw=JSON.parse(text);if(!raw||typeof raw!=='object')continue;const out=normalizeState(raw);const completed=Object.values(out.lessons||{}).filter(Boolean).length;candidates.push({key,out,completed,score:progressScore(out)})}catch(e){}
+  try{const text=localStorage.getItem(key);if(!text)continue;const raw=JSON.parse(text);if(!raw||typeof raw!=='object')continue;candidates.push(normalizeState(raw))}catch(e){}
  }
  if(!candidates.length)return clone(defaultState);
- candidates.sort((a,b)=>b.score-a.score);
- const best=candidates[0].out;
- try{const snap=JSON.stringify(best);localStorage.setItem(KEY,snap);localStorage.setItem('autonomia-piano-progress-backup',snap)}catch(e){}
- return best
+ let merged=candidates[0];for(let i=1;i<candidates.length;i++)merged=mergeProgressStates(merged,candidates[i]);
+ try{const snap=JSON.stringify(merged);localStorage.setItem(KEY,snap);localStorage.setItem('autonomia-piano-progress-backup',snap)}catch(e){}
+ return merged
 }
 function normalizeState(s){const out=clone(defaultState);Object.assign(out,s);out.day=Number.isFinite(+s.day)?Math.min(90,Math.max(1,+s.day)):1;out.xp=Number.isFinite(+s.xp)?Math.max(0,+s.xp):0;out.lessons=(s.lessons&&typeof s.lessons==='object')?s.lessons:{};
  // Reparación automática de progreso: si el día actual ya figura como completado, avanzar hasta el primer día pendiente.
@@ -168,14 +186,16 @@ async function restoreProgressIndexedDB(){
   db.close();
   if(!record||!record.snapshot)return {ok:true,restored:false};
   const saved=normalizeState(JSON.parse(record.snapshot));
-  if(progressScore(saved)>progressScore(state)||(!localStorage.getItem(KEY)&&!localStorage.getItem('autonomia-piano-progress-backup'))){
-   state=saved;
+  const before=progressScore(state);
+  const merged=mergeProgressStates(state,saved);
+  const changed=JSON.stringify(merged)!==JSON.stringify(state);
+  if(changed){
+   state=merged;
    try{const snap=JSON.stringify(state);localStorage.setItem(KEY,snap);localStorage.setItem('autonomia-piano-progress-backup',snap)}catch(e){}
-   renderSide();show(activeView||'home');
-   console.info('[Autonomía Piano] Progreso recuperado desde respaldo independiente');
-   return {ok:true,restored:true,completed:Object.values(state.lessons||{}).filter(Boolean).length};
+   renderSide();if(document.getElementById('main'))show(activeView||'home');
+   console.info('[Autonomía Piano] Progreso local y respaldo independiente fusionados');
   }
-  return {ok:true,restored:false,completed:Object.values(state.lessons||{}).filter(Boolean).length};
+  return {ok:true,restored:changed,completed:Object.values(state.lessons||{}).filter(Boolean).length,scoreBefore:before,scoreAfter:progressScore(state)};
  }catch(e){console.warn('[Autonomía Piano] No se pudo leer respaldo IndexedDB',e);return {ok:false,error:String(e)}}
 }
 function toast(msg){const t=document.getElementById('toast');if(!t)return;t.textContent=pianoTranslateText(msg);t.classList.add('show');clearTimeout(window._toastTimer);window._toastTimer=setTimeout(()=>t.classList.remove('show'),2600)}
