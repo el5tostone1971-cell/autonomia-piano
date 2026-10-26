@@ -139,7 +139,7 @@ function normalizeState(s){const out=clone(defaultState);Object.assign(out,s);ou
  out.god=Object.assign({diagnostic:null,practice:{tempo:72,section:0,loop:false,hand:'both',mode:'surgery',piece:'rp1',rounds:0,clean:0,errors:0,lastScore:0,lastMessage:''},sight:{score:0,attempts:0,history:[]},spaced:{queue:[],lastReview:'',intervals:[1,2,4,7,14,30]},imports:[],micro:{seen:[],last:''},performance:{velocity:0,duration:0,timing:0,pedal:0,velocityConsistency:0,durationConsistency:0,timingConsistency:0,chordTightness:0,dynamicsRange:0,balance:50,score:0,sessions:[]},library:[],installable:false},s.god||{});
  out.god.practice=Object.assign({tempo:72,section:0,loop:false,hand:'both',mode:'surgery',piece:'rp1',rounds:0,clean:0,errors:0,lastScore:0,lastMessage:''},out.god.practice||{});out.god.sight=Object.assign({score:0,attempts:0,history:[]},out.god.sight||{});out.god.sight.history=Array.isArray(out.god.sight.history)?out.god.sight.history.slice(-30):[];
  out.god.spaced=Object.assign({queue:[],lastReview:'',intervals:[1,2,4,7,14,30]},out.god.spaced||{});out.god.spaced.queue=Array.isArray(out.god.spaced.queue)?out.god.spaced.queue:[];
- out.god.imports=Array.isArray(out.god.imports)?out.god.imports.slice(-50):[];out.god.micro=Object.assign({seen:[],last:''},out.god.micro||{});out.god.micro.seen=Array.isArray(out.god.micro.seen)?out.god.micro.seen.slice(-50):[];out.god.performance=Object.assign({velocity:0,duration:0,timing:0,pedal:0,velocityConsistency:0,durationConsistency:0,timingConsistency:0,chordTightness:0,dynamicsRange:0,balance:50,score:0,sessions:[]},out.god.performance||{});out.god.performance.sessions=Array.isArray(out.god.performance.sessions)?out.god.performance.sessions.slice(-30):[];out.god.library=Array.isArray(out.god.library)?out.god.library.slice(-100):[];out.repertoireProgress=(s.repertoireProgress&&typeof s.repertoireProgress==='object')?s.repertoireProgress:{};out.repertoireMilestones=(s.repertoireMilestones&&typeof s.repertoireMilestones==='object')?s.repertoireMilestones:{};out.theory=(s.theory&&typeof s.theory==='object')?s.theory:{completed:{},xp:0};out.theory.completed=(out.theory.completed&&typeof out.theory.completed==='object')?out.theory.completed:{};out.theory.xp=Math.max(0,Number(out.theory.xp)||0);return out}
+ out.god.imports=Array.isArray(out.god.imports)?out.god.imports.slice(-50):[];out.god.micro=Object.assign({seen:[],last:''},out.god.micro||{});out.god.micro.seen=Array.isArray(out.god.micro.seen)?out.god.micro.seen.slice(-50):[];out.god.performance=Object.assign({velocity:0,duration:0,timing:0,pedal:0,velocityConsistency:0,durationConsistency:0,timingConsistency:0,chordTightness:0,dynamicsRange:0,balance:50,score:0,sessions:[]},out.god.performance||{});out.god.performance.sessions=Array.isArray(out.god.performance.sessions)?out.god.performance.sessions.slice(-30):[];out.god.library=Array.isArray(out.god.library)?out.god.library.slice(-100):[];out.repertoireProgress=(s.repertoireProgress&&typeof s.repertoireProgress==='object')?s.repertoireProgress:{};out.repertoireMilestones=(s.repertoireMilestones&&typeof s.repertoireMilestones==='object')?s.repertoireMilestones:{};out.repertoireSessions=(s.repertoireSessions&&typeof s.repertoireSessions==='object')?s.repertoireSessions:{};out.theory=(s.theory&&typeof s.theory==='object')?s.theory:{completed:{},xp:0};out.theory.completed=(out.theory.completed&&typeof out.theory.completed==='object')?out.theory.completed:{};out.theory.xp=Math.max(0,Number(out.theory.xp)||0);return out}
 let storageWarningShown=false;
 function saveState(){
  let ok=false,snapshot='';
@@ -976,48 +976,71 @@ function expandRepertoirePiece(piece){
 repertoireLibrary.forEach(expandRepertoirePiece);
 
 const vocalSongCatalog=[
+ {title:'Garota de Ipanema',artist:'Tom Jobim / versiones vocales',genre:'Brasil · Bossa nova',query:'Garota de Ipanema vocal official'},
+ {title:'Águas de Março',artist:'Elis Regina & Tom Jobim',genre:'Brasil · MPB',query:'Elis Regina Tom Jobim Aguas de Marco official'},
+ {title:'Evidências',artist:'Chitãozinho & Xororó',genre:'Brasil · Sertanejo',query:'Chitãozinho Xororó Evidências oficial'},
+ {title:'Aquarela',artist:'Toquinho',genre:'Brasil · MPB',query:'Toquinho Aquarela música oficial'},
+ {title:'Asa Branca',artist:'Luiz Gonzaga',genre:'Brasil · Forró',query:'Luiz Gonzaga Asa Branca oficial'},
+ {title:'Anunciação',artist:'Alceu Valença',genre:'Brasil · MPB',query:'Alceu Valença Anunciação oficial'},
+ {title:'País Tropical',artist:'Jorge Ben Jor',genre:'Brasil · Samba-rock',query:'Jorge Ben Jor País Tropical oficial'},
+ {title:'Mas que Nada',artist:'Jorge Ben Jor',genre:'Brasil · Samba',query:'Jorge Ben Jor Mas que Nada oficial'},
+ {title:'O Leãozinho',artist:'Caetano Veloso',genre:'Brasil · MPB',query:'Caetano Veloso O Leãozinho oficial'},
+ {title:'Trem das Onze',artist:'Adoniran Barbosa',genre:'Brasil · Samba',query:'Adoniran Barbosa Trem das Onze oficial'},
+ {title:'Sozinho',artist:'Caetano Veloso',genre:'Brasil · MPB',query:'Caetano Veloso Sozinho oficial'},
+ {title:'Deixa Acontecer',artist:'Grupo Revelação',genre:'Brasil · Pagode',query:'Grupo Revelação Deixa Acontecer oficial'},
+ {title:'Cheia de Manias',artist:'Raça Negra',genre:'Brasil · Pagode',query:'Raça Negra Cheia de Manias oficial'},
+ {title:'Não Quero Dinheiro',artist:'Tim Maia',genre:'Brasil · Soul / MPB',query:'Tim Maia Não Quero Dinheiro oficial'},
+ {title:'Garota Nacional',artist:'Skank',genre:'Brasil · Pop rock',query:'Skank Garota Nacional oficial'},
+ {title:'Anna Júlia',artist:'Los Hermanos',genre:'Brasil · Pop rock',query:'Los Hermanos Anna Julia oficial'},
+ {title:'Sina',artist:'Djavan',genre:'Brasil · MPB',query:'Djavan Sina oficial'},
+ {title:'Velha Infância',artist:'Tribalistas',genre:'Brasil · Pop',query:'Tribalistas Velha Infância oficial'},
  {title:'(I Can’t Get No) Satisfaction',artist:'The Rolling Stones',genre:'Rock',query:'The Rolling Stones Satisfaction official audio'},
  {title:'Start Me Up',artist:'The Rolling Stones',genre:'Rock',query:'The Rolling Stones Start Me Up official video'},
  {title:'Angie',artist:'The Rolling Stones',genre:'Rock',query:'The Rolling Stones Angie official video'},
- {title:'Let It Be',artist:'The Beatles',genre:'Pop',query:'The Beatles Let It Be official video'},
- {title:'Hey Jude',artist:'The Beatles',genre:'Pop',query:'The Beatles Hey Jude official video'},
+ {title:'Paint It, Black',artist:'The Rolling Stones',genre:'Rock',query:'The Rolling Stones Paint It Black official audio'},
+ {title:'Wild Horses',artist:'The Rolling Stones',genre:'Rock',query:'The Rolling Stones Wild Horses official audio'},
+ {title:'Let It Be',artist:'The Beatles',genre:'Pop rock',query:'The Beatles Let It Be official video'},
+ {title:'Hey Jude',artist:'The Beatles',genre:'Pop rock',query:'The Beatles Hey Jude official video'},
  {title:'Imagine',artist:'John Lennon',genre:'Pop',query:'John Lennon Imagine official video'},
  {title:'De música ligera',artist:'Soda Stereo',genre:'Rock en español',query:'Soda Stereo De música ligera video oficial'},
  {title:'Persiana americana',artist:'Soda Stereo',genre:'Rock en español',query:'Soda Stereo Persiana americana video oficial'},
  {title:'Lamento boliviano',artist:'Enanitos Verdes',genre:'Rock en español',query:'Enanitos Verdes Lamento boliviano video oficial'},
  {title:'La flaca',artist:'Jarabe de Palo',genre:'Rock en español',query:'Jarabe de Palo La flaca video oficial'},
- {title:'Garota de Ipanema',artist:'Tom Jobim / versiones vocales',genre:'Brasil',query:'Garota de Ipanema vocal song'},
- {title:'Evidências',artist:'Chitãozinho & Xororó',genre:'Brasil',query:'Chitãozinho Xororó Evidências official video'},
- {title:'Aquarela',artist:'Toquinho',genre:'Brasil',query:'Toquinho Aquarela música oficial'},
- {title:'Asa Branca',artist:'Luiz Gonzaga',genre:'Brasil',query:'Luiz Gonzaga Asa Branca original'},
- {title:'Deixa Acontecer',artist:'Grupo Revelação',genre:'Brasil',query:'Grupo Revelação Deixa Acontecer oficial'},
  {title:'La vida es un carnaval',artist:'Celia Cruz',genre:'Latino',query:'Celia Cruz La vida es un carnaval official video'},
  {title:'Matador',artist:'Los Fabulosos Cadillacs',genre:'Latino',query:'Los Fabulosos Cadillacs Matador video oficial'},
- {title:'Persiana americana / rock en vivo',artist:'Soda Stereo',genre:'Rock en español',query:'Soda Stereo Persiana americana en vivo'},
  {title:'Cumbia sobre el río',artist:'Celso Piña',genre:'Cumbia',query:'Celso Piña Cumbia sobre el río official'},
  {title:'Nunca me faltes',artist:'Antonio Ríos',genre:'Cumbia',query:'Antonio Ríos Nunca me faltes'},
  {title:'Bombón asesino',artist:'Los Palmeras',genre:'Cumbia',query:'Los Palmeras Bombón asesino video oficial'},
  {title:'Cómo te voy a olvidar',artist:'Los Ángeles Azules',genre:'Cumbia',query:'Los Ángeles Azules Cómo te voy a olvidar official'},
+ {title:'La pollera amarilla',artist:'Gladys La Bomba Tucumana',genre:'Cumbia',query:'Gladys La Bomba Tucumana La Pollera Amarilla official video'},
  {title:'Jailhouse Rock',artist:'Elvis Presley',genre:'Rock and roll',query:'Elvis Presley Jailhouse Rock official video'},
  {title:'Johnny B. Goode',artist:'Chuck Berry',genre:'Rock and roll',query:'Chuck Berry Johnny B Goode official audio'},
- {title:'Paint It, Black',artist:'The Rolling Stones',genre:'Rock',query:'The Rolling Stones Paint It Black official audio'},
- {title:'Wild Horses',artist:'The Rolling Stones',genre:'Rock',query:'The Rolling Stones Wild Horses official audio'},
- {title:'You Can’t Always Get What You Want',artist:'The Rolling Stones',genre:'Rock',query:'The Rolling Stones You Cant Always Get What You Want official audio'},
  {title:'Wonderwall',artist:'Oasis',genre:'Pop rock',query:'Oasis Wonderwall official video'},
  {title:'Three Little Birds',artist:'Bob Marley & The Wailers',genre:'Reggae',query:'Bob Marley Three Little Birds official video'},
  {title:'Oye cómo va',artist:'Santana',genre:'Latino / rock',query:'Santana Oye Como Va official audio'},
- {title:'País tropical',artist:'Jorge Ben Jor',genre:'Brasil',query:'Jorge Ben Jor País Tropical official audio'},
- {title:'El murguero',artist:'Los Auténticos Decadentes',genre:'Cumbia / ska',query:'Los Autenticos Decadentes El Murguero official video'},
- {title:'La pollera amarilla',artist:'Gladys La Bomba Tucumana',genre:'Cumbia',query:'Gladys La Bomba Tucumana La Pollera Amarilla official video'}
+ {title:'El murguero',artist:'Los Auténticos Decadentes',genre:'Cumbia / ska',query:'Los Autenticos Decadentes El Murguero official video'}
 ];
+let activeVocalSong=null;
+function playVocalSong(index){
+ const song=vocalSongCatalog[Number(index)];
+ if(!song)return;
+ activeVocalSong=song;
+ const player=document.getElementById('vocalSongPlayer');
+ const title=document.getElementById('vocalSongNow');
+ if(title)title.textContent='Seleccionada: '+song.title+' — '+song.artist;
+ if(player){
+  player.innerHTML='<iframe title="Reproductor de '+song.title.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" width="100%" height="230" src="https://www.youtube.com/embed?listType=search&list='+encodeURIComponent(song.query)+'" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe><p class="muted smalllabel">El reproductor intenta mostrar resultados de búsqueda para la canción elegida. Si el servicio no permite reproducirlos dentro de la app, elegí otra versión disponible.</p>';
+  player.scrollIntoView({behavior:'smooth',block:'nearest'});
+ }
+}
 function filterVocalSongs(value){
  const q=String(value||'').toLocaleLowerCase();
  document.querySelectorAll('[data-vocal-song]').forEach(el=>{el.style.display=el.dataset.vocalSong.includes(q)?'':'none'});
 }
 function repertoireLibraryView(){
  const total=repertoireLibrary.length;
- const vocalCards=vocalSongCatalog.map(song=>{const search=encodeURIComponent(song.query);const hay=(song.title+' '+song.artist+' '+song.genre).toLocaleLowerCase().replace(/"/g,'&quot;');return '<div data-vocal-song="'+hay+'" class="vocalSongCard"><div><b>'+song.title+'</b><div class="repMeta">'+song.artist+' · '+song.genre+'</div></div><a class="btn" href="https://www.youtube.com/results?search_query='+search+'" target="_blank" rel="noopener noreferrer">▶ Escuchar con voz</a></div>'}).join('');
- return '<div class="card"><h2>Biblioteca de canciones</h2><div class="note-box"><h3>🎤 Canciones conocidas con voz</h3><p>Elegí una canción para abrir versiones cantadas en YouTube. Podés escucharla y tocar el piano al mismo tiempo. <b>El audio se reproduce en YouTube, no dentro de la app</b>, y todavía no está sincronizado automáticamente con las notas del piano.</p><input aria-label="Buscar canción cantada" type="search" placeholder="Buscar canción, artista o género…" oninput="filterVocalSongs(this.value)" style="width:100%;box-sizing:border-box;margin:8px 0 12px;padding:12px;border-radius:10px;border:1px solid var(--border,#bbb);font:inherit"><div class="vocalSongList">'+vocalCards+'</div><p class="muted smalllabel">Si hay varias versiones, YouTube mostrará los resultados para que elijas la que prefieras.</p></div><div class="note-box"><h3>🎹 Canciones para practicar dentro de la app</h3><p class="muted"><b>'+total+' piezas de práctica</b>, con frases ampliadas y niveles progresivos. Son melodías didácticas originales, no transcripciones de las canciones comerciales de arriba.</p><div class="repertoireLibrary">'+repertoireLibrary.map(r=>{const pct=state?.repertoireProgress?.[r.id]||0;return '<div class="repCard" role="group"><h3>'+r.title+'</h3><div class="repMeta">Nivel '+r.level+' · '+r.focus+' · ♩='+r.tempo+'</div><div class="repSkill">'+r.tags.map(t=>'<span class="repTag">'+t+'</span>').join('')+'</div><div class="repProgress"><span style="width:'+pct+'%"></span></div><div class="repMeta">'+(pct>=100?'✓ Completada':pct>0?pct+'% practicado':'Lista para empezar')+'</div><button class="btn primary" type="button" onclick="selectLibraryPiece(\''+r.id+'\')">'+(pct?'Continuar canción':'▶ Empezar canción')+'</button></div>'}).join('')+'</div></div></div>';
+ const vocalOptions=vocalSongCatalog.map((song,i)=>'<option value="'+i+'">'+song.title+' — '+song.artist+' ['+song.genre+']</option>').join('');
+ return '<div class="card"><h2>Biblioteca de canciones</h2><div class="note-box"><h3>🎤 Elegí una canción conocida con voz</h3><p>Seleccioná un tema brasileño, internacional, rock, cumbia o rock and roll. El reproductor aparece dentro de esta pantalla; no tenés que salir de la aplicación para buscarlo. La disponibilidad del audio depende del servicio de video.</p><label for="vocalSongSelect"><b>Canción:</b></label><select id="vocalSongSelect" style="width:100%;box-sizing:border-box;margin:8px 0 12px;padding:12px;border-radius:10px;border:1px solid var(--border,#bbb);font:inherit" onchange="playVocalSong(this.value)"><option value="">Elegí una canción…</option>'+vocalOptions+'</select><div id="vocalSongNow" class="target">Todavía no elegiste una canción.</div><div id="vocalSongPlayer" style="margin-top:12px"></div><p class="muted smalllabel">Importante: este reproductor es para escuchar la canción original; todavía no sincroniza automáticamente la voz con las notas del piano.</p></div><div class="note-box"><h3>🎹 Canciones para practicar dentro de la app</h3><p class="muted"><b>'+total+' piezas didácticas</b>, ampliadas para practicar frases más largas, con niveles progresivos. Son melodías originales de práctica, no transcripciones exactas de temas comerciales.</p><div class="repertoireLibrary">'+repertoireLibrary.map(r=>{const pct=state?.repertoireProgress?.[r.id]||0;return '<div class="repCard" role="group"><h3>'+r.title+'</h3><div class="repMeta">Nivel '+r.level+' · '+r.focus+' · ♩='+r.tempo+'</div><div class="repSkill">'+r.tags.map(t=>'<span class="repTag">'+t+'</span>').join('')+'</div><div class="repProgress"><span style="width:'+pct+'%"></span></div><div class="repMeta">'+(pct>=100?'✓ Completada':pct>0?pct+'% practicado':'Lista para empezar')+'</div><button class="btn primary" type="button" onclick="selectLibraryPiece(\''+r.id+'\')">'+(pct?'Continuar canción':'▶ Empezar canción')+'</button></div>'}).join('')+'</div></div></div>';
 }
 function selectLibraryPiece(id){const r=repertoireLibrary.find(x=>x.id===id);if(!r)return;stopRepertoirePulse();repertoirePiece=r;const saved=(state.repertoireMilestones&&state.repertoireMilestones[id])||{};const session=(state.repertoireSessions&&state.repertoireSessions[id])||{};repertoireStage=saved.play?3:(saved.read?1:0);repertoireInput=[];repertoireTimes=[];repertoireStarted=false;repertoireStart=0;repertoireAwarded=!!saved.play;repertoireLearnActive=false;repertoireReadActive=false;repertoireLearnIndex=0;repertoireReadIndex=0;renderRepertoire();window.scrollTo({top:0,behavior:'smooth'});if(session.mode==='learn'&&!saved.learn){repertoireLearnIndex=Math.max(0,Math.min(r.notes.length,Number(session.index)||0));repertoireLearnToken++;repertoireLearnActive=true;showRepertoireLearnTarget(repertoireLearnToken);toast('Retomando aprendizaje desde la nota '+(repertoireLearnIndex+1)+'.')}else if(session.mode==='read'&&!saved.read){repertoireReadIndex=Math.max(0,Math.min(r.notes.length,Number(session.index)||0));repertoireReadToken++;repertoireReadActive=true;showRepertoireReadTarget(repertoireReadToken);toast('Retomando lectura desde la nota '+(repertoireReadIndex+1)+'.')}else if(session.mode==='play'&&!saved.play){repertoireInput=r.notes.slice(0,Math.max(0,Math.min(r.notes.length,Number(session.index)||0)));repertoireTimes=[];const c=document.getElementById('repertoireCount');if(c)c.textContent=repertoireInput.length+' / '+r.notes.length;const m=document.getElementById('repertoireMsg');if(m)m.textContent='Retomaste desde donde habías llegado. Para seguir, pulsá «Continuar interpretación»; el pulso y la evaluación rítmica comenzarán de nuevo.';toast('Progreso recuperado: '+repertoireInput.length+' notas de '+r.notes.length+'.')}else toast(saved.play?'Pieza completada: retomás en autonomía.':saved.read?'Progreso recuperado: lectura completada.':saved.learn?'Progreso recuperado: aprendizaje de notas completado.':'Pieza seleccionada: '+r.title);}
 function saveRepertoireSession(mode,index){if(!repertoirePiece)return;state.repertoireSessions=state.repertoireSessions||{};const id=repertoirePiece.id;state.repertoireSessions[id]={mode,index:Math.max(0,Number(index)||0),updatedAt:new Date().toISOString()};saveState();const status=document.getElementById('repertoireSavedStatus');if(status)status.textContent='✓ Guardado automático · '+(Number(index)||0)+' notas realizadas';}
