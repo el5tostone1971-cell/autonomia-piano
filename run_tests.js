@@ -80,6 +80,26 @@
  // Deep structural diagnostics.
  try{show('settings');const d=runDeepDiag();const bad=d.filter(x=>!x.ok&&x.detail!=='opcional según navegador');assert(!bad.length,'fallos: '+bad.map(x=>x.name).join(', '));pass('Autodiagnóstico profundo','sin fallos estructurales')}catch(e){fail('Autodiagnóstico profundo',e)}
 
+ // Persistence regression: simulate closing/reopening the app using the same browser storage.
+ try{
+  localStorage.clear();
+  state=normalizeState(clone(defaultState));
+  state.day=4;state.lessons={l1:true,l2:true,l3:true};
+  state.repertoireProgress={rp1:50,rp2:25};
+  state.repertoireMilestones={rp1:{learn:true,read:true}};
+  state.repertoireSessions={rp2:{mode:'learn',index:4,updatedAt:new Date().toISOString()}};
+  saveState();
+  const savedRaw=localStorage.getItem(KEY);
+  assert(!!savedRaw,'saveState no escribió la clave principal');
+  state=normalizeState(clone(defaultState)); // representa una nueva carga de la aplicación
+  state=loadState();
+  assert(state.lessons.l1===true&&state.lessons.l3===true,'no restauró las lecciones completadas');
+  assert(state.repertoireProgress.rp1===50&&state.repertoireProgress.rp2===25,'no restauró el porcentaje del repertorio');
+  assert(state.repertoireMilestones.rp1.learn===true&&state.repertoireMilestones.rp1.read===true,'no restauró los hitos de canción');
+  assert(state.repertoireSessions.rp2.mode==='learn'&&state.repertoireSessions.rp2.index===4,'no restauró la sesión de canción en curso');
+  pass('Persistencia tras recarga','lecciones, porcentaje, hitos y sesión del repertorio sobreviven al reinicio');
+ }catch(e){fail('Persistencia tras recarga',e)}
+
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
