@@ -960,6 +960,11 @@ const repertoireLibrary=[
  {id:'rp13',title:'Cumbia de Pipa',level:2,focus:'Cumbia · acentos y patrón repetitivo',tempo:100,notes:[64,64,67,69,67,64,62,62,65,67,65,62],dur:[0.5,0.5,1,1,1,1,0.5,0.5,1,1,1,2],tags:['Cumbia','Acentos','Original']},
  {id:'rp14',title:'Rock and Roll 12',level:3,focus:'Rock and roll · energía y frase de blues',tempo:120,notes:[60,63,65,66,67,66,65,63,60,67,65,63],dur:[0.5,0.5,1,0.5,0.5,1,0.5,0.5,1,1,1,2],tags:['Rock and roll','Blues','Original']},
  {id:'rp15',title:'Ginga Pop',level:3,focus:'Brasil + pop · melodía y coordinación',tempo:104,notes:[62,64,67,69,71,69,67,64,62,60],dur:[1,1,0.5,0.5,1,1,1,1,1,2],tags:['Brasil','Pop','Dos manos','Original']}
+,
+ {id:'rp16',title:'Bossa de Pipa · Estudo longo',level:2,focus:'Bossa nova original · fraseo y síncopa',tempo:84,notes:[60,64,67,69,67,64,62,64,65,69,72,69,67,65,64,60,60,64,67,69,72,69,67,64,62,64,65,67,69,65,64,60],dur:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2],tags:["Brasil","Bossa nova","32 notas","Original"]},
+ {id:'rp17',title:'Samba do Farol · Estudo longo',level:2,focus:'Samba original · pulso y articulación',tempo:100,notes:[60,62,64,67,64,62,60,64,67,69,67,64,62,64,67,72,69,67,64,62,60,62,64,67,69,67,64,62,64,60,62,60],dur:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2],tags:["Brasil","Samba","32 notas","Original"]},
+ {id:'rp18',title:'Cumbia de la Laguna · Estudo longo',level:3,focus:'Cumbia original · repetición y acentos',tempo:96,notes:[64,64,67,69,67,64,62,62,65,67,65,62,64,64,67,69,72,69,67,64,62,62,65,67,65,62,64,67,69,67,64,62],dur:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2],tags:["Cumbia","Acentos","32 notas","Original"]},
+ {id:'rp19',title:'Rock de la Falésia · Estudo longo',level:3,focus:'Rock and roll original · riff y frase de blues',tempo:112,notes:[60,63,65,66,67,66,65,63,60,60,63,65,67,65,63,60,67,67,69,67,65,63,60,63,65,66,67,66,65,63,60,60],dur:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2],tags:["Rock and roll","Blues","32 notas","Original"]}
 ];
 
 // Ampliamos cada mini-frase a una pieza con estructura A–B–A–cierre.
@@ -1074,7 +1079,11 @@ function backingTrackChord(piece,bar){
   rp15:[[50,54,57],[47,50,54],[45,48,52],[43,47,50]],
   rp12:[[48,51,55],[48,51,55],[53,57,60],[43,47,50]],
   rp13:[[52,55,59],[45,48,52],[50,53,57],[47,50,54]],
-  rp14:[[48,51,55],[48,51,55],[53,57,60],[43,47,50]]
+  rp14:[[48,51,55],[48,51,55],[53,57,60],[43,47,50]],
+  rp16:[[45,48,52],[50,53,57],[43,47,50],[48,52,55]],
+  rp17:[[48,52,55],[41,45,48],[43,47,50],[48,52,55]],
+  rp18:[[52,55,59],[45,48,52],[50,53,57],[47,50,54]],
+  rp19:[[48,51,55],[48,51,55],[53,57,60],[43,47,50]]
  };
  const defaultProgression=[[48,52,55],[43,47,50],[45,48,52],[41,45,48]];
  return (progressions[piece.id]||defaultProgression)[bar%4];
