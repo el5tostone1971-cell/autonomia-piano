@@ -26,6 +26,31 @@ const assert = require('node:assert/strict');
     assert.match(visibleNote, /Do \(C\).*octava 4/, 'No se muestra el nombre y la octava de la nota');
     const help = await page.locator('#repertoireCurrentNoteHelp').innerText();
     assert.match(help, /SONIDO ACTUAL|Señalamos/i, 'No se muestra la explicación de la nota actual');
+    const targetKey = await page.locator('.keys .key[data-midi="60"]').evaluate(el => ({
+      outline: getComputedStyle(el).outlineWidth,
+      background: getComputedStyle(el).backgroundColor
+    }));
+    assert.equal(targetKey.outline, '6px', 'La tecla objetivo no destaca lo suficiente');
+    assert.equal(targetKey.background, 'rgb(253, 224, 71)', 'La tecla objetivo no tiene el color de alto contraste');
+    await page.locator('#repertoireTempo').evaluate(el => { el.value = '72'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+    assert.equal(await page.locator('#repertoireTempoLabel').innerText(), '72 BPM', 'El control de tempo no actualiza el valor visible');
+
+    // Acortar la pieza solo en esta sesión de prueba para comprobar el cierre automático.
+    await page.evaluate(() => {
+      const piece = repertoireLibrary.find(item => item.id === 'rp10');
+      piece.notes = [60, 62];
+      piece.dur = [0.1, 0.1];
+      selectLibraryPiece('rp10');
+      setRepertoireTempo(140);
+      playFullArrangement();
+    });
+    await page.waitForFunction(() => {
+      const status = document.getElementById('backingTrackStatus');
+      return status && /Terminó la canción/.test(status.textContent);
+    }, null, { timeout: 5000 });
+    const stopped = await page.evaluate(() => ({ backing: backingTrackTimer, guide: fullArrangementTimer }));
+    assert.equal(stopped.backing, null, 'El acompañamiento siguió sonando al terminar la canción');
+    assert.equal(stopped.guide, null, 'El temporizador de la melodía no se limpió al terminar');
 
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
