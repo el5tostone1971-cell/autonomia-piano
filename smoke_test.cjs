@@ -52,6 +52,19 @@ const assert = require('node:assert/strict');
     assert.equal(stopped.backing, null, 'El acompañamiento siguió sonando al terminar la canción');
     assert.equal(stopped.guide, null, 'El temporizador de la melodía no se limpió al terminar');
 
+    await page.evaluate(() => {
+      selectLibraryPiece('rp10');
+      setRepertoireTempo(100);
+      startBandPractice();
+      pressKey(60, 'midi');
+    });
+    assert.match(await page.locator('#repertoireCurrentNoteName').innerText(), /Re \(D\)/, 'La nota objetivo no avanzó después de tocar la nota correcta');
+    await page.evaluate(() => pressKey(62, 'midi'));
+    await page.waitForFunction(() => /Práctica terminada/.test(document.getElementById('backingTrackStatus')?.textContent || ''));
+    const practiceResult = await page.evaluate(() => ({ count: repertoireInput.length, backing: backingTrackTimer }));
+    assert.equal(practiceResult.count, 2, 'La práctica con banda no registró las notas tocadas');
+    assert.equal(practiceResult.backing, null, 'El acompañamiento no se detuvo al completar la canción');
+
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
