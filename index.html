@@ -1103,10 +1103,18 @@ function backingTrackChord(piece,bar){
 }
 function backingOsc(freq,duration,type,volume,when){
  const c=audio();if(!c)return;
- const o=c.createOscillator(),g=c.createGain();o.type=type||'triangle';o.frequency.setValueAtTime(freq,when);
- g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(Math.max(.001,volume),when+.012);
+ // Timbre sintetizado con cuerpo y armónicos suaves: más definición sin fingir que son muestras grabadas.
+ const o=c.createOscillator(),g=c.createGain(),filter=c.createBiquadFilter();
+ o.type=type||'triangle';o.frequency.setValueAtTime(freq,when);
+ filter.type='lowpass';filter.frequency.setValueAtTime(Math.min(5200,Math.max(900,freq*5)),when);filter.Q.value=.65;
+ g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(Math.max(.001,volume),when+.008);
  g.gain.exponentialRampToValueAtTime(.0001,when+Math.max(.06,duration));
- o.connect(g).connect(c.destination);o.start(when);o.stop(when+Math.max(.08,duration)+.02);
+ o.connect(filter).connect(g).connect(c.destination);o.start(when);o.stop(when+Math.max(.08,duration)+.02);
+ // Armónico discreto que da más presencia a acordes y bajo, con un ataque corto.
+ const partial=c.createOscillator(),pg=c.createGain();partial.type='sine';partial.frequency.setValueAtTime(freq*2,when);
+ pg.gain.setValueAtTime(.0001,when);pg.gain.exponentialRampToValueAtTime(Math.max(.0005,volume*.13),when+.006);
+ pg.gain.exponentialRampToValueAtTime(.0001,when+Math.max(.045,duration*.55));
+ partial.connect(pg).connect(c.destination);partial.start(when);partial.stop(when+Math.max(.06,duration*.6)+.02);
 }
 function backingKick(when){
  const c=audio();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(115,when);o.frequency.exponentialRampToValueAtTime(42,when+.13);g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(.35,when+.008);g.gain.exponentialRampToValueAtTime(.0001,when+.16);o.connect(g).connect(c.destination);o.start(when);o.stop(when+.18);
