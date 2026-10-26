@@ -1153,8 +1153,8 @@ function startBandPractice(){
  repertoireInput=[];repertoireTimes=[];repertoireStarted=true;repertoireStart=performance.now();
  const count=document.getElementById('repertoireCount');if(count)count.textContent='0 / '+repertoirePiece.notes.length;
  const msg=document.getElementById('repertoireMsg');if(msg)msg.textContent='Práctica con banda: tocá las notas de la canción en orden con tu teclado real. Si te detenés, el acompañamiento se apaga automáticamente tras 15 segundos.';
- updateRepertoirePracticeTarget();
  startBackingTrack(true);
+ updateRepertoirePracticeTarget();
  const status=document.getElementById('backingTrackStatus');if(status)status.textContent='Práctica activa · '+getRepertoireTempo()+' BPM · tocá con tu teclado real';
 }
 function updateRepertoirePracticeTarget(){
@@ -1203,7 +1203,7 @@ async function playFullArrangement(){
 function stopFullArrangement(){fullArrangementToken++;if(fullArrangementTimer){clearTimeout(fullArrangementTimer);fullArrangementTimer=null}}
 function stopBackingTrack(){
  clearBackingIdleTimer();stopFullArrangement();backingTrackToken++;if(backingTrackTimer){clearTimeout(backingTrackTimer);backingTrackTimer=null}
- document.querySelectorAll('.keys .key').forEach(k=>{k.style.outline='';k.style.boxShadow='';k.style.transform=''});
+ document.querySelectorAll('.keys .key').forEach(k=>{k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex='';k.style.background='';k.style.color=''});
  const status=document.getElementById('backingTrackStatus');if(status)status.textContent='Todo el audio detenido';
 }
 
