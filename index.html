@@ -1166,16 +1166,23 @@ function backingTrackStep(token){
  const chord=backingTrackChord(p,bar),bassRoot=chord[0]-12;
  // Bajo constante para sostener la armonía y ayudar a anticipar los cambios.
  backingOsc(midiToFreq(bassRoot+(beat===2?7:0)),unit/1000*.72,'triangle',.13,when);
- // Acordes rítmicos: golpes cortos, alternados para que la melodía del alumno siga destacándose.
- if(p.id==='rp10'||p.id==='rp15'){
-   if(beat===0||beat===2){chord.forEach((n,j)=>backingOsc(midiToFreq(n+12),unit/1000*.34,'triangle',.045,when+.01));}
-   else if(beat===1||beat===3){chord.forEach((n,j)=>backingOsc(midiToFreq(n+12),unit/1000*.20,'sine',.035,when+.01));}
- }else{
-   if(beat===0||beat===2)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.42,'triangle',.055,when+.01));
+ // Acordes con patrón propio según el estilo: síncopa brasileña, empuje de cumbia o rock.
+ const brazil=['rp10','rp15','rp16','rp17'].includes(p.id);
+ const cumbia=['rp13','rp18'].includes(p.id);
+ if(brazil){
+   if(beat===0||beat===2)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.32,'triangle',.045,when+.01));
+   else chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.18,'sine',.032,when+.01));
+ }else if(cumbia){
+   if(beat===0||beat===2)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.30,'triangle',.05,when+.01));
+   if(beat===1||beat===3)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.16,'sine',.026,when+.01));
+ }else if(beat===0||beat===2){
+   chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.42,'triangle',.055,when+.01));
  }
  if(beat===0||beat===2)backingKick(when);
  if(beat===1||beat===3)backingSnare(when);
- backingHat(when);if(p.id==='rp10'||p.id==='rp15')setTimeout(()=>{if(token===backingTrackToken)backingHat(audio().currentTime)},Math.max(10,unit/2));
+ backingHat(when);
+ // Golpe intermedio para que samba/bossa y cumbia no suenen como un metrónomo genérico.
+ if(brazil||cumbia)setTimeout(()=>{if(token===backingTrackToken)backingHat(audio().currentTime)},Math.max(10,unit/2));
  const status=document.getElementById('backingTrackStatus');
  if(status)status.textContent='Acompañamiento · compás '+(bar+1)+' · pulso '+(beat+1)+' · '+getRepertoireTempo()+' BPM';
  backingTrackBeat++;if(backingTrackBeat>=4){backingTrackBeat=0;backingTrackBar=(backingTrackBar+1)%8}
