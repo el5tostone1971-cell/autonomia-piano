@@ -1201,7 +1201,11 @@ function updateRepertoirePracticeTarget(){
  keys.forEach(k=>{const midi=Number(k.dataset.midi),match=midi===n;k.style.outline=match?'6px solid #f59e0b':'';k.style.boxShadow=match?'0 0 0 4px #111827, 0 0 26px 10px #f59e0b':'';k.style.transform=match?'translateY(-8px) scale(1.08)':'';k.style.zIndex=match?'50':'';k.style.background=match?'#fde047':'';k.style.color=match?'#111827':''});
 }
 function startBackingTrack(watchForSilence=true){
- if(!repertoirePiece)return;stopBackingTrack();const c=audio();if(!c)return;
+ if(!repertoirePiece)return;
+ // Cambiar al acompañamiento cancela cualquier melodía guía o ejercicio anterior.
+ repertoireDemoToken++;repertoireLearnToken++;repertoireReadToken++;repertoireLearnActive=false;repertoireReadActive=false;
+ stopRepertoirePulse();stopBackingTrack();
+ const c=audio();if(!c)return;
  backingTrackBar=0;backingTrackBeat=0;const token=++backingTrackToken;
  const status=document.getElementById('backingTrackStatus');if(status)status.textContent='Preparando pista original…';
  if(status)status.textContent='Sonando: bajo + acordes + batería · tocá tu melodía encima';
