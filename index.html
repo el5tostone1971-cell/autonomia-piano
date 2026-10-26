@@ -960,11 +960,9 @@ function expandRepertoirePiece(piece){
  const base=piece.notes.slice(),baseDur=piece.dur.slice();
  if(base.length<16){
   const n=base.length;
-  const phraseB=base.map((note,i)=>{
-   const prev=base[(i+1)%n], next=base[(i+2)%n];
-   // Variación pequeña y tonal: alterna notas del motivo sin crear saltos extremos.
-   return i%4===1?prev:(i%4===3?next:note);
-  });
+  // Repetimos el motivo completo en vez de desplazar notas al azar:
+  // las falsas permutaciones hacían que la frase sonara accidental y difícil de memorizar.
+  const phraseB=base.slice();
   const ending=base.slice().reverse().map((note,i)=>i===base.length-1?base[0]:note);
   piece.notes=[...base,...phraseB,...base,...ending];
   piece.dur=[...baseDur,...baseDur,...baseDur,...baseDur];
