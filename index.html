@@ -1425,4 +1425,9 @@ function exportArchitecturePackage(){const snap=autonomiaSnapshot();queueSyncEve
 /* ===== END v39 PRODUCT ARCHITECTURE ===== */
 
 applyPianoLanguage();
+// Restaurar también el respaldo IndexedDB al iniciar. La función de recuperación existía,
+// pero no se invocaba: si localStorage fallaba, el respaldo quedaba sin leer.
+restoreProgressIndexedDB().then(result=>{
+ if(result&&result.restored)console.info('[Autonomía Piano] Progreso recuperado del respaldo local independiente.');
+}).catch(error=>console.warn('[Autonomía Piano] Recuperación de respaldo no disponible:',error));
 </script><div id="v25ProductFooter" style="max-width:1180px;margin:28px auto 18px;padding:14px 18px;color:#8fa4bc;font-size:12px;text-align:center;border-top:1px solid #203550">Autonomía Piano v40.7 · Método de Autonomía Progresiva · Teoría integrada · Cuenta opcional · Monetización sin cobrar al alumno.</div></body></html>
