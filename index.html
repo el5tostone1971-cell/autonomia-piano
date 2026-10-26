@@ -952,9 +952,34 @@ const repertoireLibrary=[
  {id:'rp14',title:'Rock and Roll 12',level:3,focus:'Rock and roll · energía y frase de blues',tempo:120,notes:[60,63,65,66,67,66,65,63,60,67,65,63],dur:[0.5,0.5,1,0.5,0.5,1,0.5,0.5,1,1,1,2],tags:['Rock and roll','Blues','Original']},
  {id:'rp15',title:'Ginga Pop',level:3,focus:'Brasil + pop · melodía y coordinación',tempo:104,notes:[62,64,67,69,71,69,67,64,62,60],dur:[1,1,0.5,0.5,1,1,1,1,1,2],tags:['Brasil','Pop','Dos manos','Original']}
 ];
+
+// Ampliamos cada mini-frase a una pieza con estructura A–B–A–cierre.
+// Conserva la identidad del motivo original, pero evita que las canciones duren apenas unos segundos.
+function expandRepertoirePiece(piece){
+ if(piece._expanded)return piece;
+ const base=piece.notes.slice(),baseDur=piece.dur.slice();
+ if(base.length<16){
+  const n=base.length;
+  const phraseB=base.map((note,i)=>{
+   const prev=base[(i+1)%n], next=base[(i+2)%n];
+   // Variación pequeña y tonal: alterna notas del motivo sin crear saltos extremos.
+   return i%4===1?prev:(i%4===3?next:note);
+  });
+  const ending=base.slice().reverse().map((note,i)=>i===base.length-1?base[0]:note);
+  piece.notes=[...base,...phraseB,...base,...ending];
+  piece.dur=[...baseDur,...baseDur,...baseDur,...baseDur];
+ }else if(base.length<24){
+  piece.notes=[...base,...base.slice().reverse(),...base];
+  piece.dur=[...baseDur,...baseDur.slice().reverse(),...baseDur];
+ }
+ piece._expanded=true;
+ return piece;
+}
+repertoireLibrary.forEach(expandRepertoirePiece);
+
 function repertoireLibraryView(){
- const xp=state?.xp||0; const unlocked=Math.max(5,Math.min(repertoireLibrary.length,1+Math.floor(xp/120)));
- return `<div class="card"><h2>Biblioteca progresiva</h2><p class="muted">Piezas originales ordenadas por dificultad. Cada una trabaja una competencia distinta.</p><div class="repertoireLibrary">${repertoireLibrary.map((r,i)=>{const ok=i<unlocked; const pct=state?.repertoireProgress?.[r.id]||0; return `<div class="repCard ${ok?'':'repLocked'}" ${ok?`role="button" tabindex="0" style="cursor:pointer" onclick="selectLibraryPiece('${r.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectLibraryPiece('${r.id}')}"`:''}><h3>${r.title}</h3><div class="repMeta">Nivel ${r.level} · ${r.focus} · ♩=${r.tempo}</div><div class="repSkill">${r.tags.map(t=>`<span class="repTag">${t}</span>`).join('')}</div><div class="repProgress"><span style="width:${pct}%"></span></div><div class="repMeta">${ok?`${pct}% consolidado`:'🔒 Seguí avanzando en el curso'}</div><button class="btn" ${ok?'':'disabled'} onclick="event.stopPropagation();selectLibraryPiece('${r.id}')">${pct?'Continuar':'Entrenar'}</button></div>`}).join('')}</div></div>`;
+ const unlocked=repertoireLibrary.length;
+ return `<div class="card"><h2>Biblioteca progresiva</h2><p class="muted">15 piezas originales disponibles desde el principio, ordenadas por dificultad. Cada una trabaja una competencia distinta; las melodías tienen varias frases para practicar de verdad.</p><div class="repertoireLibrary">${repertoireLibrary.map((r,i)=>{const ok=i<unlocked; const pct=state?.repertoireProgress?.[r.id]||0; return `<div class="repCard ${ok?'':'repLocked'}" ${ok?`role="button" tabindex="0" style="cursor:pointer" onclick="selectLibraryPiece('${r.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectLibraryPiece('${r.id}')}"`:''}><h3>${r.title}</h3><div class="repMeta">Nivel ${r.level} · ${r.focus} · ♩=${r.tempo}</div><div class="repSkill">${r.tags.map(t=>`<span class="repTag">${t}</span>`).join('')}</div><div class="repProgress"><span style="width:${pct}%"></span></div><div class="repMeta">${ok?`${pct}% consolidado`:'🔒 Seguí avanzando en el curso'}</div><button class="btn" ${ok?'':'disabled'} onclick="event.stopPropagation();selectLibraryPiece('${r.id}')">${pct?'Continuar':'Entrenar'}</button></div>`}).join('')}</div></div>`;
 }
 function selectLibraryPiece(id){const r=repertoireLibrary.find(x=>x.id===id);if(!r)return;stopRepertoirePulse();repertoirePiece=r;const saved=(state.repertoireMilestones&&state.repertoireMilestones[id])||{};const session=(state.repertoireSessions&&state.repertoireSessions[id])||{};repertoireStage=saved.play?3:(saved.read?1:0);repertoireInput=[];repertoireTimes=[];repertoireStarted=false;repertoireStart=0;repertoireAwarded=!!saved.play;repertoireLearnActive=false;repertoireReadActive=false;repertoireLearnIndex=0;repertoireReadIndex=0;renderRepertoire();window.scrollTo({top:0,behavior:'smooth'});if(session.mode==='learn'&&!saved.learn){repertoireLearnIndex=Math.max(0,Math.min(r.notes.length,Number(session.index)||0));repertoireLearnToken++;repertoireLearnActive=true;showRepertoireLearnTarget(repertoireLearnToken);toast('Retomando aprendizaje desde la nota '+(repertoireLearnIndex+1)+'.')}else if(session.mode==='read'&&!saved.read){repertoireReadIndex=Math.max(0,Math.min(r.notes.length,Number(session.index)||0));repertoireReadToken++;repertoireReadActive=true;showRepertoireReadTarget(repertoireReadToken);toast('Retomando lectura desde la nota '+(repertoireReadIndex+1)+'.')}else if(session.mode==='play'&&!saved.play){repertoireInput=r.notes.slice(0,Math.max(0,Math.min(r.notes.length,Number(session.index)||0)));repertoireTimes=[];const c=document.getElementById('repertoireCount');if(c)c.textContent=repertoireInput.length+' / '+r.notes.length;const m=document.getElementById('repertoireMsg');if(m)m.textContent='Retomaste desde donde habías llegado. Para seguir, pulsá «Continuar interpretación»; el pulso y la evaluación rítmica comenzarán de nuevo.';toast('Progreso recuperado: '+repertoireInput.length+' notas de '+r.notes.length+'.')}else toast(saved.play?'Pieza completada: retomás en autonomía.':saved.read?'Progreso recuperado: lectura completada.':saved.learn?'Progreso recuperado: aprendizaje de notas completado.':'Pieza seleccionada: '+r.title);}
 function saveRepertoireSession(mode,index){if(!repertoirePiece)return;state.repertoireSessions=state.repertoireSessions||{};const id=repertoirePiece.id;state.repertoireSessions[id]={mode,index:Math.max(0,Number(index)||0),updatedAt:new Date().toISOString()};saveState();const status=document.getElementById('repertoireSavedStatus');if(status)status.textContent='✓ Guardado automático · '+(Number(index)||0)+' notas realizadas';}
