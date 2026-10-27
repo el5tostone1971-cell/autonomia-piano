@@ -1273,7 +1273,7 @@ async function playFullArrangement(){
  for(let pass=0;pass<2;pass++)for(let i=0;i<p.notes.length;i++){
   if(token!==fullArrangementToken)return;
   const n=p.notes[i],unit=60000/getRepertoireTempo(),pc=pitchClassName(n),es=({C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'}[pc]||pc);
-  keys.forEach(k=>{k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex='';k.style.background='';k.style.color=''});
+  keys.forEach(k=>{k.classList.remove('target-note');k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
   const key=keys.find(k=>Number(k.dataset.midi)===n);if(key){key.classList.add('target-note');key.style.outline='6px solid #f59e0b';key.style.boxShadow='0 0 0 4px #111827, 0 0 26px 10px #f59e0b';key.style.transform='translateY(-8px) scale(1.08)';key.style.zIndex='50';key.style.background='';key.style.color='';}
   if(nameEl)nameEl.textContent=es+' ('+pc+') · octava '+(Math.floor(n/12)-1);
   if(helpEl)helpEl.textContent='Melodía guía · frase '+(pass+1)+' de 2 · nota '+(i+1)+' de '+p.notes.length+'.';
@@ -1281,7 +1281,7 @@ async function playFullArrangement(){
   tone(n,Math.max(.16,unit*p.dur[i]/1000*.82));await wait(unit*p.dur[i]);
  }
  if(token!==fullArrangementToken)return;
- keys.forEach(k=>{k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex='';k.style.background='';k.style.color=''});
+ keys.forEach(k=>{k.classList.remove('target-note');k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
  stopBackingTrack();
  if(status)status.textContent='✓ Terminó la canción. Se detuvieron la melodía y todos los instrumentos.';
 }
