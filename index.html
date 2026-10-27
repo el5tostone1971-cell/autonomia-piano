@@ -23,6 +23,8 @@
 .keys.repertoireKeys .key.white.active{background:#a996ff !important;color:#202938 !important;}
 .keys:not(.repertoireKeys) .key.black.active,
 .keys.repertoireKeys .key.black.active{background:linear-gradient(180deg,#c8aaff 0%,#8156d9 100%) !important;color:#171025 !important;}
+/* El resaltado de nota objetivo prevalece también cuando la tecla está activa. */
+.keys .key.white.target-note,.keys .key.black.target-note{background:#fde047 !important;color:#111827 !important;outline:6px solid #f59e0b !important;box-shadow:0 0 0 4px #111827,0 0 26px 10px #f59e0b !important;transform:translateY(-8px) scale(1.08);z-index:50 !important;}
 /* Repertorio: teclado completo compacto y partitura legible en filas */
 .keys.repertoireKeys{width:111.12%;height:170px;overflow:hidden;transform:scaleX(.9);transform-origin:top left;}
 .repertoireKeys .key{flex-basis:28px;min-width:0;}
@@ -1255,8 +1257,7 @@ function startBackingTrack(watchForSilence=true){
  stopRepertoirePulse();stopBackingTrack();
  const c=audio();if(!c)return;
  backingTrackBar=0;backingTrackBeat=0;const token=++backingTrackToken;
- const status=document.getElementById('backingTrackStatus');if(status)status.textContent='Preparando pista original…';
- if(status)status.textContent='Sonando: bajo + acordes + batería · tocá tu melodía encima';
+ const status=document.getElementById('backingTrackStatus');if(status)status.textContent='Sonando: bajo + acordes + batería · tocá tu melodía encima';
  backingTrackStep(token);
  if(watchForSilence)resetBackingIdleTimer();
 }
@@ -1351,19 +1352,20 @@ function checkChords(id){if(chordHits.size<4)return toast('Faltan acordes. Detec
 function checkSeparate(id){const r=sepRightInput.join('')==='CDEG',l=sepLeftInput.join('')==='CGAF';if(r&&l)complete(id);else toast('Derecha: '+sepRightInput.join('')+' · Izquierda: '+sepLeftInput.join(''))}
 async function connectMIDI(){if(!navigator.requestMIDIAccess)return toast('Web MIDI no está disponible en este navegador.');try{midiAccess=await navigator.requestMIDIAccess();let count=0;for(const input of midiAccess.inputs.values()){input.onmidimessage=onMidi;count++}state.midi=count>0;saveState();toast(count?'✓ MIDI conectado':'MIDI disponible, pero no hay entrada detectada.')}catch(e){toast('MIDI no pudo conectarse: '+e.message)}}
 function onMidi(e){const [status,note,vel]=e.data||[];const type=status&0xf0,channel=status&0x0f;if(type===0xb0&&note===64){midiTelemetry.pedal=vel;return}if(type===0x90&&vel>0){midiNoteOn(note,vel,channel);pressKey(note,'midi');if(typeof techniqueStarted!=='undefined'&&techniqueStarted&&typeof registerTechniqueMidi==='function')registerTechniqueMidi(note,vel)}else if(type===0x80||(type===0x90&&vel===0)){midiNoteOff(note);if(typeof techniqueStarted!=='undefined'&&techniqueStarted&&typeof registerTechniqueMidiOff==='function')registerTechniqueMidiOff(note)}}
-function audio(){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;const c=window._audio||new A();window._audio=c;if(c.state==='suspended')c.resume();return c}
+function audio(){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;const c=window._audio||new A();window._audio=c;if(c.state==='suspended')c.resume().catch(()=>{});return c}
 function midiToFreq(n){return 440*Math.pow(2,(n-69)/12)}
-let pianoSampleBuffers=new Map(),pianoSampleLoading=new Map(),pianoSampleFailed=false;
+let pianoSampleBuffers=new Map(),pianoSampleLoading=new Map(),pianoSampleFailed=false,pianoSampleRetryAfter=new Map();
 function pianoSampleName(n){const names=['C','Cs','D','Ds','E','F','Fs','G','Gs','A','As','B'];return names[((n%12)+12)%12]+(Math.floor(n/12)-1)}
 function loadPianoSample(c,n){
  const target=Math.max(48,Math.min(71,Math.round(n)));
  if(pianoSampleBuffers.has(target))return Promise.resolve(true);
  if(pianoSampleLoading.has(target))return pianoSampleLoading.get(target);
+ if((pianoSampleRetryAfter.get(target)||0)>Date.now())return Promise.resolve(false);
  const task=(async()=>{try{
   const url='https://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/acoustic_grand_piano-mp3/'+pianoSampleName(target)+'.mp3';
   const res=await fetch(url);if(!res.ok)throw Error('sample unavailable');
   const buf=await res.arrayBuffer();pianoSampleBuffers.set(target,await c.decodeAudioData(buf));return true;
- }catch(e){pianoSampleFailed=true;return false}finally{pianoSampleLoading.delete(target)}})();
+ }catch(e){pianoSampleFailed=true;pianoSampleRetryAfter.set(target,Date.now()+30000);return false}finally{pianoSampleLoading.delete(target)}})();
  pianoSampleLoading.set(target,task);return task
 }
 function pianoSampleTone(c,n,d){
