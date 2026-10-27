@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "Autonomía Piano",
+  "short_name": "Autonomía Piano",
+  "description": "Escuela de piano con teoría, práctica guiada y progreso personal.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b1020",
+  "theme_color": "#07111f",
+  "icons": [
+    {
+      "src": "./icon-piano.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
