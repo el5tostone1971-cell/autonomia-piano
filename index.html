@@ -1231,14 +1231,26 @@ function backingTrackStep(token){
  backingTrackBeat++;if(backingTrackBeat>=4){backingTrackBeat=0;backingTrackBar=(backingTrackBar+1)%8}
  backingTrackTimer=setTimeout(()=>backingTrackStep(token),unit);
 }
+let bandPracticeTimer=null;
 function startBandPractice(){
  if(!repertoirePiece)return;
+ if(bandPracticeTimer){clearTimeout(bandPracticeTimer);bandPracticeTimer=null}
  repertoireInput=[];repertoireTimes=[];repertoireStarted=true;repertoireStart=performance.now();
- const count=document.getElementById('repertoireCount');if(count)count.textContent='0 / '+repertoirePiece.notes.length;
- const msg=document.getElementById('repertoireMsg');if(msg)msg.textContent='Práctica con banda: tocá las notas de la canción en orden con tu teclado real. Si te detenés, el acompañamiento se apaga automáticamente tras 15 segundos.';
- startBackingTrack(true);
+ const piece=repertoirePiece,tempo=getRepertoireTempo(),beats=piece.dur.reduce((sum,d)=>sum+(Number(d)||1),0);
+ const count=document.getElementById('repertoireCount');if(count)count.textContent='0 / '+piece.notes.length;
+ const msg=document.getElementById('repertoireMsg');if(msg)msg.textContent='Práctica con banda: tocá la canción con tu teclado. La sesión dura dos pasadas y después se detienen automáticamente todos los instrumentos.';
+ startBackingTrack(false);
  updateRepertoirePracticeTarget();
- const status=document.getElementById('backingTrackStatus');if(status)status.textContent='Práctica activa · '+getRepertoireTempo()+' BPM · tocá con tu teclado real';
+ const status=document.getElementById('backingTrackStatus');if(status)status.textContent='Práctica activa · '+tempo+' BPM · pasada 1 de 2';
+ const duration=Math.max(5000,beats*60000/tempo*2);
+ bandPracticeTimer=setTimeout(()=>{
+  bandPracticeTimer=null;repertoireStarted=false;stopBackingTrack();
+  const keys=document.querySelectorAll('.repertoireKeys .key');keys.forEach(k=>{k.classList.remove('target-note');k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
+  const help=document.getElementById('repertoireCurrentNoteHelp');if(help)help.textContent='La sesión terminó. Podés volver a practicar con la banda cuando quieras.';
+  const done=document.getElementById('repertoireMsg');if(done)done.textContent='✓ Terminó la práctica con banda. La melodía guía y todos los instrumentos se detuvieron automáticamente.';
+  const beat=document.getElementById('repertoireBeat');if(beat)beat.textContent='✓ Práctica terminada';
+  const finalStatus=document.getElementById('backingTrackStatus');if(finalStatus)finalStatus.textContent='✓ Canción terminada · audio detenido';
+ },duration);
 }
 function updateRepertoirePracticeTarget(){
  if(!repertoirePiece)return;
@@ -1288,7 +1300,7 @@ async function playFullArrangement(){
 }
 function stopFullArrangement(){fullArrangementToken++;if(fullArrangementTimer){clearTimeout(fullArrangementTimer);fullArrangementTimer=null}}
 function stopBackingTrack(){
- clearBackingIdleTimer();stopFullArrangement();backingTrackToken++;if(backingTrackTimer){clearTimeout(backingTrackTimer);backingTrackTimer=null}
+ clearBackingIdleTimer();if(typeof bandPracticeTimer!=='undefined'&&bandPracticeTimer){clearTimeout(bandPracticeTimer);bandPracticeTimer=null}stopFullArrangement();backingTrackToken++;if(backingTrackTimer){clearTimeout(backingTrackTimer);backingTrackTimer=null}
  document.querySelectorAll('.keys .key').forEach(k=>{k.classList.remove('target-note');k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
  const status=document.getElementById('backingTrackStatus');if(status)status.textContent='Todo el audio detenido';
 }
