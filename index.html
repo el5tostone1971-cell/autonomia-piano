@@ -1246,7 +1246,7 @@ function updateRepertoirePracticeTarget(){
  if(name)name.textContent=spanish+' ('+pc+') · octava '+oct;
  if(help)help.textContent='SIGUIENTE NOTA: '+spanish+' ('+pc+'), octava '+oct+'. Tocá esa nota en tu teclado real siguiendo el pulso.';
  const keys=[...document.querySelectorAll('.repertoireKeys .key')];
- keys.forEach(k=>{const midi=Number(k.dataset.midi),match=midi===n;k.classList.toggle('target-note',match);k.style.outline=match?'6px solid #f59e0b':'';k.style.boxShadow=match?'0 0 0 4px #111827, 0 0 26px 10px #f59e0b':'';k.style.transform=match?'translateY(-8px) scale(1.08)':'';k.style.zIndex=match?'50':'';k.style.background='';k.style.color=''});
+ keys.forEach(k=>{const midi=Number(k.dataset.midi),match=midi===n;k.classList.toggle('target-note',match);k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
 }
 function startBackingTrack(watchForSilence=true){
  if(!repertoirePiece)return;
