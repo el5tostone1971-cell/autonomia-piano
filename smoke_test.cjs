@@ -92,7 +92,32 @@ const assert = require('node:assert/strict');
     assert.match(portuguesePractice, /Mão esquerda/, 'El ejercicio de mano izquierda no se tradujo al portugués');
     const portugueseNav = await page.locator('#nav').innerText();
     assert.doesNotMatch(portugueseNav, /Lecciones|Práctica|Mapa del teclado|Teoría musical|Lectura musical|Tocar con dos manos|Frases musicales|Entrenamiento auditivo|Acompañamiento|Mi progreso|Repaso inteligente|Sistema y ajustes/, 'El menú conserva etiquetas principales en español');
+    // Auditoría ampliada: los textos dinámicos de las pantallas también deben quedar en portugués.
+    await page.evaluate(() => show('course'));
+    const portugueseCourse = await page.locator('#main').innerText();
+    assert.match(portugueseCourse, /Curso de 90 dias/, 'El título del curso no se tradujo al portugués');
+    assert.match(portugueseCourse, /Encontre todos os Dós/, 'El título de la primera lección no se tradujo');
+    assert.match(portugueseCourse, /pronto para treinar|concluído/, 'El estado de las lecciones no se tradujo');
+
+    await page.evaluate(() => show('reading'));
+    const portugueseReading = await page.locator('#main').innerText();
+    assert.match(portugueseReading, /Leitura musical/, 'La lectura musical no se tradujo');
+    assert.match(portugueseReading, /Apagar a última|Apagar a última/, 'El botón para borrar una nota no se tradujo');
+    assert.doesNotMatch(portugueseReading, /Leé las|Tocá las|Esperando tu lectura|Esperando ejecución/, 'La lectura musical conserva instrucciones en español');
+
+    await page.evaluate(() => show('repertoire'));
+    const portugueseRepertoire = await page.locator('#main').innerText();
+    assert.match(portugueseRepertoire, /Repertório progressivo/, 'El repertorio no se tradujo');
+    assert.match(portugueseRepertoire, /Escolha uma música/, 'La instrucción inicial del repertorio no se tradujo');
+
+    await page.evaluate(() => show('settings'));
+    const portugueseSettings = await page.locator('#main').innerText();
+    assert.match(portugueseSettings, /A versão gratuita funciona sem conta/, 'Los ajustes no se tradujeron');
+    assert.match(portugueseSettings, /Executar autodiagnóstico completo/, 'El botón de autodiagnóstico no se tradujo');
+    assert.doesNotMatch(portugueseSettings, /Tu progreso|No necesitás registrarte|Crear cuenta|Iniciar sesión/, 'Los ajustes conservan textos en español');
+
     await page.evaluate(() => changePianoLanguage('es'));
+
 
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
