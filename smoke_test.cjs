@@ -80,7 +80,13 @@ const assert = require('node:assert/strict');
       if (!document.querySelector('.keys .key')) throw new Error('El mapa del teclado no renderizó teclas');
       show('practice');
       if (document.querySelectorAll('[data-free-exercise]').length < 8) throw new Error('La práctica libre no muestra una colección variada');
+      changePianoLanguage('pt');
+      show('practice');
     });
+    const portuguesePractice = await page.locator('#main').innerText();
+    assert.match(portuguesePractice, /Arpejo de Dó/, 'El repertorio de práctica libre no se tradujo al portugués');
+    assert.match(portuguesePractice, /Mão esquerda/, 'El ejercicio de mano izquierda no se tradujo al portugués');
+    await page.evaluate(() => changePianoLanguage('es'));
 
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
