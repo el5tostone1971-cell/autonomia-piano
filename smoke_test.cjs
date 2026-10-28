@@ -53,17 +53,33 @@ const assert = require('node:assert/strict');
     assert.equal(stopped.guide, null, 'El temporizador de la melodía no se limpió al terminar');
 
     await page.evaluate(() => {
+      const piece = repertoireLibrary.find(item => item.id === 'rp10');
+      piece.notes = [60, 62, 64];
+      piece.dur = [0.1, 0.1, 0.1];
       selectLibraryPiece('rp10');
       setRepertoireTempo(100);
       startBandPractice();
       pressKey(60, 'midi');
     });
     assert.match(await page.locator('#repertoireCurrentNoteName').innerText(), /Re \(D\)/, 'La nota objetivo no avanzó después de tocar la nota correcta');
-    await page.evaluate(() => pressKey(62, 'midi'));
+    await page.evaluate(() => pressKey(64, 'midi'));
+    assert.match(await page.locator('#repertoireCount').innerText(), /1 \/ 3/, 'Un error no quedó registrado en el conteo de la práctica');
+    assert.match(await page.locator('#repertoireMsg').innerText(), /registró el error/i, 'La aplicación no explicó la nota incorrecta');
+    await page.evaluate(() => { pressKey(62, 'midi'); pressKey(64, 'midi'); });
     await page.waitForFunction(() => /Práctica terminada/.test(document.getElementById('backingTrackStatus')?.textContent || ''));
-    const practiceResult = await page.evaluate(() => ({ count: repertoireInput.length, backing: backingTrackTimer }));
-    assert.equal(practiceResult.count, 2, 'La práctica con banda no registró las notas tocadas');
+    const practiceResult = await page.evaluate(() => ({ count: repertoireInput.length, backing: backingTrackTimer, correct: bandPracticeResults.filter(x => x.correct).length, results: bandPracticeResults.length, summary: document.getElementById('repertoirePlayedNotes')?.textContent || '' }));
+    assert.equal(practiceResult.count, 3, 'La práctica con banda no registró todas las notas tocadas');
+    assert.equal(practiceResult.results, 3, 'La práctica no guardó el detalle de cada nota');
+    assert.equal(practiceResult.correct, 2, 'El resultado de aciertos no distingue la nota incorrecta');
+    assert.match(practiceResult.summary, /esperaba/i, 'El resumen final no identifica la nota esperada en el error');
     assert.equal(practiceResult.backing, null, 'El acompañamiento no se detuvo al completar la canción');
+
+    await page.evaluate(() => {
+      show('keyboard');
+      if (!document.querySelector('.keys .key')) throw new Error('El mapa del teclado no renderizó teclas');
+      show('practice');
+      if (document.querySelectorAll('[data-free-exercise]').length < 8) throw new Error('La práctica libre no muestra una colección variada');
+    });
 
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
