@@ -39,11 +39,12 @@ const assert = require('node:assert/strict');
     await page.evaluate(() => {
       const piece = repertoireLibrary.find(item => item.id === 'rp10');
       piece.notes = [60, 62];
-      piece.dur = [0.1, 0.1];
+      piece.dur = [0.4, 0.4];
       selectLibraryPiece('rp10');
       setRepertoireTempo(140);
       playFullArrangement();
     });
+    await page.waitForFunction(() => /frase 2 de 2/.test(document.getElementById('repertoireCurrentNoteHelp')?.textContent || ''), null, { timeout: 3000 });
     await page.waitForFunction(() => {
       const status = document.getElementById('backingTrackStatus');
       return status && /Terminó la canción/.test(status.textContent);
