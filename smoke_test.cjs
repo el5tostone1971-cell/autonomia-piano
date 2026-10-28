@@ -93,6 +93,7 @@ const assert = require('node:assert/strict');
     const portugueseNav = await page.locator('#nav').innerText();
     assert.doesNotMatch(portugueseNav, /Lecciones|Práctica|Mapa del teclado|Teoría musical|Lectura musical|Tocar con dos manos|Frases musicales|Entrenamiento auditivo|Acompañamiento|Mi progreso|Repaso inteligente|Sistema y ajustes/, 'El menú conserva etiquetas principales en español');
     // Auditoría ampliada: los textos dinámicos de las pantallas también deben quedar en portugués.
+    await page.evaluate(() => { state.theory = state.theory || { completed: {}, xp: 0 }; state.theory.completed = Object.fromEntries(THEORY_LESSONS.map(item => [item.id, true])); });
     await page.evaluate(() => show('course'));
     const portugueseCourse = await page.locator('#main').innerText();
     assert.match(portugueseCourse, /Curso de 90 dias/, 'El título del curso no se tradujo al portugués');
