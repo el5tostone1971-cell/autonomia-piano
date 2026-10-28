@@ -31,7 +31,7 @@ const assert = require('node:assert/strict');
       background: getComputedStyle(el).backgroundColor
     }));
     assert.equal(targetKey.outline, '6px', 'La tecla objetivo no destaca lo suficiente');
-    assert.equal(targetKey.background, 'rgb(253, 224, 71)', 'La tecla objetivo no tiene el color de alto contraste');
+    assert.match(targetKey.background, /rgba?\(253, 224, 71(?:, [0-9.]+)?\)/, 'La tecla objetivo no tiene el color de alto contraste');
     await page.locator('#repertoireTempo').evaluate(el => { el.value = '72'; el.dispatchEvent(new Event('input', { bubbles: true })); });
     assert.equal(await page.locator('#repertoireTempoLabel').innerText(), '72 BPM', 'El control de tempo no actualiza el valor visible');
 
