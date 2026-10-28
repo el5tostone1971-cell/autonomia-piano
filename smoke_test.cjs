@@ -65,7 +65,7 @@ const assert = require('node:assert/strict');
     await page.evaluate(() => pressKey(64, 'midi'));
     assert.match(await page.locator('#repertoireCount').innerText(), /1 \/ 3/, 'Un error no quedó registrado en el conteo de la práctica');
     assert.match(await page.locator('#repertoireMsg').innerText(), /registró el error/i, 'La aplicación no explicó la nota incorrecta');
-    await page.evaluate(() => { pressKey(62, 'midi'); pressKey(64, 'midi'); });
+    await page.evaluate(() => pressKey(64, 'midi'));
     await page.waitForFunction(() => /Práctica terminada/.test(document.getElementById('backingTrackStatus')?.textContent || ''));
     const practiceResult = await page.evaluate(() => ({ count: repertoireInput.length, backing: backingTrackTimer, correct: bandPracticeResults.filter(x => x.correct).length, results: bandPracticeResults.length, summary: document.getElementById('repertoirePlayedNotes')?.textContent || '' }));
     assert.equal(practiceResult.count, 3, 'La práctica con banda no registró todas las notas tocadas');
