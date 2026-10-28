@@ -102,13 +102,13 @@ const assert = require('node:assert/strict');
     await page.evaluate(() => show('reading'));
     const portugueseReading = await page.locator('#main').innerText();
     assert.match(portugueseReading, /Leitura musical/, 'La lectura musical no se tradujo');
-    assert.match(portugueseReading, /Apagar a última|Apagar a última/, 'El botón para borrar una nota no se tradujo');
+    assert.match(portugueseReading, /Apagar a última/, 'El botón para borrar una nota no se tradujo');
     assert.doesNotMatch(portugueseReading, /Leé las|Tocá las|Esperando tu lectura|Esperando ejecución/, 'La lectura musical conserva instrucciones en español');
 
     await page.evaluate(() => show('repertoire'));
     const portugueseRepertoire = await page.locator('#main').innerText();
     assert.match(portugueseRepertoire, /Repertório progressivo/, 'El repertorio no se tradujo');
-    assert.match(portugueseRepertoire, /Escolha uma música/, 'La instrucción inicial del repertorio no se tradujo');
+    assert.match(portugueseRepertoire, /Uma música, uma etapa de cada vez/, 'La guía del repertorio no se tradujo');
 
     await page.evaluate(() => show('settings'));
     const portugueseSettings = await page.locator('#main').innerText();
