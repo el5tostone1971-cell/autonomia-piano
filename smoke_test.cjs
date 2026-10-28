@@ -118,7 +118,7 @@ const assert = require('node:assert/strict');
 
     // Revisar todas las pantallas del menú buscando instrucciones frecuentes que no deben quedar en español.
     const auditedViews = ['home','course','practice','repertoire','keyboard','theory','reading','rhythmReading','twoHands','phrases','technique','ear','earAdvanced','accompaniment','midiStudio','progress','spaced','teacher','resources','settings'];
-    const spanishUiPattern = /\\b(?:Tocá|Encontrá|Elegí|Practicá|Escuchá|Leé|Completá|Podés|Volvé|Mirá|Buscá|Aprendé|Entrená|Repasá|Lecciones|Práctica|Teoría musical|Mi progreso|Sistema y ajustes|No necesitás|Empezá)\\b|Día \\d/i;
+    const spanishUiPattern = /\b(?:Tocá|Encontrá|Elegí|Practicá|Escuchá|Leé|Completá|Podés|Volvé|Mirá|Buscá|Aprendé|Entrená|Repasá|Lecciones|Práctica|Teoría musical|Mi progreso|Sistema y ajustes|No necesitás|Empezá)\b|Día \d/i;
     for (const view of auditedViews) {
       await page.evaluate(viewName => show(viewName), view);
       const visibleText = await page.locator('#main').innerText();
