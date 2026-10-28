@@ -116,6 +116,15 @@ const assert = require('node:assert/strict');
     assert.match(portugueseSettings, /Executar autodiagnóstico completo/, 'El botón de autodiagnóstico no se tradujo');
     assert.doesNotMatch(portugueseSettings, /Tu progreso|No necesitás registrarte|Crear cuenta|Iniciar sesión/, 'Los ajustes conservan textos en español');
 
+    // Revisar todas las pantallas del menú buscando instrucciones frecuentes que no deben quedar en español.
+    const auditedViews = ['home','course','practice','repertoire','keyboard','theory','reading','rhythmReading','twoHands','phrases','technique','ear','earAdvanced','accompaniment','midiStudio','progress','spaced','teacher','resources','settings'];
+    const spanishUiPattern = /\\b(?:Tocá|Encontrá|Elegí|Practicá|Escuchá|Leé|Completá|Podés|Volvé|Mirá|Buscá|Aprendé|Entrená|Repasá|Lecciones|Práctica|Teoría musical|Mi progreso|Sistema y ajustes|No necesitás|Empezá)\\b|Día \\d/i;
+    for (const view of auditedViews) {
+      await page.evaluate(viewName => show(viewName), view);
+      const visibleText = await page.locator('#main').innerText();
+      assert.doesNotMatch(visibleText, spanishUiPattern, 'La pantalla "' + view + '" conserva instrucciones o etiquetas en español');
+    }
+
     await page.evaluate(() => changePianoLanguage('es'));
 
 
