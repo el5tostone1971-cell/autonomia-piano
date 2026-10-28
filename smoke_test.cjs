@@ -81,11 +81,17 @@ const assert = require('node:assert/strict');
       show('practice');
       if (document.querySelectorAll('[data-free-exercise]').length < 8) throw new Error('La práctica libre no muestra una colección variada');
       changePianoLanguage('pt');
-      show('practice');
+      show('keyboard');
     });
+    const portugueseMap = await page.locator('#main').innerText();
+    assert.match(portugueseMap, /Mapa do teclado/, 'El mapa del teclado no tradujo su título al portugués');
+    assert.match(portugueseMap, /As sete notas musicais/, 'La guía de notas no se tradujo al portugués');
+    await page.evaluate(() => show('practice'));
     const portuguesePractice = await page.locator('#main').innerText();
     assert.match(portuguesePractice, /Arpejo de Dó/, 'El repertorio de práctica libre no se tradujo al portugués');
     assert.match(portuguesePractice, /Mão esquerda/, 'El ejercicio de mano izquierda no se tradujo al portugués');
+    const portugueseNav = await page.locator('#nav').innerText();
+    assert.doesNotMatch(portugueseNav, /Lecciones|Práctica|Mapa del teclado|Teoría musical|Lectura musical|Tocar con dos manos|Frases musicales|Entrenamiento auditivo|Acompañamiento|Mi progreso|Repaso inteligente|Sistema y ajustes/, 'El menú conserva etiquetas principales en español');
     await page.evaluate(() => changePianoLanguage('es'));
 
     // Simular progreso y recarga en el mismo navegador.
