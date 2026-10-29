@@ -109,7 +109,7 @@ const assert = require('node:assert/strict');
     await page.evaluate(() => show('repertoire'));
     const portugueseRepertoire = await page.locator('#main').innerText();
     assert.match(portugueseRepertoire, /Repertório progressivo/, 'El repertorio no se tradujo');
-    assert.match(portugueseRepertoire, /Uma música, uma etapa de cada vez/, 'La guía del repertorio no se tradujo');
+    assert.match(portugueseRepertoire, /Escolha uma música da biblioteca/, 'La instrucción inicial del repertorio no se tradujo');
 
     await page.evaluate(() => show('settings'));
     const portugueseSettings = await page.locator('#main').innerText();
