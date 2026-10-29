@@ -281,6 +281,13 @@ function navActive(v){document.querySelectorAll('#nav button').forEach(b=>b.clas
 let pianoLanguage='es';
 try{pianoLanguage=localStorage.getItem('autonomia-piano-language')==='pt'?'pt':'es'}catch(e){}
 const pianoPT=[
+["la primera canción","a primeira música"],
+["La primera canción","A primeira música"],
+["qué hacer en cada paso","o que fazer em cada etapa"],
+["La aplicación te va a indicar","O aplicativo vai indicar"],
+["No se ilumina la tecla correcta.","A tecla correta não será iluminada."],
+["de esta pieza","desta peça"],
+["Tus pasos guardados:","Suas etapas salvas:"],
 ["Repertorio progresivo","Repertório progressivo"],
 ["Elegí una canción de la biblioteca para abrir su práctica. Tu progreso queda guardado, pero al salir la práctica se reinicia para evitar confusiones.","Escolha uma música da biblioteca para iniciar a prática. Seu progresso fica salvo, mas, ao sair, a sessão é reiniciada para evitar confusões."],
 ["Elegí la primera canción, Amanecer.","Escolha a primeira música, Amanecer."],
