@@ -137,8 +137,10 @@ const assert = require('node:assert/strict');
         const main = document.getElementById('main');
         const html = main?.innerHTML || '';
         const text = main?.innerText || '';
-        const spanishLeak = /\b(?:Encontrá|Tocá|Completá|Escuchá|Memorizá|Recordá|Podés|Aprobás|Día \d+|Se evalúa|No alcanza|Volvé|Mirá|Ocultá|Técnica de hoy|sin detenerte|con pulso parejo)\b/i.test(text);
-        results.push({ id: lesson.id, kind: lesson.kind, rendered: !!main && html.length > 100, unimplemented: text.includes('Ejercicio no implementado'), interactive: !!main?.querySelector('button, .keys, input, [data-free-exercise]'), spanishLeak, excerpt: spanishLeak ? text.slice(0, 240) : '' });
+        const spanishPattern = /\b(?:Encontrá|Tocá|Completá|Escuchá|Memorizá|Recordá|Podés|Aprobás|Día \d+|Se evalúa|No alcanza|Volvé|Mirá|Ocultá|Técnica de hoy|sin detenerte|con pulso parejo)\b/i;
+        const spanishMatch = text.match(spanishPattern)?.[0] || '';
+        const spanishLeak = !!spanishMatch;
+        results.push({ id: lesson.id, kind: lesson.kind, rendered: !!main && html.length > 100, unimplemented: text.includes('Ejercicio no implementado'), interactive: !!main?.querySelector('button, .keys, input, [data-free-exercise]'), spanishLeak, spanishMatch, excerpt: spanishLeak ? text.slice(0, 240) : '' });
       }
       return { count: ids.length, unique: unique.size, results };
     });
