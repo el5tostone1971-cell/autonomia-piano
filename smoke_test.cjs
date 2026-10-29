@@ -126,6 +126,26 @@ const assert = require('node:assert/strict');
       assert.doesNotMatch(visibleText, spanishUiPattern, 'La pantalla "' + view + '" conserva instrucciones o etiquetas en español');
     }
 
+    // Auditoría automática de las 90 lecciones: cada ID debe abrir su ejercicio real.
+    const lessonAudit = await page.evaluate(() => {
+      state.day = 90; // Solo en el navegador de pruebas: permite abrir todos los días sin alterar datos reales.
+      const ids = LESSONS.map(item => item.id);
+      const unique = new Set(ids);
+      const results = [];
+      for (const lesson of LESSONS) {
+        openLesson(lesson.id);
+        const main = document.getElementById('main');
+        const html = main?.innerHTML || '';
+        const text = main?.innerText || '';
+        results.push({ id: lesson.id, kind: lesson.kind, rendered: !!main && html.length > 100, unimplemented: text.includes('Ejercicio no implementado'), interactive: !!main?.querySelector('button, .keys, input, [data-free-exercise]') });
+      }
+      return { count: ids.length, unique: unique.size, results };
+    });
+    assert.equal(lessonAudit.count, 90, 'El catálogo no contiene exactamente 90 lecciones');
+    assert.equal(lessonAudit.unique, 90, 'Hay IDs de lección duplicados');
+    assert.equal(lessonAudit.results.length, 90, 'No se recorrieron las 90 lecciones');
+    assert.deepEqual(lessonAudit.results.filter(x => !x.rendered || x.unimplemented || !x.interactive), [], 'Hay lecciones que no renderizan un ejercicio funcional: ' + JSON.stringify(lessonAudit.results.filter(x => !x.rendered || x.unimplemented || !x.interactive)));
+
     await page.evaluate(() => changePianoLanguage('es'));
 
 
