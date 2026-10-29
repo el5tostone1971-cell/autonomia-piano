@@ -82,7 +82,7 @@ let adaptiveRunActive=false;
 let adaptiveLessonId=null;
 const NOTE_NAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const WHITE_PCS=new Set([0,2,4,5,7,9,11]);
-const defaultState={day:1,xp:0,streak:0,lastPractice:'',midi:false,mic:false,lessons:{},skills:{orientation:0,rhythm:0,right:0,left:0,chords:0,ear:0,memory:0,autonomy:0},diagnostics:{last:'',counts:{early:0,late:0,rhythm:0,note:0,technique:0,memory:0},history:[],adaptiveRuns:0,adaptiveLast:''},teacher:{history:[],lastTopic:''},theory:{completed:{},xp:0}};
+const defaultState={day:1,xp:0,streak:0,lastPractice:'',midi:false,mic:false,lessons:{},skills:{orientation:0,rhythm:0,right:0,left:0,chords:0,ear:0,memory:0,autonomy:0},diagnostics:{last:'',counts:{early:0,late:0,rhythm:0,note:0,technique:0,memory:0},history:[],adaptiveRuns:0,adaptiveLast:''},teacher:{history:[],lastTopic:''},theory:{completed:{},xp:0},god:{diagnostic:null,practice:{tempo:72,section:0,loop:false,hand:'both',mode:'surgery',piece:'rp1',rounds:0,clean:0,errors:0,lastScore:0,lastMessage:''},sight:{score:0,attempts:0,history:[]},spaced:{queue:[],lastReview:'',intervals:[1,2,4,7,14,30]},imports:[],micro:{seen:[],last:''},performance:{velocity:0,duration:0,timing:0,pedal:0,velocityConsistency:0,durationConsistency:0,timingConsistency:0,chordTightness:0,dynamicsRange:0,balance:50,score:0,sessions:[]},library:[],installable:false}};
 let state=loadState();
 theoryBootstrap();
 let mem=[],pattern=[],earRound=[],earInput=[],doFound=new Set(),leftInput=[],chordHits=new Set(),rhythmTimes=[],rhythmExpected=[],autoInput=[];
