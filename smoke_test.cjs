@@ -132,6 +132,7 @@ const assert = require('node:assert/strict');
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
+      selectLibraryPiece('rp10');
       state.repertoireProgress = { ...(state.repertoireProgress || {}), rp10: 35 };
       saveRepertoireSession('learn', 3);
       saveState();
