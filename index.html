@@ -1488,7 +1488,10 @@ function renderFreePracticeStatus(){
  if(result&&freePracticeInput.length===freePracticeExpected.length){
   const hits=freePracticeInput.filter((n,i)=>n===freePracticeExpected[i]).length;
   const errors=freePracticeExpected.length-hits;
-  result.textContent=freePracticeLabel('Resultado: ','Resultado: ')+hits+'/'+freePracticeExpected.length+freePracticeLabel(' correctas. ',' corretas. ')+(errors?freePracticeLabel(errors+' errores. Compará cada nota tocada con la nota esperada que aparece arriba.',' '+errors+' erros. Compare cada nota tocada com a nota esperada exibida acima.'):freePracticeLabel('Secuencia completa sin errores.','Sequência concluída sem erros.'));
+  const feedback=errors
+   ?freePracticeLabel(errors+(errors===1?' error. ':' errores. ')+'Compará cada nota tocada con la nota esperada que aparece arriba.',errors+(errors===1?' erro. ':' erros. ')+'Compare cada nota tocada com a nota esperada exibida acima.')
+   :freePracticeLabel('Secuencia completa sin errores.','Sequência concluída sem erros.');
+  result.textContent=freePracticeLabel('Resultado: ','Resultado: ')+hits+'/'+freePracticeExpected.length+freePracticeLabel(' correctas. ',' corretas. ')+feedback;
   freePracticeActive=false;
  }
 }
