@@ -146,7 +146,8 @@ function makeGenericLessons(){
   }else{
    const f=FOCI[(d-76)%FOCI.length];title=['Memoria musical','Lectura autónoma','Interpretación y oído','Autocorrección'][Math.floor((d-76)/4)%4]+' · '+f[0];desc='Sin seguir notas animadas: escuchá, anticipá y tocá la frase completa. Detectá y corregí tus propios errores. '+f[1];skill=['memory','ear','right','autonomy'][(d-76)%4];
   }
-  GENERIC_LESSONS.push({id:'l'+d,day:d,title:title+' · Día '+d,desc,kind:'generic',skill,xp:25+Math.min(40,Math.floor((d-12)/4)*2),inc:5,seq,hide:phase>=2,level:phase});
+  // Una secuencia de notas aislada no certifica memoria, oído, lectura ni autonomía; no suma competencias sin una prueba específica.
+  GENERIC_LESSONS.push({id:'l'+d,day:d,title:title+' · Día '+d,desc,kind:'generic',skill:'right',xp:25+Math.min(40,Math.floor((d-12)/4)*2),inc:0,seq,hide:phase>=2,level:phase});
  }
 }
 makeGenericLessons();
