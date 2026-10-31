@@ -248,6 +248,32 @@ const assert = require('node:assert/strict');
 
 
 
+    // La lectura rítmica debe validar la entrada inicial, las duraciones y los silencios.
+    const rhythmAudit = await page.evaluate(() => {
+      const p = RHYTHM_PATTERNS.find(x => x.id === 'quarter-rest');
+      rhythmReadingPattern = p;
+      rhythmReadingTimes = rhythmPatternAttacks(p).map(beat => beat * 600);
+      const before = state.skills.rhythm;
+      checkRhythmReading();
+      const firstPass = { message: document.getElementById('rhythmReadingMsg')?.textContent || '', score: state.skills.rhythm, mastered: state.god.rhythmAssessment?.mastered?.slice() || [] };
+      rhythmReadingTimes = rhythmPatternAttacks(p).map(beat => beat * 600 + 1000); // Mismo intervalo entre notas, pero entrada un compás tarde.
+      checkRhythmReading();
+      const lateEntryMessage = document.getElementById('rhythmReadingMsg')?.textContent || '';
+      rhythmReadingTimes = [0, 600, 1200, 1800, 2400]; // Cinco ataques: incluye un ataque indebido durante el silencio.
+      checkRhythmReading();
+      const extraAttackMessage = document.getElementById('rhythmReadingMsg')?.textContent || '';
+      rhythmReadingPattern = RHYTHM_PATTERNS.find(x => x.id === 'eighth-rest');
+      return { firstPass, lateEntryMessage, extraAttackMessage, patterns: RHYTHM_PATTERNS.length, rests: RHYTHM_PATTERNS.filter(x => x.steps.some(s => s[0] === 'rest')).length, symbols: rhythmNotation(p) };
+    });
+    assert.match(rhythmAudit.firstPass.message, /Ritmo correcto/i, 'Un patrón rítmico exacto no fue aprobado');
+    assert.equal(rhythmAudit.firstPass.score, 2, 'La competencia rítmica no se acreditó una sola vez por patrón');
+    assert.equal(rhythmAudit.firstPass.mastered.length, 1, 'No se guardó el patrón rítmico dominado');
+    assert.match(rhythmAudit.lateEntryMessage, /antes del pulso|tarde|entrada/i, 'La evaluación no detectó una entrada fuera del primer pulso');
+    assert.match(rhythmAudit.extraAttackMessage, /Faltan o sobran ataques/i, 'La evaluación permitió tocar durante un silencio');
+    assert.equal(rhythmAudit.patterns, 6, 'La lectura rítmica no contiene seis patrones');
+    assert.equal(rhythmAudit.rests, 2, 'No se enseñan silencios de negra y corchea');
+    assert.match(rhythmAudit.symbols, /𝄽/, 'La notación no representa el silencio de negra');
+
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
