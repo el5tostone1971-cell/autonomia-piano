@@ -252,6 +252,7 @@ const assert = require('node:assert/strict');
     const rhythmAudit = await page.evaluate(() => {
       const p = RHYTHM_PATTERNS.find(x => x.id === 'quarter-rest');
       rhythmReadingPattern = p;
+      renderRhythmReading();
       rhythmReadingTimes = rhythmPatternAttacks(p).map(beat => beat * 600);
       const before = state.skills.rhythm;
       checkRhythmReading();
