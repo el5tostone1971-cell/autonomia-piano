@@ -282,6 +282,17 @@ function navActive(v){document.querySelectorAll('#nav button').forEach(b=>b.clas
 let pianoLanguage='es';
 try{pianoLanguage=localStorage.getItem('autonomia-piano-language')==='pt'?'pt':'es'}catch(e){}
 const pianoPT=[
+["Notas que tocaste en esta sesión","Notas que você tocou nesta sessão"],
+["Se muestran las últimas notas detectadas, incluso si alguna fue incorrecta. 21/32 significa 21 notas correctas de una secuencia de 32.","As últimas notas detectadas são exibidas, mesmo quando alguma estiver incorreta. 21/32 significa 21 notas corretas em uma sequência de 32."],
+["Escuchar melodía + banda","Ouvir melodia + banda"],
+["Solo acompañamiento","Somente acompanhamento"],
+["Practicar con banda","Praticar com banda"],
+["Detener todo","Parar tudo"],
+["MIRÁ ESTA NOTA Y TOCALA EN TU TECLADO","OLHE ESTA NOTA E TOQUE NO SEU TECLADO"],
+["Preparado para empezar","Pronto para começar"],
+["Cuando escuches la nota, su nombre aparecerá acá. El teclado queda a la vista mientras practicás.","Quando ouvir a nota, o nome aparecerá aqui. O teclado ficará visível enquanto você pratica."],
+["Paso 1 de 3 · Aprender las notas","Etapa 1 de 3 · Aprender as notas"],
+["Práctica con banda","Prática com banda"],
 ["Elegí una actividad, empezá el ejercicio y tocá las notas en el teclado. Cada intento recibe una devolución.","Escolha uma atividade, comece o exercício e toque as notas no teclado. Cada tentativa recebe um retorno."],
 ["Tocá Do, Re, Mi, Fa, Sol, La, Si y volvé hasta Do.","Toque Dó, Ré, Mi, Fá, Sol, Lá, Si e volte até Dó."],
 ["la primera canción","a primeira música"],
@@ -2084,11 +2095,11 @@ function startBandPractice(){
  if(bandPracticeTimer){clearTimeout(bandPracticeTimer);bandPracticeTimer=null}
  repertoireInput=[];repertoireTimes=[];repertoireStarted=true;bandPracticeActive=true;bandPracticeResults=[];repertoireStart=performance.now();
  const piece=repertoirePiece,tempo=getRepertoireTempo(),beats=piece.dur.reduce((sum,d)=>sum+(Number(d)||1),0);
- const count=document.getElementById('repertoireCount');if(count)count.textContent='0 / '+piece.notes.length+' correctas';
- const msg=document.getElementById('repertoireMsg');if(msg)msg.textContent='Práctica con banda: tocá la canción con tu teclado. La sesión dura dos pasadas y después se detienen automáticamente todos los instrumentos.';
+ const count=document.getElementById('repertoireCount');if(count)count.textContent=pianoLanguage==='pt'?'0 / '+piece.notes.length+' corretas':'0 / '+piece.notes.length+' correctas';
+ const msg=document.getElementById('repertoireMsg');if(msg)msg.textContent=pianoLanguage==='pt'?'Prática com banda: toque a música no seu teclado. A sessão dura duas passagens e, depois, todos os instrumentos param automaticamente.':'Práctica con banda: tocá la canción con tu teclado. La sesión dura dos pasadas y después se detienen automáticamente todos los instrumentos.';
  startBackingTrack(false);
  updateRepertoirePracticeTarget();
- const status=document.getElementById('backingTrackStatus');if(status)status.textContent='Práctica activa · '+tempo+' BPM · pasada 1 de 2';
+ const status=document.getElementById('backingTrackStatus');if(status)status.textContent=pianoLanguage==='pt'?'Prática ativa · '+tempo+' BPM · passagem 1 de 2':'Práctica activa · '+tempo+' BPM · pasada 1 de 2';
  const duration=Math.max(5000,beats*60000/tempo*2);
  bandPracticeTimer=setTimeout(()=>{
   bandPracticeTimer=null;bandPracticeActive=false;repertoireStarted=false;stopBackingTrack();
@@ -2120,7 +2131,7 @@ function startBackingTrack(watchForSilence=true){
  stopRepertoirePulse();stopBackingTrack();
  const c=audio();if(!c)return;
  backingTrackBar=0;backingTrackBeat=0;const token=++backingTrackToken;
- const status=document.getElementById('backingTrackStatus');if(status)status.textContent='Sonando: bajo + acordes + batería · tocá tu melodía encima';
+ const status=document.getElementById('backingTrackStatus');if(status)status.textContent=pianoLanguage==='pt'?'Tocando: baixo + acordes + bateria · toque sua melodia junto':'Sonando: bajo + acordes + batería · tocá tu melodía encima';
  backingTrackStep(token);
  if(watchForSilence)resetBackingIdleTimer();
 }
@@ -2136,18 +2147,18 @@ async function playFullArrangement(){
  const keys=[...document.querySelectorAll('.keys .key')];
  for(let pass=0;pass<2;pass++)for(let i=0;i<p.notes.length;i++){
   if(token!==fullArrangementToken)return;
-  const n=p.notes[i],unit=60000/getRepertoireTempo(),pc=pitchClassName(n),es=({C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'}[pc]||pc);
+  const n=p.notes[i],unit=60000/getRepertoireTempo(),pc=pitchClassName(n),es=localizedPianoNoteName(n);
   keys.forEach(k=>{k.classList.remove('target-note');k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
   const key=keys.find(k=>Number(k.dataset.midi)===n);if(key){key.classList.add('target-note');key.style.outline='6px solid #f59e0b';key.style.boxShadow='0 0 0 4px #111827, 0 0 26px 10px #f59e0b';key.style.transform='translateY(-8px) scale(1.08)';key.style.zIndex='50';key.style.background='';key.style.color='';key.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});}
   if(nameEl)nameEl.textContent=es+' ('+pc+') · octava '+(Math.floor(n/12)-1);
-  if(helpEl)helpEl.textContent=pianoTranslateText('SONANDO AHORA: '+es+' ('+pc+'), octava '+(Math.floor(n/12)-1)+' · frase '+(pass+1)+' de 2 · nota '+(i+1)+' de '+p.notes.length+'. La tecla está resaltada en amarillo.');
-  if(msg)msg.textContent='Escuchá cómo la melodía encaja con la banda. Después elegí «Solo acompañamiento» y tocá vos con el teclado.';
+  if(helpEl)helpEl.textContent=pianoLanguage==='pt'?'TOCANDO AGORA: '+es+' ('+pc+'), oitava '+(Math.floor(n/12)-1)+' · passagem '+(pass+1)+' de 2 · nota '+(i+1)+' de '+p.notes.length+'. A tecla está destacada em amarelo.':'SONANDO AHORA: '+es+' ('+pc+'), octava '+(Math.floor(n/12)-1)+' · pasada '+(pass+1)+' de 2 · nota '+(i+1)+' de '+p.notes.length+'. La tecla está resaltada en amarillo.';
+  if(msg)msg.textContent=pianoLanguage==='pt'?'Ouça como a melodia se encaixa com a banda. Depois escolha «Somente acompanhamento» e toque você no teclado.':'Escuchá cómo la melodía encaja con la banda. Después elegí «Solo acompañamiento» y tocá vos con el teclado.';
   tone(n,Math.max(.16,unit*p.dur[i]/1000*.82));await wait(unit*p.dur[i]);
  }
  if(token!==fullArrangementToken)return;
  keys.forEach(k=>{k.classList.remove('target-note');k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
  stopBackingTrack();
- if(status)status.textContent=pianoTranslateText('✓ Terminó la canción. Se detuvieron la melodía y todos los instrumentos.');
+ if(status)status.textContent=pianoLanguage==='pt'?'✓ A música terminou. A melodia e todos os instrumentos foram interrompidos.':'✓ Terminó la canción. Se detuvieron la melodía y todos los instrumentos.';
 }
 function stopFullArrangement(){fullArrangementToken++;if(fullArrangementTimer){clearTimeout(fullArrangementTimer);fullArrangementTimer=null}}
 function stopBackingTrack(){
