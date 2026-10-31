@@ -295,12 +295,15 @@ const assert = require('node:assert/strict');
       const weakRhythm = autonomyMode();
       Object.keys(state.skills).forEach(key => { state.skills[key] = 80; });
       const balanced = autonomyMode();
+      state.skills = { orientation:100, rhythm:100, right:100, left:100, chords:100, memory:100, autonomy:100, extra:100 };
+      const missingSkill = { score: autonomyScore(), floor: autonomyFloorScore() };
       state.skills = original;
-      return { weakAutonomy, weakRhythm, balanced, floor: autonomyFloorScore };
+      return { weakAutonomy, weakRhythm, balanced, missingSkill };
     });
     assert.equal(autonomyGateAudit.weakAutonomy, 'guide', 'El promedio permitió retirar ayudas con autonomía sin demostrar');
     assert.equal(autonomyGateAudit.weakRhythm, 'reduced', 'Una competencia rítmica débil no limitó la ayuda');
     assert.equal(autonomyGateAudit.balanced, 'autonomous', 'El modo autónomo no se habilitó con todas las competencias altas');
+    assert.deepEqual(autonomyGateAudit.missingSkill, { score: 88, floor: 0 }, 'El cálculo no mantuvo las ocho competencias fijas');
 
     // El oído avanzado solo suma competencia tras una muestra de cinco respuestas y no permite duplicar una misma pregunta.
     const earEngineAudit = await page.evaluate(() => {
