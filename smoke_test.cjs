@@ -312,7 +312,7 @@ const assert = require('node:assert/strict');
       state.earAdvanced = { correct: 0, total: 0, byType: {}, skillMilestones: 0 };
       let duplicateAccepted = null;
       for (let i = 0; i < 5; i++) {
-        const q = { type: 'quality', _answered: false, xp: 1 };
+        const q = { type: 'quality', playNotes: [60+i, 64+i, 67+i], _answered: false, xp: 1 };
         const accepted = recordEarAdvancedResult(q, i < 4);
         if (i === 0) duplicateAccepted = recordEarAdvancedResult(q, true);
       }
