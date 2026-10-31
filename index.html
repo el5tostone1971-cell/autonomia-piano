@@ -1975,9 +1975,15 @@ function registerCourseTwoHandsNote(n){
 }
 function checkCourseTwoHands(){
  if(!courseTwoHandsLessonData||courseTwoHandsStep!==courseTwoHandsEvents.length){toast(courseLocal('Todavía faltan bloques por completar.','Ainda faltam blocos por concluir.'));return}
- state.skills.left=Math.min(100,(Number(state.skills.left)||0)+1);
- state.skills.right=Math.min(100,(Number(state.skills.right)||0)+1);
- state.skills.chords=Math.min(100,(Number(state.skills.chords)||0)+1);
+ state.god=state.god||{};
+ const assessed=state.god.twoHandsAssessment=Array.isArray(state.god.twoHandsAssessment)?state.god.twoHandsAssessment:[];
+ const lessonKey=String(courseTwoHandsLessonData.id);
+ if(!assessed.includes(lessonKey)){
+  state.skills.left=Math.min(100,(Number(state.skills.left)||0)+1);
+  state.skills.right=Math.min(100,(Number(state.skills.right)||0)+1);
+  state.skills.chords=Math.min(100,(Number(state.skills.chords)||0)+1);
+  assessed.push(lessonKey);
+ }
  saveState();courseTwoHandsStarted=false;complete(courseTwoHandsLessonData.id);
 }
 let courseAutoLessonData=null,courseAutoExpected=[],courseAutoPlayed=[],courseAutoArmed=false,courseAutoCanAnswer=false,courseAutoPlaybackTimer=null;
