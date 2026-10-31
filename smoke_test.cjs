@@ -464,6 +464,19 @@ const assert = require('node:assert/strict');
     });
     assert.deepEqual(autonomyPanelAudit, { eightSkills: true, weakest: true, mode: true }, 'El panel del Motor 11 no muestra sus ocho competencias y el criterio de ayuda');
 
+    // Una secuencia de memoria idéntica no puede contabilizarse como evidencia nueva tras reiniciar.
+    const memoryDuplicateAudit = await page.evaluate(() => {
+      const original = clone(state), oldScored = memoryAttemptScored;
+      state.god={};memoryAttemptScored=false;
+      const first=recordMemoryEvidence(true,'CDEFG');
+      memoryAttemptScored=false;
+      const duplicate=recordMemoryEvidence(true,'CDEFG');
+      const attempts=state.god.memoryAssessment.attempts;
+      state=original;memoryAttemptScored=oldScored;saveState();
+      return {first,duplicate,attempts};
+    });
+    assert.deepEqual(memoryDuplicateAudit,{first:true,duplicate:false,attempts:1},'Una secuencia de memoria repetida se acreditó más de una vez');
+
     // La lectura rítmica debe validar la entrada inicial, las duraciones y los silencios.
     const rhythmAudit = await page.evaluate(() => {
       const p = RHYTHM_PATTERNS.find(x => x.id === 'quarter-rest');
