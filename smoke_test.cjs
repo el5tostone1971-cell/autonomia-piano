@@ -671,6 +671,22 @@ const assert = require('node:assert/strict');
     });
     assert.deepEqual(chordLessonAudit,{arbitraryAccepted:false,correctSetAccepted:true,wrongOrderAccepted:false,correctOrderAccepted:true},'La evaluación de acordes aceptó acordes incorrectos o rechazó la progresión correcta');
 
+    // La misma frase auditiva no debe acreditar autonomía otra vez en otra lección.
+    const autonomyPhraseAudit = await page.evaluate(() => {
+      const original=clone(state),oldComplete=complete,oldLesson=courseAutoLessonData,oldExpected=courseAutoExpected.slice(),oldPlayed=courseAutoPlayed.slice(),oldArmed=courseAutoArmed;
+      state.skills.autonomy=0;state.lessons={};state.god={};
+      complete=id=>{state.lessons[id]=true};
+      courseAutoExpected=[60,62,64];courseAutoPlayed=[60,62,64];courseAutoLessonData={id:'auto-a'};courseAutoArmed=true;checkCourseAuto();
+      const first=state.skills.autonomy;
+      courseAutoLessonData={id:'auto-b'};courseAutoExpected=[60,62,64];courseAutoPlayed=[60,62,64];courseAutoArmed=true;checkCourseAuto();
+      const duplicate=state.skills.autonomy;
+      courseAutoLessonData={id:'auto-c'};courseAutoExpected=[60,64,67];courseAutoPlayed=[60,64,67];courseAutoArmed=true;checkCourseAuto();
+      const different=state.skills.autonomy;
+      state=original;complete=oldComplete;courseAutoLessonData=oldLesson;courseAutoExpected=oldExpected;courseAutoPlayed=oldPlayed;courseAutoArmed=oldArmed;saveState();
+      return {first,duplicate,different};
+    });
+    assert.deepEqual(autonomyPhraseAudit,{first:5,duplicate:5,different:10},'Una frase auditiva idéntica volvió a acreditar autonomía en otra lección');
+
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
