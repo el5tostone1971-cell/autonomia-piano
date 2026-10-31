@@ -491,6 +491,21 @@ const assert = require('node:assert/strict');
     assert.equal(rhythmAudit.rests, 2, 'No se enseñan silencios de negra y corchea');
     assert.match(rhythmAudit.symbols, /𝄽/, 'La notación no representa el silencio de negra');
 
+    // La misma evidencia musical no puede volver a inflar las competencias al reiniciar el ejercicio.
+    const uniqueEvidenceAudit = await page.evaluate(() => {
+      const original = clone(state);
+      state.skills = { orientation:0, rhythm:0, right:0, left:0, chords:0, ear:0, memory:0, autonomy:0 };
+      state.god = {};
+      const first = awardUniqueSkillEvidence('phrases','p1',{right:3,left:3,rhythm:4});
+      const duplicate = awardUniqueSkillEvidence('phrases','p1',{right:3,left:3,rhythm:4});
+      const different = awardUniqueSkillEvidence('phrases','p2',{right:3,left:3,rhythm:4});
+      const result = { first, duplicate, different, skills:{right:state.skills.right,left:state.skills.left,rhythm:state.skills.rhythm}, ledger:state.god.skillEvidence.phrases };
+      state = original;
+      saveState();
+      return result;
+    });
+    assert.deepEqual(uniqueEvidenceAudit, { first:true, duplicate:false, different:true, skills:{right:6,left:6,rhythm:8}, ledger:['p1','p2'] }, 'La misma evidencia se pudo acreditar más de una vez o se bloqueó un ejercicio nuevo');
+
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
