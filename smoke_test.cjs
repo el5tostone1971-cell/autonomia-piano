@@ -310,7 +310,7 @@ const assert = require('node:assert/strict');
       rhythmReadingTimes = rhythmPatternAttacks(p).map(beat => beat * 600);
       const before = state.skills.rhythm;
       checkRhythmReading();
-      const firstPass = { message: document.getElementById('rhythmReadingMsg')?.textContent || '', score: state.skills.rhythm, mastered: state.god.rhythmAssessment?.mastered?.slice() || [] };
+      const firstPass = { message: document.getElementById('rhythmReadingMsg')?.textContent || '', score: state.skills.rhythm, delta: state.skills.rhythm - before, mastered: state.god.rhythmAssessment?.mastered?.slice() || [] };
       rhythmReadingTimes = rhythmPatternAttacks(p).map(beat => beat * 600 + 1000); // Mismo intervalo entre notas, pero entrada un compás tarde.
       checkRhythmReading();
       const lateEntryMessage = document.getElementById('rhythmReadingMsg')?.textContent || '';
@@ -321,7 +321,7 @@ const assert = require('node:assert/strict');
       return { firstPass, lateEntryMessage, extraAttackMessage, patterns: RHYTHM_PATTERNS.length, rests: RHYTHM_PATTERNS.filter(x => x.steps.some(s => s[0] === 'rest')).length, symbols: rhythmNotation(p) };
     });
     assert.match(rhythmAudit.firstPass.message, /Ritmo correcto/i, 'Un patrón rítmico exacto no fue aprobado');
-    assert.equal(rhythmAudit.firstPass.score, 2, 'La competencia rítmica no se acreditó una sola vez por patrón');
+    assert.equal(rhythmAudit.firstPass.delta, 2, 'La competencia rítmica no se acreditó una sola vez por patrón');
     assert.equal(rhythmAudit.firstPass.mastered.length, 1, 'No se guardó el patrón rítmico dominado');
     assert.match(rhythmAudit.lateEntryMessage, /antes del pulso|tarde|entrada/i, 'La evaluación no detectó una entrada fuera del primer pulso');
     assert.match(rhythmAudit.extraAttackMessage, /Faltan o sobran ataques/i, 'La evaluación permitió tocar durante un silencio');
