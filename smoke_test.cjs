@@ -140,7 +140,7 @@ const assert = require('node:assert/strict');
         const spanishPattern = /\b(?:Encontrá|Tocá|Completá|Escuchá|Memorizá|Recordá|Podés|Aprobás|Día \d+|Se evalúa|No alcanza|Volvé|Mirá|Ocultá|Técnica de hoy|sin detenerte|con pulso parejo)\b/i;
         const spanishMatch = text.match(spanishPattern)?.[0] || '';
         const spanishLeak = !!spanishMatch;
-        results.push({ id: lesson.id, kind: lesson.kind, rendered: !!main && html.length > 100, unimplemented: text.includes('Ejercicio no implementado'), interactive: !!main?.querySelector('button, .keys, input, [data-free-exercise]'), spanishLeak, spanishMatch, excerpt: spanishLeak ? text.slice(0, 240) : '' });
+        results.push({ id: lesson.id, kind: lesson.kind, engineMapped: typeof window[exerciseFunctionName(lesson.kind)] === 'function', rendered: !!main && html.length > 100, unimplemented: text.includes('Ejercicio no implementado'), interactive: !!main?.querySelector('button, .keys, input, [data-free-exercise]'), spanishLeak, spanishMatch, excerpt: spanishLeak ? text.slice(0, 240) : '' });
       }
       return { count: ids.length, unique: unique.size, results };
     });
@@ -148,6 +148,7 @@ const assert = require('node:assert/strict');
     assert.equal(lessonAudit.unique, 90, 'Hay IDs de lección duplicados');
     assert.equal(lessonAudit.results.length, 90, 'No se recorrieron las 90 lecciones');
     assert.deepEqual(lessonAudit.results.filter(x => !x.rendered || x.unimplemented || !x.interactive), [], 'Hay lecciones que no renderizan un ejercicio funcional: ' + JSON.stringify(lessonAudit.results.filter(x => !x.rendered || x.unimplemented || !x.interactive)));
+    assert.deepEqual(lessonAudit.results.filter(x => !x.engineMapped), [], 'Hay motores de ejercicios sin mapear: ' + JSON.stringify(lessonAudit.results.filter(x => !x.engineMapped)));
     assert.deepEqual(lessonAudit.results.filter(x => x.spanishLeak), [], 'Hay instrucciones en español al recorrer lecciones en portugués: ' + JSON.stringify(lessonAudit.results.filter(x => x.spanishLeak)));
 
     await page.evaluate(() => changePianoLanguage('es'));
