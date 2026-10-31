@@ -418,6 +418,25 @@ const assert = require('node:assert/strict');
     });
     assert.deepEqual(adaptiveGuidanceAudit, { guide: 'C · D · E · F · G', reduced: 'C · ? · E · ? · G', memory: 'C · ? · ? · ? · G', autonomous: 'C · ? · ? · ? · ?', autonomousHidden: true }, 'Los cuatro niveles de ayuda no reducen progresivamente las pistas');
 
+    // La pantalla de una lección general debe usar la pista del Motor 11 y registrar solo la solicitud de ayuda.
+    const genericGuidanceUiAudit = await page.evaluate(() => {
+      const original = clone(state);
+      state.skills = { orientation:60, rhythm:60, right:60, left:60, chords:60, ear:60, memory:60, autonomy:60 };
+      state.god = {};
+      genericLesson({ id:'motor-guidance-test', title:'Prueba adaptativa', desc:'Prueba de ayuda progresiva.', seq:['C','D','E','F','G'] });
+      const target = document.getElementById('genericTarget');
+      const initial = { text: target?.textContent, visible: !!target && !target.classList.contains('hidden') };
+      toggleGenericHelp();
+      const hidden = !!target?.classList.contains('hidden');
+      toggleGenericHelp();
+      const shownAgain = !!target && !target.classList.contains('hidden');
+      const requests = state.god.autonomy?.helpRequests?.length || 0;
+      state = original;
+      saveState();
+      return { initial, hidden, shownAgain, requests };
+    });
+    assert.deepEqual(genericGuidanceUiAudit, { initial: { text:'C · ? · ? · ? · G', visible:true }, hidden:true, shownAgain:true, requests:1 }, 'La lección general no aplicó la pista adaptativa o no registró la solicitud');
+
     // No se puede aprobar memoria mientras la secuencia siga visible; al ocultarla se habilita la evaluación.
     const memoryUiAudit = await page.evaluate(() => {
       const original = clone(state);
