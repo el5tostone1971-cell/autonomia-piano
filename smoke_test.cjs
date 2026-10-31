@@ -732,6 +732,32 @@ const assert = require('node:assert/strict');
     });
     assert.deepEqual(techniqueEvidenceAudit,{first:3,duplicate:3},'Cambiar solo la digitación teórica volvió a sumar una habilidad que no puede medirse');
 
+    // La recuperación/mezcla de respaldos debe conservar los registros que impiden volver a puntuar la misma evidencia.
+    const evidenceMergeAudit = await page.evaluate(() => {
+      const a=clone(defaultState),b=clone(defaultState);
+      a.god.skillEvidence={phrases:['p1'],twoHands:['th1']};
+      b.god.skillEvidence={phrases:['p2'],courseAuto:['seq1']};
+      a.god.twoHandsAssessment=['l61'];b.god.twoHandsAssessment=['l62'];
+      a.god.memoryAssessment={attempts:2,correct:1,batchAttempts:2,batchCorrect:1,batches:0,skillPoints:0,seenSequences:['CDEFG']};
+      b.god.memoryAssessment={attempts:3,correct:2,batchAttempts:0,batchCorrect:0,batches:1,skillPoints:2,seenSequences:['CDEFGAB']};
+      a.god.rhythmAssessment={mastered:['q4']};b.god.rhythmAssessment={mastered:['e8']};
+      a.earAdvanced={correct:2,total:3,skillMilestones:0,seenStimuli:['stim-a'],byType:{direction:{correct:1,total:2}}};
+      b.earAdvanced={correct:3,total:4,skillMilestones:1,seenStimuli:['stim-b'],byType:{direction:{correct:2,total:3}}};
+      const merged=mergeProgressStates(a,b);
+      return {
+        evidence:merged.god.skillEvidence,
+        twoHands:merged.god.twoHandsAssessment,
+        memory:merged.god.memoryAssessment,
+        rhythm:merged.god.rhythmAssessment.mastered,
+        ear:merged.earAdvanced
+      };
+    });
+    assert.deepEqual(evidenceMergeAudit.evidence,{phrases:['p1','p2'],twoHands:['th1'],courseAuto:['seq1']},'La mezcla de respaldos perdió registros de evidencia única');
+    assert.deepEqual(evidenceMergeAudit.twoHands,['l61','l62'],'La mezcla de respaldos perdió lecciones de dos manos ya acreditadas');
+    assert.deepEqual(evidenceMergeAudit.memory.seenSequences,['CDEFG','CDEFGAB'],'La mezcla de respaldos permitió repetir secuencias de memoria');
+    assert.deepEqual(evidenceMergeAudit.rhythm,['q4','e8'],'La mezcla de respaldos perdió patrones rítmicos dominados');
+    assert.deepEqual(evidenceMergeAudit.ear.seenStimuli,['stim-a','stim-b'],'La mezcla de respaldos permitió repetir estímulos de oído');
+
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
