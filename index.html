@@ -1739,11 +1739,19 @@ function earAdvancedNew(pool,rerender=true){
  if(rerender) show('earAdvanced');
 }
 function earAdvancedRecordNote(n){const q=earAdvancedState.question;if(!q||!earAdvancedState.started||!['memory','tonic','transcribe'].includes(q.type))return;const max=q.type==='tonic'?1:q.playNotes?.length||0;if(earAdvancedState.answer.length<max)earAdvancedState.answer.push(n);const el=document.getElementById('earAdvInput');if(el)el.textContent=earAdvancedState.answer.length?earAdvancedState.answer.map(pitchClassName).join(' · '):'—';}
+function earAdvancedStimulusId(q){
+ return q?JSON.stringify({type:q.type,notes:q.playNotes||[],chords:q.playChords||[]}):'';
+}
 function recordEarAdvancedResult(q,ok){
- if(!q||q._answered)return false;
+ if(!q||q._answered||!q.playNotes)return false;
+ state.earAdvanced=state.earAdvanced&&typeof state.earAdvanced==='object'?state.earAdvanced:{correct:0,total:0,byType:{}};
+ const ea=state.earAdvanced;ea.seenStimuli=Array.isArray(ea.seenStimuli)?ea.seenStimuli:[];
+ const stimulusId=earAdvancedStimulusId(q);
+ if(ea.seenStimuli.includes(stimulusId))return false;
+ ea.seenStimuli.push(stimulusId);
+ if(ea.seenStimuli.length>500)ea.seenStimuli=ea.seenStimuli.slice(-500);
  q._answered=true;
- if(typeof state.earAdvanced!=='object')state.earAdvanced={correct:0,total:0,byType:{}};
- const ea=state.earAdvanced;ea.byType=ea.byType||{};ea.total=(ea.total||0)+1;
+ ea.byType=ea.byType||{};ea.total=(ea.total||0)+1;
  ea.byType[q.type]=ea.byType[q.type]||{correct:0,total:0};ea.byType[q.type].total++;
  if(ok){ea.correct=(ea.correct||0)+1;ea.byType[q.type].correct++;award(q.xp||20);}
  const milestone=Math.floor(ea.total/5),previous=Number(ea.skillMilestones)||0;
@@ -1755,6 +1763,7 @@ function recordEarAdvancedResult(q,ok){
  }
  saveState();return true;
 }
+
 function earAdvancedCheckKeyboard(){
  const q=earAdvancedState.question;if(!q||!earAdvancedState.started)return toast('Primero escuchá el ejercicio.');
  const expected=q.type==='tonic'?[q.playNotes[0]]:q.playNotes.slice(),got=earAdvancedState.answer.slice();
@@ -1770,31 +1779,45 @@ function earAdvancedQuestion(q){
  return `<div class="choiceGrid">${(sets[q.type]||[]).map(x=>`<button onclick="earAdvancedAnswer('${x.replaceAll('–','-')}')">${x}</button>`).join('')}</div>`;
 }
 function earAdvancedPlay(){
- const q=earAdvancedState.question; if(!q)return;
+ const q=earAdvancedState.question;if(!q)return;
  earAdvancedState.started=true;
- const sets={direction:[60,64],interval:[60,64],quality:[60,64,67],chord:[60,64,67],progression:[60,67,69,65]};
- let notes=[];
- if(q.type==='direction') notes=Math.random()>.5?[60,64]:[64,60];
- else if(q.type==='interval') notes=Math.random()>.5?[60,62]:[60,67];
- else if(q.type==='quality') notes=Math.random()>.5?[60,64,67]:[60,63,67];
- else if(q.type==='chord') notes=[60,64,67];
- else if(q.type==='progression') notes=[60,67,69,65];
- else if(q.type==='memory') notes=[60,62,64,62];
- else if(q.type==='tonic') notes=[60,64,67,64,60];
- else if(q.type==='transcribe') notes=[60,62,64,67,64];
- else notes=[60,62,64,62];
- q.playNotes=notes;
- notes.forEach((n,i)=>setTimeout(()=>tone(n,0.32),i*420));
+ const root=48+Math.floor(Math.random()*13);
+ let notes=[],chords=[];
+ if(q.type==='direction')notes=Math.random()>.5?[root,root+Math.ceil(Math.random()*5)]:[root+Math.ceil(Math.random()*5),root];
+ else if(q.type==='interval'){const d=Math.random()>.5?2:7;notes=[root,root+d]}
+ else if(q.type==='quality')notes=Math.random()>.5?[root,root+4,root+7]:[root,root+3,root+7];
+ else if(q.type==='chord'){
+  const choices=[{name:'Tónica',notes:[root,root+4,root+7]},{name:'Dominante',notes:[root+7,root+11,root+14]},{name:'Relativa menor',notes:[root+9,root+12,root+16]}];
+  const choice=choices[Math.floor(Math.random()*choices.length)];q.expectedAnswer=choice.name;chords=[choice.notes];notes=choice.notes.slice();
+ }else if(q.type==='progression'){
+  const choices=[
+   {name:'I-V-vi-IV',degrees:[0,7,9,5]},
+   {name:'I-vi-IV-V',degrees:[0,9,5,7]},
+   {name:'vi-IV-I-V',degrees:[9,5,0,7]}
+  ];
+  const choice=choices[Math.floor(Math.random()*choices.length)];q.expectedAnswer=choice.name;
+  chords=choice.degrees.map((d,i)=>{const minor=i===2&&choice.name==='I-V-vi-IV'||d===9;const r=root+d;return minor?[r,r+3,r+7]:[r,r+4,r+7]});
+  notes=choice.degrees.map(d=>root+d);
+ }else if(q.type==='memory')notes=Array.from({length:4},()=>root+Math.floor(Math.random()*8));
+ else if(q.type==='tonic')notes=[root,root+4,root+7,root+4,root];
+ else if(q.type==='transcribe')notes=Array.from({length:5},()=>root+Math.floor(Math.random()*8));
+ else notes=[root,root+2,root+4,root+2];
+ q.playNotes=notes;q.playChords=chords;
+ if(q.type==='chord')chords[0].forEach(n=>tone(n,0.65));
+ else if(q.type==='progression')chords.forEach((chord,i)=>chord.forEach(n=>setTimeout(()=>tone(n,0.52),i*620)));
+ else notes.forEach((n,i)=>setTimeout(()=>tone(n,0.32),i*420));
 }
+
 function earAdvancedAnswer(ans){
  const q=earAdvancedState.question;if(!q||!earAdvancedState.started)return toast('Primero escuchá el ejercicio.');
- const expected=q.type==='direction'?(q.playNotes[1]>q.playNotes[0]?'Sube':'Baja'):q.type==='interval'?(Math.abs(q.playNotes[1]-q.playNotes[0])<5?'Más cerca':'Más lejos'):q.type==='quality'?(q.playNotes.includes(63)?'Menor':'Mayor'):q.type==='chord'?'Tónica':'I-V-vi-IV';
+ const expected=q.type==='direction'?(q.playNotes[1]>q.playNotes[0]?'Sube':'Baja'):q.type==='interval'?(Math.abs(q.playNotes[1]-q.playNotes[0])<5?'Más cerca':'Más lejos'):q.type==='quality'?(q.playNotes[1]-q.playNotes[0]===3?'Menor':'Mayor'):q.type==='chord'||q.type==='progression'?q.expectedAnswer:'';
  const ok=ans===expected||ans.replaceAll('-','–')===expected;
- if(!recordEarAdvancedResult(q,ok))return toast('Esta pregunta ya fue evaluada. Elegí una nueva para seguir midiendo tu oído.');
+ if(!recordEarAdvancedResult(q,ok))return toast('Este sonido ya fue evaluado. Generá una nueva pregunta para medir otro estímulo.');
  const r=document.getElementById('earAdvResult');
- if(ok){toast('¡Muy bien!');if(r)r.innerHTML='<strong>Correcto.</strong> Tu oído reconoció la relación musical.';}
- else if(r)r.innerHTML='<strong>Todavía no.</strong> Escuchá otra vez y compará la distancia o el carácter; elegí una nueva pregunta para otro intento.';
+ if(ok){toast('¡Muy bien!');if(r)r.innerHTML='<strong>Correcto.</strong> Reconociste la relación musical.';}
+ else if(r)r.innerHTML='<strong>Todavía no.</strong> Escuchá otra vez y compará; elegí una nueva pregunta para otro intento.';
 }
+
 
 function progressAnalytics(){
  const skills=state.skills||{}; const vals=Object.entries(skills); const sorted=vals.slice().sort((a,b)=>b[1]-a[1]);
