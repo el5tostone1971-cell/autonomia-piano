@@ -302,6 +302,32 @@ const assert = require('node:assert/strict');
     assert.equal(autonomyGateAudit.weakRhythm, 'reduced', 'Una competencia rítmica débil no limitó la ayuda');
     assert.equal(autonomyGateAudit.balanced, 'autonomous', 'El modo autónomo no se habilitó con todas las competencias altas');
 
+    // El oído avanzado solo suma competencia tras una muestra de cinco respuestas y no permite duplicar una misma pregunta.
+    const earEngineAudit = await page.evaluate(() => {
+      const original = clone(state);
+      state.skills.ear = 10;
+      state.earAdvanced = { correct: 0, total: 0, byType: {}, skillMilestones: 0 };
+      let duplicateAccepted = null;
+      for (let i = 0; i < 5; i++) {
+        const q = { type: 'quality', _answered: false, xp: 1 };
+        const accepted = recordEarAdvancedResult(q, i < 4);
+        if (i === 0) duplicateAccepted = recordEarAdvancedResult(q, true);
+      }
+      const result = { ear: state.skills.ear, total: state.earAdvanced.total, correct: state.earAdvanced.correct, duplicateAccepted };
+      state = original;
+      saveState();
+      return result;
+    });
+    assert.equal(earEngineAudit.ear, 12, 'El oído avanzado no acreditó el umbral de precisión del 80%');
+    assert.equal(earEngineAudit.total, 5, 'El oído avanzado contó dos veces una pregunta o perdió intentos');
+    assert.equal(earEngineAudit.correct, 4, 'El oído avanzado no registró las respuestas correctas');
+    assert.equal(earEngineAudit.duplicateAccepted, false, 'Se pudo acreditar dos veces una misma pregunta');
+    const autonomyPanelAudit = await page.evaluate(() => {
+      const html = godAutonomy();
+      return { eightSkills: ['Lectura y orientación','Ritmo','Mano derecha','Mano izquierda','Acordes','Oído musical','Memoria','Autonomía'].every(x => html.includes(x)), weakest: html.includes('Competencia más débil'), mode: html.includes('Modo actual') };
+    });
+    assert.deepEqual(autonomyPanelAudit, { eightSkills: true, weakest: true, mode: true }, 'El panel del Motor 11 no muestra sus ocho competencias y el criterio de ayuda');
+
     // La lectura rítmica debe validar la entrada inicial, las duraciones y los silencios.
     const rhythmAudit = await page.evaluate(() => {
       const p = RHYTHM_PATTERNS.find(x => x.id === 'quarter-rest');
