@@ -2574,8 +2574,8 @@ function hideMemory(){const box=document.getElementById('memoryBox');if(!box)ret
 function checkMemory(){
  if(!memoryHelpHidden)return toast('Primero ocultá la secuencia.');
  if(memoryAttemptScored)return toast('Esta ronda ya fue evaluada. Reiniciá para un nuevo intento.');
- const ok=mem.join('')===memoryExpectedSeq.join('');if(!recordMemoryEvidence(ok,memoryExpectedSeq.join(''))){if(msg)msg.textContent='Esta secuencia ya fue evaluada. Generá una nueva para seguir entrenando.';return;}
  const msg=document.getElementById('memoryMsg');
+ const ok=mem.join('')===memoryExpectedSeq.join('');if(!recordMemoryEvidence(ok,memoryExpectedSeq.join(''))){if(msg)msg.textContent='Esta secuencia ya fue evaluada. Generá una nueva para seguir entrenando.';return;}
  if(ok){if(msg)msg.textContent='✓ Secuencia recordada sin ayuda.';complete('l4');}
  else {if(msg)msg.textContent='La secuencia no coincide. No mostramos la respuesta: reiniciá y probá otra vez.';toast('No coincide. Reiniciá la prueba y volvé a intentarlo sin ayuda.');}
 }
