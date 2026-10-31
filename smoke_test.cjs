@@ -284,6 +284,24 @@ const assert = require('node:assert/strict');
     assert.deepEqual(falseAutonomyCredits.afterTwoHands, falseAutonomyCredits.before, 'La coordinación de dos manos otorgó autonomía/memoria sin evaluarlas');
     assert.deepEqual(falseAutonomyCredits.afterPhrase, falseAutonomyCredits.before, 'La frase guiada otorgó autonomía/memoria sin evaluarlas');
 
+    // El Motor 11 nunca debe ocultar ayudas por un promedio alto si una competencia sigue baja.
+    const autonomyGateAudit = await page.evaluate(() => {
+      const original = { ...state.skills };
+      Object.keys(state.skills).forEach(key => { state.skills[key] = 100; });
+      state.skills.autonomy = 0;
+      const weakAutonomy = autonomyMode();
+      state.skills.autonomy = 100;
+      state.skills.rhythm = 40;
+      const weakRhythm = autonomyMode();
+      Object.keys(state.skills).forEach(key => { state.skills[key] = 80; });
+      const balanced = autonomyMode();
+      state.skills = original;
+      return { weakAutonomy, weakRhythm, balanced, floor: autonomyFloorScore };
+    });
+    assert.equal(autonomyGateAudit.weakAutonomy, 'guide', 'El promedio permitió retirar ayudas con autonomía sin demostrar');
+    assert.equal(autonomyGateAudit.weakRhythm, 'reduced', 'Una competencia rítmica débil no limitó la ayuda');
+    assert.equal(autonomyGateAudit.balanced, 'autonomous', 'El modo autónomo no se habilitó con todas las competencias altas');
+
     // La lectura rítmica debe validar la entrada inicial, las duraciones y los silencios.
     const rhythmAudit = await page.evaluate(() => {
       const p = RHYTHM_PATTERNS.find(x => x.id === 'quarter-rest');
