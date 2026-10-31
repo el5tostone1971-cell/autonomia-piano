@@ -487,6 +487,18 @@ const pianoPT=[
 ["Práctica libre","Prática livre"],
 ["Elegí qué habilidad querés entrenar. Podés usar el teclado virtual o conectar un teclado MIDI.","Escolha a habilidade que deseja treinar. Você pode usar o teclado virtual ou conectar um teclado MIDI."],
 ["Técnica de hoy","Técnica de hoje"],
+["Escala de Sol","Escala de Sol"],
+["Entrená movimientos entre notas separadas, sin apurarte.","Treine movimentos entre notas separadas, sem pressa."],
+["Tocá Do–Mi, Re–Fa, Mi–Sol y luego repetí cada pareja.","Toque Dó–Mi, Ré–Fá, Mi–Sol e depois repita cada par."],
+["Practicá una nota por vez de un acorde, manteniendo los dedos relajados.","Pratique uma nota de cada vez de um acorde, mantendo os dedos relaxados."],
+["Tocá Do–Mi–Sol–Do y después bajá: Do–Sol–Mi–Do.","Toque Dó–Mi–Sol–Dó e depois desça: Dó–Sol–Mi–Dó."],
+["Reconocé movimientos de un semitono entre teclas vecinas.","Reconheça movimentos de um semitom entre teclas vizinhas."],
+["Tocá Do, luego la tecla negra inmediatamente a su derecha y después Re.","Toque Dó, depois a tecla preta imediatamente à sua direita e, em seguida, Ré."],
+["Practicá una escala con una tecla negra y escuchá cómo cambia el patrón.","Pratique uma escala com uma tecla preta e ouça como o padrão muda."],
+["Tocá Sol–La–Si–Do–Re–Mi–Fa♯–Sol y volvé despacio.","Toque Sol–Lá–Si–Dó–Ré–Mi–Fá♯–Sol e volte devagar."],
+["Entrená un patrón sencillo en el registro grave antes de unir las manos.","Treine um padrão simples na região grave antes de juntar as mãos."],
+["Tocá Do grave, Sol, Do, Sol cuatro veces con pulso parejo.","Toque Dó grave, Sol, Dó, Sol quatro vezes mantendo a pulsação regular."],
+
 ["Dedos redondeados, hombros sueltos y movimientos mínimos.","Dedos curvados, ombros relaxados e movimentos mínimos."],
 ["Tocá cinco teclas blancas seguidas, despacio y con la mano relajada.","Toque cinco teclas brancas seguidas, devagar e com a mão relaxada."],
 ["Encontrá las teclas Do mirando los grupos de dos teclas negras.","Encontre as teclas Dó observando os grupos de duas teclas pretas."],
@@ -1432,7 +1444,7 @@ const FREE_PRACTICE_TARGETS={
  leftHand:[48,55,48,55,48,55,48,55]
 };
 let freePracticeActive=false,freePracticeInput=[],freePracticeExpected=[];
-function freePracticeName(n){const pc=pitchClassName(n);return ({C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'}[pc]||pc)+(Math.floor(n/12)-1)}
+function freePracticeName(n){const pc=pitchClassName(n),names=pianoLanguage==='pt'?{C:'Dó',D:'Ré',E:'Mi',F:'Fá',G:'Sol',A:'Lá',B:'Si'}:{C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'};return (names[pc]||pc)+(Math.floor(n/12)-1)}
 function freePracticeLabel(es,pt){return pianoLanguage==='pt'?pt:es}
 function renderFreePracticeStatus(){
  const progress=document.getElementById('freePracticeProgress'),result=document.getElementById('freePracticeResult');
