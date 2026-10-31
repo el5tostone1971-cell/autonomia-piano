@@ -184,7 +184,28 @@ function mergeProgressStates(base,incoming){
  out.xp=Math.max(Number(a.xp)||0,Number(b.xp)||0);out.day=Math.max(Number(a.day)||1,Number(b.day)||1);
  out.streak=Math.max(Number(a.streak)||0,Number(b.streak)||0);out.lastPractice=[a.lastPractice,b.lastPractice].filter(Boolean).sort().pop()||'';
  out.god=Object.assign({},a.god||{},b.god||{});
- if(a.god||b.god){out.god.spaced=Object.assign({},a.god?.spaced||{},b.god?.spaced||{});const q=[...(a.god?.spaced?.queue||[]),...(b.god?.spaced?.queue||[])];out.god.spaced.queue=[...new Map(q.map(x=>[x.id||JSON.stringify(x),x])).values()];}
+ if(a.god||b.god){
+  out.god.spaced=Object.assign({},a.god?.spaced||{},b.god?.spaced||{});const q=[...(a.god?.spaced?.queue||[]),...(b.god?.spaced?.queue||[])];out.god.spaced.queue=[...new Map(q.map(x=>[x.id||JSON.stringify(x),x])).values()];
+  const union=(x,y)=>[...new Set([...(Array.isArray(x)?x:[]),...(Array.isArray(y)?y:[])])];
+  const evidenceA=a.god?.skillEvidence||{},evidenceB=b.god?.skillEvidence||{},evidence={};
+  for(const key of new Set([...Object.keys(evidenceA),...Object.keys(evidenceB)]))evidence[key]=union(evidenceA[key],evidenceB[key]);
+  out.god.skillEvidence=evidence;
+  out.god.twoHandsAssessment=union(a.god?.twoHandsAssessment,b.god?.twoHandsAssessment);
+  const ma=a.god?.memoryAssessment||{},mb=b.god?.memoryAssessment||{};
+  out.god.memoryAssessment={...ma,...mb};
+  for(const key of ['attempts','correct','batchAttempts','batchCorrect','batches','skillPoints'])out.god.memoryAssessment[key]=Math.max(Number(ma[key])||0,Number(mb[key])||0);
+  out.god.memoryAssessment.seenSequences=union(ma.seenSequences,mb.seenSequences);
+  const ra=a.god?.rhythmAssessment||{},rb=b.god?.rhythmAssessment||{};
+  out.god.rhythmAssessment={...ra,...rb,mastered:union(ra.mastered,rb.mastered)};
+  const aa=a.god?.autonomy||{},ab=b.god?.autonomy||{};
+  out.god.autonomy={...aa,...ab,helpRequests:union((aa.helpRequests||[]).map(x=>JSON.stringify(x)),(ab.helpRequests||[]).map(x=>JSON.stringify(x))).map(x=>{try{return JSON.parse(x)}catch{return x}})};
+ }
+ const ea=a.earAdvanced||{},eb=b.earAdvanced||{};
+ out.earAdvanced={...ea,...eb,correct:Math.max(Number(ea.correct)||0,Number(eb.correct)||0),total:Math.max(Number(ea.total)||0,Number(eb.total)||0),skillMilestones:Math.max(Number(ea.skillMilestones)||0,Number(eb.skillMilestones)||0),seenStimuli:[...new Set([...(ea.seenStimuli||[]),...(eb.seenStimuli||[])])],byType:{}};
+ for(const type of new Set([...Object.keys(ea.byType||{}),...Object.keys(eb.byType||{})])){
+  const x=ea.byType?.[type]||{},y=eb.byType?.[type]||{};
+  out.earAdvanced.byType[type]={correct:Math.max(Number(x.correct)||0,Number(y.correct)||0),total:Math.max(Number(x.total)||0,Number(y.total)||0)};
+ }
  return normalizeState(out)
 }
 function loadState(){
