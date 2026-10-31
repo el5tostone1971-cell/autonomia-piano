@@ -499,6 +499,7 @@ const assert = require('node:assert/strict');
     assert.match(earPortugueseAudit.labels,/Sobe/i,'A opção ascendente não foi traduzida');
     assert.match(earPortugueseAudit.labels,/Desce/i,'A opção descendente não foi traduzida');
     assert.match(earPortugueseAudit.labels,/Nova pergunta/i,'A ação de nova pergunta não foi traduzida');
+    assert.match(earPortugueseAudit.labels,/Correto\./i,'O feedback da resposta correta não foi traduzido');
     assert.deepEqual({correct:earPortugueseAudit.correct,total:earPortugueseAudit.total},{correct:1,total:1},'A resposta correta em português não foi reconhecida');
 
     // Una secuencia de memoria idéntica no puede contabilizarse como evidencia nueva tras reiniciar.
