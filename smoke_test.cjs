@@ -583,6 +583,28 @@ const assert = require('node:assert/strict');
     assert.equal(randomizedMemoryAudit.third.seq.length,7,'El desafío de autonomía no genera siete notas');
     assert.equal(randomizedMemoryAudit.third.visible.replaceAll(' ','').replaceAll('·',''),randomizedMemoryAudit.third.seq.join(''),'La autonomía no muestra la secuencia que luego evalúa');
 
+    // Los acordes del acompañamiento solo acreditan una vez cada posición de una progresión concreta.
+    const chordEvidenceAudit = await page.evaluate(() => {
+      const original = clone(state);
+      const oldAccomp = { ...accomp, progression:accomp.progression.slice() };
+      const oldPanel = document.getElementById('accDetected');
+      const panel = document.createElement('div'); panel.id='accDetected'; document.body.appendChild(panel);
+      state.skills.chords=0;state.god={};
+      accomp.progression=['C','Am','F','G'];accomp.step=0;
+      accChordFeedback('C');accChordFeedback('C');
+      const afterDuplicate={score:state.skills.chords,ledger:state.god.skillEvidence?.accompaniment?.slice()||[]};
+      accomp.step=1;accChordFeedback('Am');accChordFeedback('Am');
+      const afterNext={score:state.skills.chords,ledger:state.god.skillEvidence?.accompaniment?.slice()||[]};
+      accomp.step=2;accChordFeedback('G');
+      const afterWrong=state.skills.chords;
+      panel.remove();if(oldPanel)document.body.appendChild(oldPanel);
+      state=original;Object.assign(accomp,oldAccomp);saveState();
+      return {afterDuplicate,afterNext,afterWrong};
+    });
+    assert.deepEqual(chordEvidenceAudit.afterDuplicate,{score:1,ledger:['C-Am-F-G:0']},'El mismo acorde en el mismo paso sumó puntos más de una vez');
+    assert.deepEqual(chordEvidenceAudit.afterNext,{score:2,ledger:['C-Am-F-G:0','C-Am-F-G:1']},'Un acorde correcto en un paso nuevo no fue acreditado');
+    assert.equal(chordEvidenceAudit.afterWrong,2,'Un acorde incorrecto sumó puntos de competencia');
+
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
