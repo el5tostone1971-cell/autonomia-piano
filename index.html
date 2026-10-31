@@ -504,6 +504,10 @@ const pianoPT=[
 ["Encontrá las teclas Do mirando los grupos de dos teclas negras.","Encontre as teclas Dó observando os grupos de duas teclas pretas."],
 ["Tocá todos los Do que encuentres en el teclado visible.","Toque todos os Dós que encontrar no teclado visível."],
 ["Escuchá y encontrá","Ouça e encontre"],
+["Escuchá la nota y encontrá la tecla. No se muestra el nombre hasta que respondas.","Ouça a nota e encontre a tecla. O nome não será mostrado até você responder."],
+["Escuchá la nota y encontrá la tecla. El nombre se revela después de responder.","Ouça a nota e encontre a tecla. O nome será revelado depois da resposta."],
+["Nota de referencia: ","Nota de referência: "],
+
 ["Escuchá una nota y buscá la misma en el teclado.","Ouça uma nota e encontre a mesma no teclado."],
 ["Escuchá la nota generada y buscá esa misma nota en el teclado.","Ouça a nota gerada e encontre a mesma nota no teclado."],
 ["Arpegio de Do","Arpejo de Dó"],
@@ -1430,7 +1434,7 @@ function curriculumForDay(d){const phase=d<=15?1:d<=45?2:d<=70?3:4;const sets={1
 function course(){let rows='';for(let d=1;d<=90;d++){const l=LESSONS.find(x=>x.day===d),p=PHASES.find(x=>d>=x.from&&d<=x.to),done=!!state.lessons[l.id],locked=d>state.day;rows+=`<div class="day ${!locked?'day-open':''}"><div style="flex:1"><b>Día ${d} · ${p.name.replace('Fase '+(PHASES.indexOf(p)+1)+' · ','')}</b><div>${l.title}</div><div class="muted">${l.desc}</div></div><div style="display:flex;align-items:center;gap:8px">${!locked?`<button class="btn ${done?'good':'primary'} small" type="button" onclick="openLesson('${l.id}')">${done?'↻ Revisar':'▶ Entrenar'}</button>`:''}<span class="status ${done?'done':''} ${locked?'lock':''}">${done?'✓ completado':locked?'🔒 progresivo':'listo para entrenar'}</span></div></div>`}return shell('Curso de 90 días','Los 90 días tienen un ejercicio concreto. El siguiente se desbloquea al demostrar el anterior. Si el diagnóstico detecta una debilidad repetida, la ruta adaptativa te propone un refuerzo sin quitarte el avance.',adaptiveCard()+`<div>${rows}</div>`)}
 function keyboard(extraClass=''){let s='<div class="keys '+extraClass+'" aria-label="Teclado virtual de 61 teclas">';for(let n=36;n<=96;n++){const pc=n%12,black=!WHITE_PCS.has(pc);s+=`<button class="key ${black?'black':'white'}" data-midi="${n}" data-note="${NOTE_NAMES[pc]}" onclick="pressKey(${n})" aria-label="${NOTE_NAMES[pc]}${Math.floor(n/12)-1}"><span>${black?'':NOTE_NAMES[pc]}</span></button>`}return s+'</div>'}
 function keyboardMap(){return shell('Mapa del teclado','Explorá las notas en cinco octavas. Tocá cualquier tecla para escucharla y ubicar su nombre.',`<div class="note-box"><b>Las siete notas musicales</b><p class="muted">Do (C) · Re (D) · Mi (E) · Fa (F) · Sol (G) · La (A) · Si (B). Después de Si, la secuencia vuelve a Do.</p><p class="muted"><b>Cómo orientarte:</b> Do está inmediatamente a la izquierda de cada grupo de dos teclas negras. Fa está a la izquierda de cada grupo de tres.</p><p class="muted">Las teclas blancas son las notas naturales. Las negras son sostenidos (♯) o bemoles (♭), según el contexto musical.</p></div>${keyboard()}<div class="note-box"><b>Prueba de orientación</b><p class="muted">1. Encontrá un grupo de dos teclas negras. 2. Tocá la tecla blanca que está a su izquierda: es Do. 3. Buscá el grupo de tres negras y tocá la blanca inmediatamente a su izquierda: es Fa.</p><p id="lastNote" class="score">Todavía no tocaste ninguna tecla.</p></div>`)}
-const FREE_PRACTICE=[{id:'technique',title:'Técnica de hoy',desc:'Dedos redondeados, hombros sueltos y movimientos mínimos.',task:'Tocá cinco teclas blancas seguidas, despacio y con la mano relajada.',seq:'1 · 2 · 3 · 4 · 5'},{id:'findC',title:'Encontrá todos los Do',desc:'Ubicá las teclas Do mirando los grupos de dos teclas negras.',task:'Tocá todos los Do que encuentres en el teclado visible.',seq:'Do · Do · Do'},{id:'scale',title:'Escala de Do',desc:'Practicá las siete notas naturales en orden ascendente y descendente.',task:'Tocá Do, Re, Mi, Fa, Sol, La, Si y volvé hasta Do.',seq:'Do · Re · Mi · Fa · Sol · La · Si · Do'},{id:'intervals',title:'Saltos de notas',desc:'Entrená movimientos entre notas separadas, sin apurarte.',task:'Tocá Do–Mi, Re–Fa, Mi–Sol y luego repetí cada pareja.',seq:'Do–Mi · Re–Fa · Mi–Sol'},{id:'ear',title:'Escuchá y encontrá',desc:'Escuchá una nota y buscá la misma en el teclado.',task:'Escuchá la nota generada y buscá esa misma nota en el teclado.',seq:'Escuchar → reconocer → tocar'},{id:'arpeggio',title:'Arpegio de Do',desc:'Practicá una nota por vez de un acorde, manteniendo los dedos relajados.',task:'Tocá Do–Mi–Sol–Do y después bajá: Do–Sol–Mi–Do.',seq:'Do · Mi · Sol · Do · Sol · Mi · Do'},{id:'chromatic',title:'Pasos cromáticos',desc:'Reconocé movimientos de un semitono entre teclas vecinas.',task:'Tocá Do, luego la tecla negra inmediatamente a su derecha y después Re.',seq:'Do · Do♯/Ré♭ · Re'},{id:'scaleG',title:'Escala de Sol',desc:'Practicá una escala con una tecla negra y escuchá cómo cambia el patrón.',task:'Tocá Sol–La–Si–Do–Re–Mi–Fa♯–Sol y volvé despacio.',seq:'Sol · La · Si · Do · Re · Mi · Fa♯ · Sol'},{id:'leftHand',title:'Mano izquierda',desc:'Entrená un patrón sencillo en el registro grave antes de unir las manos.',task:'Tocá Do grave, Sol, Do, Sol cuatro veces con pulso parejo.',seq:'Do · Sol · Do · Sol'}];
+const FREE_PRACTICE=[{id:'technique',title:'Técnica de hoy',desc:'Dedos redondeados, hombros sueltos y movimientos mínimos.',task:'Tocá cinco teclas blancas seguidas, despacio y con la mano relajada.',seq:'1 · 2 · 3 · 4 · 5'},{id:'findC',title:'Encontrá todos los Do',desc:'Ubicá las teclas Do mirando los grupos de dos teclas negras.',task:'Tocá todos los Do que encuentres en el teclado visible.',seq:'Do · Do · Do · Do · Do · Do'},{id:'scale',title:'Escala de Do',desc:'Practicá las siete notas naturales en orden ascendente y descendente.',task:'Tocá Do, Re, Mi, Fa, Sol, La, Si y volvé hasta Do.',seq:'Do · Re · Mi · Fa · Sol · La · Si · Do'},{id:'intervals',title:'Saltos de notas',desc:'Entrená movimientos entre notas separadas, sin apurarte.',task:'Tocá Do–Mi, Re–Fa, Mi–Sol y luego repetí cada pareja.',seq:'Do–Mi · Re–Fa · Mi–Sol'},{id:'ear',title:'Escuchá y encontrá',desc:'Escuchá una nota y buscá la misma en el teclado.',task:'Escuchá la nota generada y buscá esa misma nota en el teclado.',seq:'Escuchar → reconocer → tocar'},{id:'arpeggio',title:'Arpegio de Do',desc:'Practicá una nota por vez de un acorde, manteniendo los dedos relajados.',task:'Tocá Do–Mi–Sol–Do y después bajá: Do–Sol–Mi–Do.',seq:'Do · Mi · Sol · Do · Sol · Mi · Do'},{id:'chromatic',title:'Pasos cromáticos',desc:'Reconocé movimientos de un semitono entre teclas vecinas.',task:'Tocá Do, luego la tecla negra inmediatamente a su derecha y después Re.',seq:'Do · Do♯/Ré♭ · Re'},{id:'scaleG',title:'Escala de Sol',desc:'Practicá una escala con una tecla negra y escuchá cómo cambia el patrón.',task:'Tocá Sol–La–Si–Do–Re–Mi–Fa♯–Sol y volvé despacio.',seq:'Sol · La · Si · Do · Re · Mi · Fa♯ · Sol'},{id:'leftHand',title:'Mano izquierda',desc:'Entrená un patrón sencillo en el registro grave antes de unir las manos.',task:'Tocá Do grave, Sol, Do, Sol cuatro veces con pulso parejo.',seq:'Do · Sol · Do · Sol'}];
 let freePracticeSelected='technique',freePracticeTarget=60;
 const FREE_PRACTICE_TARGETS={
  technique:[60,62,64,65,67],
@@ -1471,14 +1475,13 @@ function setFreePracticeExercise(id){
  document.querySelectorAll('[data-free-exercise]').forEach(b=>b.classList.toggle('primary',b.dataset.freeExercise===id));
 }
 function startFreePractice(){
- const item=FREE_PRACTICE.find(x=>x.id===freePracticeSelected)||FREE_PRACTICE[0];
  freePracticeExpected=(FREE_PRACTICE_TARGETS[freePracticeSelected]||[]).slice();
  if(freePracticeSelected==='ear'){freePracticeTarget=60+Math.floor(Math.random()*12);freePracticeExpected=[freePracticeTarget];}
  freePracticeInput=[];freePracticeActive=true;
  const progress=document.getElementById('freePracticeProgress'),result=document.getElementById('freePracticeResult');
  if(progress)progress.textContent=freePracticeLabel('0 / '+freePracticeExpected.length+' notas · tocá la secuencia en orden.','0 / '+freePracticeExpected.length+' notas · toque a sequência na ordem.');
  if(result)result.textContent=freePracticeLabel('La aplicación registrará cada nota y señalará los aciertos y errores.','O aplicativo registrará cada nota e indicará os acertos e erros.');
- if(freePracticeSelected==='ear'){tone(freePracticeTarget);const hear=document.getElementById('freePracticeHear');if(hear)hear.textContent=freePracticeLabel('Escuchá y encontrá: '+freePracticeName(freePracticeTarget),'Ouça e encontre: '+freePracticeName(freePracticeTarget));}
+ if(freePracticeSelected==='ear'){tone(freePracticeTarget);const hear=document.getElementById('freePracticeHear');if(hear)hear.textContent=freePracticeLabel('Escuchá la nota y encontrá la tecla. No se muestra el nombre hasta que respondas.','Ouça a nota e encontre a tecla. O nome não será mostrado até você responder.');}
 }
 function registerFreePracticeNote(n){
  if(!freePracticeActive||!freePracticeExpected.length||freePracticeInput.length>=freePracticeExpected.length)return;
@@ -1491,9 +1494,15 @@ function resetFreePractice(){
  if(r)r.textContent='';
 }
 function playFreePracticeNote(){
- freePracticeTarget=60+Math.floor(Math.random()*12);tone(freePracticeTarget);
  const el=document.getElementById('freePracticeHear');
- if(el)el.textContent=freePracticeLabel('Nota objetivo: ','Nota-alvo: ')+freePracticeName(freePracticeTarget);
+ if(freePracticeSelected==='ear'){
+  if(!freePracticeActive||!freePracticeExpected.length){startFreePractice();return;}
+  tone(freePracticeExpected[0]);
+  if(el)el.textContent=freePracticeLabel('Escuchá la nota y encontrá la tecla. El nombre se revela después de responder.','Ouça a nota e encontre a tecla. O nome será revelado depois da resposta.');
+  return;
+ }
+ freePracticeTarget=60+Math.floor(Math.random()*12);tone(freePracticeTarget);
+ if(el)el.textContent=freePracticeLabel('Nota de referencia: ','Nota de referência: ')+freePracticeName(freePracticeTarget);
 }
 function practice(){
  const choices=FREE_PRACTICE.map((e,i)=>`<button class="btn small ${e.id===freePracticeSelected?'primary':''}" data-free-exercise="${e.id}" onclick="setFreePracticeExercise('${e.id}')">${i<3?freePracticeLabel('Nivel 1 · ','Nível 1 · '):freePracticeLabel('Nivel 2–3 · ','Nível 2–3 · ')}${pianoTranslateText(e.title)}</button>`).join('');
