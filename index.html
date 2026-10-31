@@ -1104,11 +1104,11 @@ function pianoTranslateText(text){
  let out=String(text);
  for(const pair of pianoPT){if(!Array.isArray(pair)||pair.length<2)continue;const es=String(pair[0]),pt=String(pair[1]);out=out.split(es).join(pt)}
  // "La" pode ser artigo ou nome de nota: protegemos a nota em sequências musicais e com indicação de oitava.
- out=out.replace(/((?:Do|Re|Mi|Fa|Sol)[–,·]\\s*)La(?=[–,·]|$)/g,'$1__PIANO_NOTE_LA__');
- out=out.replace(/(^|[^\\p{L}])La(?=\\d)/gu,'$1__PIANO_NOTE_LA__');
+ out=out.replace(/La(?=\d)/g,'__PIANO_NOTE_LA__');
+ out=out.replace(/La(?=[–,·]\s*(?:Si|Do|Re|Mi|Fa|Sol)\b)/g,'__PIANO_NOTE_LA__');
  for(const pair of THEORY_PT_TERMS){
-  const es=pair[0].replace(/[.*+?^\$()|[\]\\\\]/g,'\\\\$&');
-  out=out.replace(new RegExp('(^|[^\\\\p{L}])'+es+'(?=$|[^\\\\p{L}])','giu'),(m,prefix)=>{const replacement=m.slice(prefix.length),translated=pair[1],value=replacement&&replacement===replacement.toUpperCase()?translated.toUpperCase():replacement&&replacement[0]===replacement[0].toUpperCase()?translated[0].toUpperCase()+translated.slice(1):translated;return prefix+value});
+  const es=pair[0].replace(/[.*+?^$()|[\]\\]/g,'\\$&');
+  out=out.replace(new RegExp('(^|[^\\p{L}])'+es+'(?=$|[^\\p{L}])','giu'),(m,prefix)=>{const replacement=m.slice(prefix.length),translated=pair[1],value=replacement&&replacement===replacement.toUpperCase()?translated.toUpperCase():replacement&&replacement[0]===replacement[0].toUpperCase()?translated[0].toUpperCase()+translated.slice(1):translated;return prefix+value});
  }
  return out.replace(/__PIANO_NOTE_LA__/g,'Lá');
 }
