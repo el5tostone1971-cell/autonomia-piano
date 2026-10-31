@@ -282,6 +282,7 @@ function navActive(v){document.querySelectorAll('#nav button').forEach(b=>b.clas
 let pianoLanguage='es';
 try{pianoLanguage=localStorage.getItem('autonomia-piano-language')==='pt'?'pt':'es'}catch(e){}
 const pianoPT=[
+["Versión guía · dos pasadas · melodía + bajo + acordes + batería","Versão-guia · duas passagens · melodia + baixo + acordes + bateria"],
 ["Notas que tocaste en esta sesión","Notas que você tocou nesta sessão"],
 ["Se muestran las últimas notas detectadas, incluso si alguna fue incorrecta. 21/32 significa 21 notas correctas de una secuencia de 32.","As últimas notas detectadas são exibidas, mesmo quando alguma estiver incorreta. 21/32 significa 21 notas corretas em uma sequência de 32."],
 ["Escuchar melodía + banda","Ouvir melodia + banda"],
@@ -1082,7 +1083,7 @@ function pianoTranslateText(text){
  for(const pair of pianoPT){if(!Array.isArray(pair)||pair.length<2)continue;const es=String(pair[0]),pt=String(pair[1]);out=out.split(es).join(pt)}
  for(const pair of THEORY_PT_TERMS){
   const es=pair[0].replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-  out=out.replace(new RegExp('(^|[^\\p{L}])'+es+'(?=$|[^\\p{L}])','giu'),(m,prefix)=>{const replacement=m.slice(prefix.length),translated=pair[1],value=replacement&&replacement[0]===replacement[0].toUpperCase()?translated[0].toUpperCase()+translated.slice(1):translated;return prefix+value});
+  out=out.replace(new RegExp('(^|[^\\p{L}])'+es+'(?=$|[^\\p{L}])','giu'),(m,prefix)=>{const replacement=m.slice(prefix.length),translated=pair[1],value=replacement&&replacement===replacement.toUpperCase()?translated.toUpperCase():replacement&&replacement[0]===replacement[0].toUpperCase()?translated[0].toUpperCase()+translated.slice(1):translated;return prefix+value});
  }
  return out;
 }
