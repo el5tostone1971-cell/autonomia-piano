@@ -1991,7 +1991,10 @@ function checkCourseAuto(){
  if(courseAutoPlayed.length!==courseAutoExpected.length){toast(courseLocal('Tocá las ','Toque as ')+courseAutoExpected.length+courseLocal(' notas antes de comprobar.',' notas antes de conferir.'));return}
  const ok=courseAutoPlayed.every((n,i)=>n===courseAutoExpected[i]);const m=document.getElementById('courseAutoMsg');
  if(!ok){if(m)m.textContent=courseLocal('La reproducción todavía no coincide. Volvé a escuchar, detectá la diferencia y probá otra vez.','A reprodução ainda não corresponde. Ouça novamente, identifique a diferença e tente outra vez.');return}
- courseAutoArmed=false;complete(courseAutoLessonData.id);
+ courseAutoArmed=false;
+ // Una reproducción exacta de una frase escuchada, sin nombres ni partitura visibles, acredita transferencia auditiva autónoma. Solo se suma una vez por lección.
+ if(!state.lessons[courseAutoLessonData.id])state.skills.autonomy=Math.min(100,(Number(state.skills.autonomy)||0)+5);
+ complete(courseAutoLessonData.id);
 }
 
 const THEORY_COURSE=[
