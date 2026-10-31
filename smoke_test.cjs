@@ -464,6 +464,23 @@ const assert = require('node:assert/strict');
     });
     assert.deepEqual(autonomyPanelAudit, { eightSkills: true, weakest: true, mode: true }, 'El panel del Motor 11 no muestra sus ocho competencias y el criterio de ayuda');
 
+    // Las nuevas pantallas de memoria y autonomía deben mostrar portugués cuando se selecciona ese idioma.
+    const motorPortugueseAudit = await page.evaluate(() => {
+      const oldLanguage=pianoLanguage;
+      pianoLanguage='pt';
+      memoryLesson();const memory=document.body.innerText;
+      memory2Lesson();const memory2=document.body.innerText;
+      autonomyLesson();const autonomy=document.body.innerText;
+      clearTimeout(autoChallengeTimer);
+      pianoLanguage=oldLanguage;
+      return {memory,memory2,autonomy};
+    });
+    assert.match(motorPortugueseAudit.memory,/Primeira memória/i,'A primeira memória não foi traduzida para português');
+    assert.match(motorPortugueseAudit.memory,/Ocultar ajuda/i,'O botão de ocultar ajuda não foi traduzido');
+    assert.match(motorPortugueseAudit.memory2,/Memória com lacunas/i,'A memória com lacunas não foi traduzida');
+    assert.match(motorPortugueseAudit.autonomy,/Desafio de autonomia/i,'O desafio de autonomia não foi traduzido');
+    assert.match(motorPortugueseAudit.autonomy,/Verificar autonomia/i,'O botão de autonomia não foi traduzido');
+
     // Una secuencia de memoria idéntica no puede contabilizarse como evidencia nueva tras reiniciar.
     const memoryDuplicateAudit = await page.evaluate(() => {
       const original = clone(state), oldScored = memoryAttemptScored;
