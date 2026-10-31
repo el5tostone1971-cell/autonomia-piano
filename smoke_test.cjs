@@ -375,6 +375,27 @@ const assert = require('node:assert/strict');
     assert.equal(twoHandsMotorAudit.guideForAdvanced, true, 'El motor no retira la guía al alumno competente');
     assert.deepEqual(twoHandsMotorAudit.scored, { left: 11, right: 11, chords: 11, memory: 7, autonomy: 8 }, 'La coordinación no acreditó ambas manos y acordes de forma independiente');
 
+    // La memoria se acredita por rondas evaluadas, con umbral de precisión y bloqueo de doble contabilización.
+    const memorySkillAudit = await page.evaluate(() => {
+      const original = clone(state);
+      const originalScored = memoryAttemptScored;
+      state.skills.memory = 10;
+      state.god = {};
+      const rounds = [true, true, false];
+      rounds.forEach(ok => { memoryAttemptScored = false; recordMemoryEvidence(ok); });
+      const afterPassingBatch = { memory: state.skills.memory, attempts: state.god.memoryAssessment.attempts, correct: state.god.memoryAssessment.correct, batches: state.god.memoryAssessment.batches };
+      const duplicateAccepted = recordMemoryEvidence(true);
+      [false, false, false].forEach(ok => { memoryAttemptScored = false; recordMemoryEvidence(ok); });
+      const afterFailingBatch = state.skills.memory;
+      state = original;
+      memoryAttemptScored = originalScored;
+      saveState();
+      return { afterPassingBatch, duplicateAccepted, afterFailingBatch };
+    });
+    assert.deepEqual(memorySkillAudit.afterPassingBatch, { memory: 12, attempts: 3, correct: 2, batches: 1 }, 'La memoria no acreditó una ronda de 2/3 respuestas correctas');
+    assert.equal(memorySkillAudit.duplicateAccepted, false, 'Una misma ronda de memoria se pudo contabilizar dos veces');
+    assert.equal(memorySkillAudit.afterFailingBatch, 12, 'La memoria aumentó después de una ronda insuficiente');
+
     const autonomyPanelAudit = await page.evaluate(() => {
       const html = godAutonomy();
       return { eightSkills: ['Lectura y orientación','Ritmo','Mano derecha','Mano izquierda','Acordes','Oído musical','Memoria','Autonomía'].every(x => html.includes(x)), weakest: html.includes('Competencia más débil'), mode: html.includes('Modo actual') };
