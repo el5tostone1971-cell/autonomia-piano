@@ -447,7 +447,7 @@ const assert = require('node:assert/strict');
       checkMemory();
       const beforeHide = state.god.memoryAssessment?.attempts || 0;
       hideMemory();
-      mem = ['C','D','E','D','C'];
+      mem = memoryExpectedSeq.slice();
       checkMemory();
       const afterHide = { attempts: state.god.memoryAssessment?.attempts || 0, completed: !!state.lessons.l4, memory: state.skills.memory };
       state = original;
@@ -555,6 +555,33 @@ const assert = require('node:assert/strict');
     assert.equal(earVariationAudit.chordsHaveThreeNotes, true, 'Un acorde auditivo no contiene tres notas');
     assert.equal(earVariationAudit.progressionsHaveFourChords, true, 'Una progresión auditiva no contiene cuatro acordes');
     assert.deepEqual({first:earVariationAudit.first,duplicate:earVariationAudit.duplicate,newStimulus:earVariationAudit.newStimulus,scored:earVariationAudit.scored}, {first:true,duplicate:false,newStimulus:true,scored:2}, 'Se pudo puntuar dos veces el mismo estímulo auditivo');
+
+    // Memoria y autonomía deben generar frases nuevas, y las pistas parciales deben corresponder a la frase real.
+    const randomizedMemoryAudit = await page.evaluate(() => {
+      const oldRandom = Math.random;
+      let index = 0;
+      const values = [0,0.2,0.4,0.6,0.8];
+      Math.random = () => values[index++ % values.length];
+      try {
+        memoryLesson();
+        const first = { seq:memoryExpectedSeq.slice(), visible:document.getElementById('memoryBox')?.textContent || '' };
+        memory2Lesson();
+        const second = { seq:memoryExpectedSeq.slice(), clue:document.querySelector('.memory')?.textContent || '' };
+        autonomyLesson();
+        const third = { seq:patternExpected.slice(), visible:document.getElementById('autoHelp')?.textContent || '' };
+        clearTimeout(autoChallengeTimer);
+        return { first,second,third };
+      } finally {
+        Math.random = oldRandom;
+        clearTimeout(autoChallengeTimer);
+      }
+    });
+    assert.equal(randomizedMemoryAudit.first.seq.length,5,'La memoria inicial no genera cinco notas');
+    assert.equal(randomizedMemoryAudit.first.visible.replaceAll(' ','').replaceAll('·',''),randomizedMemoryAudit.first.seq.join(''),'La memoria inicial no muestra la secuencia que se evalúa');
+    assert.equal(randomizedMemoryAudit.second.seq.length,7,'La memoria con huecos no genera siete notas');
+    assert.equal(randomizedMemoryAudit.second.clue.split('·').length,7,'La memoria con huecos no muestra siete posiciones');
+    assert.equal(randomizedMemoryAudit.third.seq.length,7,'El desafío de autonomía no genera siete notas');
+    assert.equal(randomizedMemoryAudit.third.visible.replaceAll(' ','').replaceAll('·',''),randomizedMemoryAudit.third.seq.join(''),'La autonomía no muestra la secuencia que luego evalúa');
 
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
