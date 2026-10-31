@@ -2399,7 +2399,7 @@ function registerRepertoireNote(n){
   const msg=document.getElementById('repertoireMsg');
   if(msg)msg.textContent=correct
    ?(pianoLanguage==='pt'?'✓ '+name+oct+' correta ('+(i+1)+'/'+total+').':'✓ '+name+oct+' correcta ('+(i+1)+'/'+total+').')
-   :(pianoLanguage==='pt'?'✗ Você tocou '+name+oct+'; o esperado era '+expectedName+expectedOct+'. O erro foi registrado; continue.':'✗ Tocaste '+name+oct+'; se esperaba '+expectedName+expectedOct+'. El error quedó registrado; continuá.');
+   :(pianoLanguage==='pt'?'✗ Você tocou '+name+oct+'; o esperado era '+expectedName+expectedOct+'. O aplicativo registrou o erro; continue.':'✗ Tocaste '+name+oct+'; se esperaba '+expectedName+expectedOct+'. La app registró el error; continuá.');
   const summary=bandPracticeResults.map((x,j)=>{
    const expectedLabel=localizedPianoNoteName(x.expected)+(Math.floor(x.expected/12)-1);
    return (j+1)+'. '+x.name+x.oct+' '+(x.correct?'✓':(pianoLanguage==='pt'?'✗ · esperado ':'✗ · se esperaba ')+expectedLabel);
