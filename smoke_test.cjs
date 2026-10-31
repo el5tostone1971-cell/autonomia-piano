@@ -481,6 +481,26 @@ const assert = require('node:assert/strict');
     assert.match(motorPortugueseAudit.autonomy,/Desafio de autonomia/i,'O desafio de autonomia não foi traduzido');
     assert.match(motorPortugueseAudit.autonomy,/Verificar autonomia/i,'O botão de autonomia não foi traduzido');
 
+    // El oído avanzado debe traducir las opciones y evaluar la respuesta portuguesa correcta.
+    const earPortugueseAudit = await page.evaluate(() => {
+      const original=clone(state),oldLanguage=pianoLanguage,oldQuestion=earAdvancedState.question,oldAnswer=earAdvancedState.answer,oldStarted=earAdvancedState.started,oldRandom=Math.random,oldTone=tone;
+      pianoLanguage='pt';state.earAdvanced={correct:0,total:0,byType:{},seenStimuli:[]};
+      earAdvancedState.question={...earAdvancedBank.find(q=>q.id==='ea1'),_answered:false};
+      earAdvancedState.answer=[];earAdvancedState.started=false;
+      const html=earAdvanced();showHTML(html);
+      Math.random=()=>0.99;tone=()=>{};
+      earAdvancedPlay();earAdvancedAnswer('Sobe');
+      const result={labels:document.body.innerText,correct:state.earAdvanced.correct,total:state.earAdvanced.total};
+      Math.random=oldRandom;tone=oldTone;pianoLanguage=oldLanguage;state=original;
+      earAdvancedState.question=oldQuestion;earAdvancedState.answer=oldAnswer;earAdvancedState.started=oldStarted;
+      saveState();return result;
+    });
+    assert.match(earPortugueseAudit.labels,/Ouvido avançado/i,'O título do ouvido avançado não foi traduzido');
+    assert.match(earPortugueseAudit.labels,/Sobe/i,'A opção ascendente não foi traduzida');
+    assert.match(earPortugueseAudit.labels,/Desce/i,'A opção descendente não foi traduzida');
+    assert.match(earPortugueseAudit.labels,/Nova pergunta/i,'A ação de nova pergunta não foi traduzida');
+    assert.deepEqual({correct:earPortugueseAudit.correct,total:earPortugueseAudit.total},{correct:1,total:1},'A resposta correta em português não foi reconhecida');
+
     // Una secuencia de memoria idéntica no puede contabilizarse como evidencia nueva tras reiniciar.
     const memoryDuplicateAudit = await page.evaluate(() => {
       const original = clone(state), oldScored = memoryAttemptScored;
