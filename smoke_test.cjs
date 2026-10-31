@@ -778,6 +778,20 @@ const assert = require('node:assert/strict');
     assert.deepEqual({left:twoHandsTimingAudit.offBeat.left,right:twoHandsTimingAudit.offBeat.right,chords:twoHandsTimingAudit.offBeat.chords},{left:3,right:3,chords:2},'Una frase fuera de pulso sumó competencias como si estuviera coordinada');
     assert.match(twoHandsTimingAudit.offBeat.message,/pulso|acelerando|atrasan/i,'La evaluación no explicó el error de pulso');
 
+    // La práctica de dos manos también debe localizar su pantalla y las instrucciones dinámicas al portugués.
+    const twoHandsPortugueseAudit = await page.evaluate(() => {
+      const oldLanguage=pianoLanguage,oldPhrase=twoHandsPhrase,oldStep=twoHandsStep,oldWindow=twoHandsWindow.slice(),oldStarted=twoHandsStarted;
+      pianoLanguage='pt';twoHandsPhrase=TWO_HANDS_PHRASES[0];twoHandsStep=0;twoHandsWindow=[];twoHandsStarted=false;
+      showHTML(twoHandsView());const screen=document.body.innerText;
+      startTwoHands();const prompt=document.getElementById('twoHandsMsg')?.textContent||'';
+      clearTimeout(twoHandsWindowTimer);pianoLanguage=oldLanguage;twoHandsPhrase=oldPhrase;twoHandsStep=oldStep;twoHandsWindow=oldWindow;twoHandsStarted=oldStarted;
+      return {screen,prompt};
+    });
+    assert.match(twoHandsPortugueseAudit.screen,/Duas mãos/i,'A tela de coordenação de duas mãos não foi traduzida');
+    assert.match(twoHandsPortugueseAudit.screen,/Progressão/i,'A indicação da progressão não foi traduzida');
+    assert.match(twoHandsPortugueseAudit.screen,/Nova frase/i,'O botão de nova frase não foi traduzido');
+    assert.match(twoHandsPortugueseAudit.prompt,/Comece pelo primeiro bloco/i,'A instrução dinâmica de início não foi traduzida');
+
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
