@@ -99,7 +99,7 @@ const assert = require('node:assert/strict');
     assert.match(portugueseMap, /As sete notas musicais/, 'La guía de notas no se tradujo al portugués');
     await page.evaluate(() => pressKey(60));
     const portugueseLastNote = await page.locator('#lastNote').innerText();
-    assert.match(portugueseLastNote, /Dó \\(C4\\)/, 'La devolución dinámica de notas sigue en español');
+    assert.match(portugueseLastNote, /Dó \(C4\)/, 'La devolución dinámica de notas sigue en español');
     await page.evaluate(() => show('practice'));
     const portuguesePractice = await page.locator('#main').innerText();
     assert.match(portuguesePractice, /Arpejo de Dó/, 'El repertorio de práctica libre no se tradujo al portugués');
