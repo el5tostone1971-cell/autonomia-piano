@@ -152,6 +152,38 @@ const assert = require('node:assert/strict');
 
     await page.evaluate(() => changePianoLanguage('es'));
 
+    // Evaluar que el nuevo nivel 3 enseña teoría y no acredita una respuesta incorrecta.
+    const theoryCourseAudit = await page.evaluate(() => {
+      state.day = 90;
+      openLesson('l31');
+      const rendered = document.getElementById('theoryCourseFeedback') && !!document.querySelector('.keys .key');
+      answerTheoryCourse(1);
+      const wrongRejected = !state.lessons.l31;
+      theoryCourseLesson(LESSONS.find(item => item.id === 'l31'));
+      answerTheoryCourse(0);
+      return { rendered, wrongRejected, correctAccepted: !!state.lessons.l31, topics: THEORY_COURSE.length };
+    });
+    assert.equal(theoryCourseAudit.rendered, true, 'El nivel 3 no muestra teoría y teclado');
+    assert.equal(theoryCourseAudit.wrongRejected, true, 'Una respuesta incorrecta aprobó teoría musical');
+    assert.equal(theoryCourseAudit.correctAccepted, true, 'Una respuesta correcta no completó teoría musical');
+    assert.equal(theoryCourseAudit.topics, 15, 'El nivel 3 no contiene 15 conceptos');
+
+    // La armonía exige primero comprender el concepto y luego formar la progresión real.
+    const chordCourseAudit = await page.evaluate(() => {
+      openLesson('l46');
+      checkGenericChords('l46');
+      const theoryGate = !state.lessons.l46;
+      answerChordTheory(0);
+      [[60,64,67],[67,71,62],[69,60,64],[65,69,60]].forEach(chord => chord.forEach(note => registerChordNote(note)));
+      checkGenericChords('l46');
+      return { theoryGate, sequence: chordSequence.slice(), completed: !!state.lessons.l46, topics: CHORD_THEORY.length };
+    });
+    assert.equal(chordCourseAudit.theoryGate, true, 'La práctica de armonía se aprobó sin responder teoría');
+    assert.deepEqual(chordCourseAudit.sequence, ['C','G','Am','F'], 'La detección de acordes no reconoció la progresión');
+    assert.equal(chordCourseAudit.completed, true, 'La progresión correcta no completó la lección');
+    assert.equal(chordCourseAudit.topics, 15, 'El nivel 4 no contiene 15 conceptos');
+
+
 
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
