@@ -2108,8 +2108,9 @@ function startBandPractice(){
  bandPracticeTimer=setTimeout(()=>{
   bandPracticeTimer=null;bandPracticeActive=false;repertoireStarted=false;stopBackingTrack();
   const keys=document.querySelectorAll('.repertoireKeys .key');keys.forEach(k=>{k.classList.remove('target-note');k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
+  const attempted=bandPracticeResults.length,hits=bandPracticeResults.filter(x=>x.correct).length,total=piece.notes.length;
   const help=document.getElementById('repertoireCurrentNoteHelp');if(help)help.textContent=pianoLanguage==='pt'?'A sessão terminou. Você pode voltar a praticar com a banda quando quiser.':'La sesión terminó. Podés volver a practicar con la banda cuando quieras.';
-  const done=document.getElementById('repertoireMsg');if(done)done.textContent=pianoLanguage==='pt'?'✓ A prática com banda terminou. A melodia-guia e todos os instrumentos foram interrompidos automaticamente.':'✓ Terminó la práctica con banda. La melodía guía y todos los instrumentos se detuvieron automáticamente.';
+  const done=document.getElementById('repertoireMsg');if(done)done.textContent=pianoLanguage==='pt'?'✓ A prática com banda terminou. Resultado: '+hits+'/'+total+' notas corretas; você tentou '+attempted+'. Revise cada nota na lista.':'✓ Terminó la práctica con banda. Resultado: '+hits+'/'+total+' notas correctas; intentaste '+attempted+'. Revisá cada nota en el registro.';
   const beat=document.getElementById('repertoireBeat');if(beat)beat.textContent=pianoLanguage==='pt'?'✓ Prática concluída':'✓ Práctica terminada';
   const finalStatus=document.getElementById('backingTrackStatus');if(finalStatus)finalStatus.textContent=pianoLanguage==='pt'?'✓ Música concluída · áudio interrompido':'✓ Canción terminada · audio detenido';
  },duration);
