@@ -759,6 +759,25 @@ const assert = require('node:assert/strict');
     assert.deepEqual(evidenceMergeAudit.rhythm,['q4','e8'],'La mezcla de respaldos perdió patrones rítmicos dominados');
     assert.deepEqual(evidenceMergeAudit.ear.seenStimuli,['stim-a','stim-b'],'La mezcla de respaldos permitió repetir estímulos de oído');
 
+    // La coordinación de dos manos exige el pulso, no solo reunir las notas correctas.
+    const twoHandsTimingAudit = await page.evaluate(() => {
+      const original=clone(state),oldPhrase=twoHandsPhrase,oldStep=twoHandsStep,oldTimes=twoHandsTimes.slice(),oldAwarded=twoHandsAwarded,oldStarted=twoHandsStarted;
+      state.skills.left=0;state.skills.right=0;state.skills.chords=0;state.god={};
+      twoHandsPhrase=MUSICAL_PHRASES[0];twoHandsStep=twoHandsPhrase.events.length;twoHandsAwarded=false;twoHandsStarted=true;
+      twoHandsTimes=Array.from({length:8},(_,i)=>i*833);
+      checkTwoHands();
+      const onBeat={left:state.skills.left,right:state.skills.right,chords:state.skills.chords};
+      twoHandsStep=twoHandsPhrase.events.length;twoHandsAwarded=false;twoHandsStarted=true;
+      twoHandsTimes=[0,833,1666,4000,4833,5666,6499,7332];
+      checkTwoHands();
+      const offBeat={left:state.skills.left,right:state.skills.right,chords:state.skills.chords,message:document.getElementById('twoHandsMsg')?.textContent||''};
+      state=original;twoHandsPhrase=oldPhrase;twoHandsStep=oldStep;twoHandsTimes=oldTimes;twoHandsAwarded=oldAwarded;twoHandsStarted=oldStarted;saveState();
+      return {onBeat,offBeat};
+    });
+    assert.deepEqual(twoHandsTimingAudit.onBeat,{left:3,right:3,chords:2},'Una coordinación a tempo no acreditó ambas manos y acordes');
+    assert.deepEqual({left:twoHandsTimingAudit.offBeat.left,right:twoHandsTimingAudit.offBeat.right,chords:twoHandsTimingAudit.offBeat.chords},{left:3,right:3,chords:2},'Una frase fuera de pulso sumó competencias como si estuviera coordinada');
+    assert.match(twoHandsTimingAudit.offBeat.message,/pulso|acelerando|atrasan/i,'La evaluación no explicó el error de pulso');
+
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
