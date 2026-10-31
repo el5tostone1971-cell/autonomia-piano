@@ -322,6 +322,31 @@ const assert = require('node:assert/strict');
     assert.equal(earEngineAudit.total, 5, 'El oído avanzado contó dos veces una pregunta o perdió intentos');
     assert.equal(earEngineAudit.correct, 4, 'El oído avanzado no registró las respuestas correctas');
     assert.equal(earEngineAudit.duplicateAccepted, false, 'Se pudo acreditar dos veces una misma pregunta');
+    // La competencia de autonomía debe poder crecer con transferencias auditivas nuevas, pero nunca por repetir una lección ya aprobada.
+    const autonomyTransferAudit = await page.evaluate(() => {
+      const original = clone(state);
+      state.day = 76;
+      state.lessons = { ...(state.lessons || {}) };
+      state.lessons.l76 = false;
+      state.skills.autonomy = 12;
+      state.skills.memory = 20;
+      courseAutoLesson(LESSONS.find(x => x.id === 'l76'));
+      courseAutoArmed = true;
+      courseAutoPlayed = courseAutoExpected.slice();
+      checkCourseAuto();
+      const first = { autonomy: state.skills.autonomy, memory: state.skills.memory, completed: !!state.lessons.l76 };
+      courseAutoLesson(LESSONS.find(x => x.id === 'l76'));
+      courseAutoArmed = true;
+      courseAutoPlayed = courseAutoExpected.slice();
+      checkCourseAuto();
+      const repeated = { autonomy: state.skills.autonomy, memory: state.skills.memory };
+      state = original;
+      saveState();
+      return { first, repeated };
+    });
+    assert.deepEqual(autonomyTransferAudit.first, { autonomy: 17, memory: 22, completed: true }, 'La transferencia auditiva independiente no acreditó autonomía y memoria');
+    assert.deepEqual(autonomyTransferAudit.repeated, { autonomy: 17, memory: 22 }, 'Repetir una lección ya aprobada infló las competencias');
+
     const autonomyPanelAudit = await page.evaluate(() => {
       const html = godAutonomy();
       return { eightSkills: ['Lectura y orientación','Ritmo','Mano derecha','Mano izquierda','Acordes','Oído musical','Memoria','Autonomía'].every(x => html.includes(x)), weakest: html.includes('Competencia más débil'), mode: html.includes('Modo actual') };
