@@ -718,6 +718,20 @@ const assert = require('node:assert/strict');
     assert.match(techniqueHonestyAudit.spanish,/no puede detectar qué dedo físico presionaste/i,'La guía de técnica promete detectar un dedo que la app no puede medir');
     assert.match(techniqueHonestyAudit.portuguese,/não consegue detectar qual dedo físico/i,'A explicação sobre dedilhado não foi localizada em português');
 
+    // Cambiar solo el dedo recomendado no crea evidencia nueva: el navegador no puede saber qué dedo físico se usó.
+    const techniqueEvidenceAudit = await page.evaluate(() => {
+      const original=clone(state),oldExercise=techniqueExercise,oldStep=techniqueStep,oldTimes=techniqueTimes.slice(),oldAwarded=techniqueAwarded,oldStarted=techniqueStarted;
+      state.skills.right=0;state.god={};
+      techniqueExercise={hand:'Derecha',tempo:80,title:'Prueba',focus:'',notes:[60,62],fingers:[1,2]};
+      techniqueStep=2;techniqueTimes=[0,750];techniqueAwarded=false;techniqueStarted=true;checkTechnique();
+      const first=state.skills.right;
+      techniqueExercise={...techniqueExercise,fingers:[2,3]};techniqueStep=2;techniqueTimes=[0,750];techniqueAwarded=false;techniqueStarted=true;checkTechnique();
+      const duplicate=state.skills.right;
+      state=original;techniqueExercise=oldExercise;techniqueStep=oldStep;techniqueTimes=oldTimes;techniqueAwarded=oldAwarded;techniqueStarted=oldStarted;saveState();
+      return {first,duplicate};
+    });
+    assert.deepEqual(techniqueEvidenceAudit,{first:3,duplicate:3},'Cambiar solo la digitación teórica volvió a sumar una habilidad que no puede medirse');
+
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
