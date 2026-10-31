@@ -506,6 +506,56 @@ const assert = require('node:assert/strict');
     });
     assert.deepEqual(uniqueEvidenceAudit, { first:true, duplicate:false, different:true, skills:{right:6,left:6,rhythm:8}, ledger:['p1','p2'] }, 'La misma evidencia se pudo acreditar más de una vez o se bloqueó un ejercicio nuevo');
 
+    // El entrenamiento auditivo debe producir acordes/progresiones con respuestas posibles y no acreditar el mismo sonido dos veces.
+    const earVariationAudit = await page.evaluate(() => {
+      const original = clone(state);
+      const oldRandom = Math.random, oldTone = tone;
+      tone = () => {};
+      const chordAnswers = [];
+      const progressionAnswers = [];
+      try {
+        ['chord','progression'].forEach(type => {
+          [0,0.5,0.99].forEach(randomValue => {
+            Math.random = () => randomValue;
+            const q = { type, _answered:false };
+            earAdvancedState.question = q;
+            earAdvancedPlay();
+            (type==='chord'?chordAnswers:progressionAnswers).push({
+              answer:q.expectedAnswer,
+              notes:q.playNotes,
+              chords:q.playChords
+            });
+          });
+        });
+      } finally {
+        Math.random = oldRandom;
+        tone = oldTone;
+      }
+      state.earAdvanced = { correct:0,total:0,byType:{},seenStimuli:[] };
+      const q1 = { type:'memory',playNotes:[60,62,64,62],_answered:false,xp:1 };
+      const q2 = { type:'memory',playNotes:[60,62,64,62],_answered:false,xp:1 };
+      const q3 = { type:'memory',playNotes:[60,64,67,64],_answered:false,xp:1 };
+      const first = recordEarAdvancedResult(q1,true);
+      const duplicate = recordEarAdvancedResult(q2,true);
+      const newStimulus = recordEarAdvancedResult(q3,true);
+      const result = {
+        chordAnswers:chordAnswers.map(x=>x.answer),
+        progressionAnswers:progressionAnswers.map(x=>x.answer),
+        chordsHaveThreeNotes:chordAnswers.every(x=>x.chords.length===1&&x.chords[0].length===3),
+        progressionsHaveFourChords:progressionAnswers.every(x=>x.chords.length===4&&x.chords.every(c=>c.length===3)),
+        first,duplicate,newStimulus,
+        scored:state.earAdvanced.total
+      };
+      state = original;
+      saveState();
+      return result;
+    });
+    assert.deepEqual(earVariationAudit.chordAnswers, ['Tónica','Dominante','Relativa menor'], 'El oído avanzado no genera las tres calidades de acorde');
+    assert.deepEqual(earVariationAudit.progressionAnswers, ['I-V-vi-IV','I-vi-IV-V','vi-IV-I-V'], 'El oído avanzado no genera las tres progresiones');
+    assert.equal(earVariationAudit.chordsHaveThreeNotes, true, 'Un acorde auditivo no contiene tres notas');
+    assert.equal(earVariationAudit.progressionsHaveFourChords, true, 'Una progresión auditiva no contiene cuatro acordes');
+    assert.deepEqual({first:earVariationAudit.first,duplicate:earVariationAudit.duplicate,newStimulus:earVariationAudit.newStimulus,scored:earVariationAudit.scored}, {first:true,duplicate:false,newStimulus:true,scored:2}, 'Se pudo puntuar dos veces el mismo estímulo auditivo');
+
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
