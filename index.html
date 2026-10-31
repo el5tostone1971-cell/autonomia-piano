@@ -2553,11 +2553,15 @@ function handleExerciseNote(n,name){if(typeof registerFreePracticeNote==='functi
 }
 let sepRightInput=[],sepLeftInput=[];
 function matchPrefix(arr,expected,pc){if(arr.length<expected.length){if(pc===expected[arr.length])arr.push(pc);else if(pc===expected[0]){arr.length=0;arr.push(pc)}}return arr.length}
-function recordMemoryEvidence(ok){
+function recordMemoryEvidence(ok,sequence){
  if(memoryAttemptScored)return false;
  memoryAttemptScored=true;
  state.god=state.god||{};
- const m=state.god.memoryAssessment=Object.assign({attempts:0,correct:0,batchAttempts:0,batchCorrect:0,batches:0,skillPoints:0},state.god.memoryAssessment||{});
+ const m=state.god.memoryAssessment=Object.assign({attempts:0,correct:0,batchAttempts:0,batchCorrect:0,batches:0,skillPoints:0,seenSequences:[]},state.god.memoryAssessment||{});
+ m.seenSequences=Array.isArray(m.seenSequences)?m.seenSequences:[];
+ const sequenceKey=sequence?String(sequence):'';
+ if(sequenceKey&&m.seenSequences.includes(sequenceKey)){saveState();return false}
+ if(sequenceKey){m.seenSequences.push(sequenceKey);if(m.seenSequences.length>500)m.seenSequences=m.seenSequences.slice(-500)}
  m.attempts++;m.batchAttempts++;if(ok){m.correct++;m.batchCorrect++;}
  if(m.batchAttempts>=3){
   if(m.batchCorrect>=2){state.skills.memory=Math.min(100,(Number(state.skills.memory)||0)+2);m.skillPoints=(Number(m.skillPoints)||0)+2;}
@@ -2565,18 +2569,19 @@ function recordMemoryEvidence(ok){
  }
  saveState();return true;
 }
+
 function hideMemory(){const box=document.getElementById('memoryBox');if(!box)return;if(!memoryHelpHidden){box.classList.add('hidden');memoryHelpHidden=true;mem=[];const out=document.getElementById('memInput');if(out)out.textContent='—';const msg=document.getElementById('memoryMsg');if(msg)msg.textContent='Ayuda oculta. Ahora tocá la secuencia de memoria.';toast('Ayuda oculta. Ahora tocá de memoria.');}}
 function checkMemory(){
  if(!memoryHelpHidden)return toast('Primero ocultá la secuencia.');
  if(memoryAttemptScored)return toast('Esta ronda ya fue evaluada. Reiniciá para un nuevo intento.');
- const ok=mem.join('')===memoryExpectedSeq.join('');recordMemoryEvidence(ok);
+ const ok=mem.join('')===memoryExpectedSeq.join('');if(!recordMemoryEvidence(ok,memoryExpectedSeq.join(''))){if(msg)msg.textContent='Esta secuencia ya fue evaluada. Generá una nueva para seguir entrenando.';return;}
  const msg=document.getElementById('memoryMsg');
  if(ok){if(msg)msg.textContent='✓ Secuencia recordada sin ayuda.';complete('l4');}
  else {if(msg)msg.textContent='La secuencia no coincide. No mostramos la respuesta: reiniciá y probá otra vez.';toast('No coincide. Reiniciá la prueba y volvé a intentarlo sin ayuda.');}
 }
 function hideAutoHelp(){if(Date.now()<autoChallengeReadyAt){toast('Esperá los tres segundos de observación.');return}clearTimeout(autoChallengeTimer);autoChallengeReady=true;const box=document.getElementById('autoHelp');if(box)box.classList.add('hidden');autoInput=[];const out=document.getElementById('autoInput');if(out)out.textContent='—';const msg=document.getElementById('autoChallengeMsg');if(msg)msg.textContent='✓ Ayuda retirada. Reproducí la frase completa de memoria.'}
 /* Se eliminó la implementación antigua: checkMemory debe exigir ayuda oculta y registrar cada intento. */
-function checkPattern(id,expected,mode){if(mode==='autonomy'&&!autoChallengeReady){toast('Primero observá la frase durante tres segundos.');return}if(mode==='memory2'&&memoryAttemptScored)return toast('Esta ronda ya fue evaluada. Reiniciá para otro intento.');const got=mode==='autonomy'?autoInput:mode==='memory2'?pattern:mode==='left'?leftInput:pattern;const ok=got.slice(0,expected.length).join('')===expected.join('')&&got.length===expected.length;if(mode==='memory2'){recordMemoryEvidence(ok);const msg=document.getElementById('memory2Msg');if(ok){if(msg)msg.textContent='✓ Reconstruiste la frase sin consultar las notas que faltaban.';complete(id)}else{if(msg)msg.textContent='Todavía no coincide. No mostramos la solución: reiniciá la ronda y volvé a recordar.';toast('La frase no coincide. Reiniciá la ronda y probá otra vez.')}return}if(ok)complete(id);else if(mode==='autonomy'){autoInput=[];const out=document.getElementById('autoInput');if(out)out.textContent='—';toast('La secuencia no coincide. Reiniciá el desafío y volvé a intentarlo sin ver la respuesta.')}else toast('Resultado: '+got.join(' · ')+' | esperado: '+expected.join(' · '))}
+function checkPattern(id,expected,mode){if(mode==='autonomy'&&!autoChallengeReady){toast('Primero observá la frase durante tres segundos.');return}if(mode==='memory2'&&memoryAttemptScored)return toast('Esta ronda ya fue evaluada. Reiniciá para otro intento.');const got=mode==='autonomy'?autoInput:mode==='memory2'?pattern:mode==='left'?leftInput:pattern;const ok=got.slice(0,expected.length).join('')===expected.join('')&&got.length===expected.length;if(mode==='memory2'){const msg=document.getElementById('memory2Msg');if(!recordMemoryEvidence(ok,expected.join(''))){if(msg)msg.textContent='Esta secuencia ya fue evaluada. Generá una nueva para seguir entrenando.';return}if(ok){if(msg)msg.textContent='✓ Reconstruiste la frase sin consultar las notas que faltaban.';complete(id)}else{if(msg)msg.textContent='Todavía no coincide. No mostramos la solución: reiniciá la ronda y volvé a recordar.';toast('La frase no coincide. Reiniciá la ronda y probá otra vez.')}return}if(ok)complete(id);else if(mode==='autonomy'){autoInput=[];const out=document.getElementById('autoInput');if(out)out.textContent='—';toast('La secuencia no coincide. Reiniciá el desafío y volvé a intentarlo sin ver la respuesta.')}else toast('Resultado: '+got.join(' · ')+' | esperado: '+expected.join(' · '))}
 function pulseStart(){rhythmTimes=[];rhythmExpected=[0,600,1200,1800];let i=0,start=performance.now();const tick=()=>{const c=audio();if(c){const o=c.createOscillator(),g=c.createGain();o.frequency.value=i===0?1000:700;g.gain.value=.1;o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.08)}i++;if(i<4)setTimeout(tick,600);else{const msg=document.getElementById('pulseMsg');if(msg)msg.textContent='Ahora tocá 4 veces, una por pulso.';window._rhythmStart=start+2400;window._rhythmArmed=true}};const msg=document.getElementById('pulseMsg');if(msg)msg.textContent='Escuchá…';tick()}
 function registerRhythmTap(){if(!window._rhythmArmed)return;rhythmTimes.push(performance.now());const c=document.getElementById('rhythmCount');if(c)c.textContent=Math.min(4,rhythmTimes.length)+' / 4 ataques'}
 function checkRhythm(id){if(rhythmTimes.length!==4)return toast('Necesitás hacer exactamente 4 ataques.');const base=rhythmTimes[0],expected=[0,600,1200,1800];const errs=rhythmTimes.map((t,i)=>Math.abs((t-base)-expected[i]));const avg=errs.reduce((a,b)=>a+b,0)/4;if(avg<=180){complete(id)}else {const drift=rhythmTimes.reduce((a,t,i)=>a+((t-base)-expected[i]),0)/4;diagnose(Math.abs(drift)>70?(drift>0?'late':'early'):'rhythm',drift>70?'Te estás atrasando del pulso. Bajá la velocidad y anticipá el siguiente ataque.':drift< -70?'Te estás adelantando. Dejá respirar cada pulso.':'El pulso todavía es irregular. Practicá con una sola nota.', 'rhythm')} }
