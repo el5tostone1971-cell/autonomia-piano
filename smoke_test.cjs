@@ -367,13 +367,16 @@ const assert = require('node:assert/strict');
       courseTwoHandsEvents = [{}]; courseTwoHandsStep = 1;
       checkCourseTwoHands();
       const scored = { left: state.skills.left, right: state.skills.right, chords: state.skills.chords, memory: state.skills.memory, autonomy: state.skills.autonomy };
+      checkCourseTwoHands();
+      const repeated = { left: state.skills.left, right: state.skills.right, chords: state.skills.chords };
       state = original;
       saveState();
-      return { guideForBeginner, guideForAdvanced, scored };
+      return { guideForBeginner, guideForAdvanced, scored, repeated };
     });
     assert.equal(twoHandsMotorAudit.guideForBeginner, true, 'El principiante no ve la referencia de coordinación');
     assert.equal(twoHandsMotorAudit.guideForAdvanced, true, 'El motor no retira la guía al alumno competente');
     assert.deepEqual(twoHandsMotorAudit.scored, { left: 11, right: 11, chords: 11, memory: 7, autonomy: 8 }, 'La coordinación no acreditó ambas manos y acordes de forma independiente');
+    assert.deepEqual(twoHandsMotorAudit.repeated, { left: 11, right: 11, chords: 11 }, 'Repetir la misma lección infló las competencias de dos manos');
 
     // La memoria se acredita por rondas evaluadas, con umbral de precisión y bloqueo de doble contabilización.
     const memorySkillAudit = await page.evaluate(() => {
