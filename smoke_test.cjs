@@ -707,16 +707,17 @@ const assert = require('node:assert/strict');
 
     // La guía de digitación no debe afirmar que detecta el dedo físico: solo puede verificar notas y pulso.
     const techniqueHonestyAudit = await page.evaluate(() => {
-      const oldLanguage=pianoLanguage,oldExercise=techniqueExercise,oldStep=techniqueStep,oldStarted=techniqueStarted;
+      const oldLanguage=pianoLanguage,oldExercise=techniqueExercise,oldStep=techniqueStep,oldStarted=techniqueStarted,oldTimes=techniqueTimes.slice(),oldAwarded=techniqueAwarded;
       techniqueExercise={hand:'Derecha',tempo:80,title:'Prueba de digitación',focus:'Prueba',notes:[60,62],fingers:[1,2]};
       techniqueStep=0;techniqueStarted=false;pianoLanguage='es';
       const spanish=techniqueView();
-      pianoLanguage='pt';const portuguese=techniqueView();
-      pianoLanguage=oldLanguage;techniqueExercise=oldExercise;techniqueStep=oldStep;techniqueStarted=oldStarted;
-      return {spanish,portuguese};
+      pianoLanguage='pt';const portuguese=techniqueView();showHTML(portuguese);startTechnique();const startPrompt=document.getElementById('techniqueMsg')?.textContent||'';
+      pianoLanguage=oldLanguage;techniqueExercise=oldExercise;techniqueStep=oldStep;techniqueStarted=oldStarted;techniqueTimes=oldTimes;techniqueAwarded=oldAwarded;
+      return {spanish,portuguese,startPrompt};
     });
     assert.match(techniqueHonestyAudit.spanish,/no puede detectar qué dedo físico presionaste/i,'La guía de técnica promete detectar un dedo que la app no puede medir');
     assert.match(techniqueHonestyAudit.portuguese,/não consegue detectar qual dedo físico/i,'A explicação sobre dedilhado não foi localizada em português');
+    assert.match(techniqueHonestyAudit.startPrompt,/Comece:/i,'O comando de início da técnica não foi traduzido');
 
     // Cambiar solo el dedo recomendado no crea evidencia nueva: el navegador no puede saber qué dedo físico se usó.
     const techniqueEvidenceAudit = await page.evaluate(() => {
