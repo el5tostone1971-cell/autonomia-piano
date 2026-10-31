@@ -487,6 +487,19 @@ const pianoPT=[
 ["Práctica libre","Prática livre"],
 ["Elegí qué habilidad querés entrenar. Podés usar el teclado virtual o conectar un teclado MIDI.","Escolha a habilidade que deseja treinar. Você pode usar o teclado virtual ou conectar um teclado MIDI."],
 ["Técnica de hoy","Técnica de hoje"],
+["Ubicá las teclas Do mirando los grupos de dos teclas negras.","Localize as teclas Dó observando os grupos de duas teclas pretas."],
+["Practicá las siete notas naturales en orden ascendente y descendente.","Pratique as sete notas naturais em ordem ascendente e descendente."],
+["Do · Do · Do · Do · Do · Do","Dó · Dó · Dó · Dó · Dó · Dó"],
+["Do · Re · Mi · Fa · Sol · La · Si · Do","Dó · Ré · Mi · Fá · Sol · Lá · Si · Dó"],
+["Do–Mi · Re–Fa · Mi–Sol","Dó–Mi · Ré–Fá · Mi–Sol"],
+["Escuchar → reconocer → tocar","Ouvir → reconhecer → tocar"],
+["Do · Mi · Sol · Do · Sol · Mi · Do","Dó · Mi · Sol · Dó · Sol · Mi · Dó"],
+["Do · Do♯/Ré♭ · Re","Dó · Dó♯/Ré♭ · Ré"],
+["Sol · La · Si · Do · Re · Mi · Fa♯ · Sol","Sol · Lá · Si · Dó · Ré · Mi · Fá♯ · Sol"],
+["Sol · La · Si · Do · Re · Mi · Fa♯ · Sol","Sol · Lá · Si · Dó · Ré · Mi · Fá♯ · Sol"],
+["Do · Sol · Do · Sol","Dó · Sol · Dó · Sol"],
+["Práctica libre","Prática livre"],
+
 ["Escala de Sol","Escala de Sol"],
 ["Entrená movimientos entre notas separadas, sin apurarte.","Treine movimentos entre notas separadas, sem pressa."],
 ["Tocá Do–Mi, Re–Fa, Mi–Sol y luego repetí cada pareja.","Toque Dó–Mi, Ré–Fá, Mi–Sol e depois repita cada par."],
@@ -1055,7 +1068,7 @@ function pianoTranslateText(text){
  for(const pair of pianoPT){if(!Array.isArray(pair)||pair.length<2)continue;const es=String(pair[0]),pt=String(pair[1]);out=out.split(es).join(pt)}
  for(const pair of THEORY_PT_TERMS){
   const es=pair[0].replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-  out=out.replace(new RegExp('(^|[^\\p{L}])'+es+'(?=$|[^\\p{L}])','giu'),(m,prefix)=>prefix+pair[1]);
+  out=out.replace(new RegExp('(^|[^\\p{L}])'+es+'(?=$|[^\\p{L}])','giu'),(m,prefix)=>{const replacement=m.slice(prefix.length),translated=pair[1],value=replacement&&replacement[0]===replacement[0].toUpperCase()?translated[0].toUpperCase()+translated.slice(1):translated;return prefix+value});
  }
  return out;
 }
