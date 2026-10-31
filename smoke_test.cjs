@@ -688,6 +688,23 @@ const assert = require('node:assert/strict');
     });
     assert.deepEqual(autonomyPhraseAudit,{first:5,duplicate:5,different:10},'Una frase auditiva idéntica volvió a acreditar autonomía en otra lección');
 
+    // La misma coordinación de manos no acredita otra vez si aparece en una lección distinta.
+    const twoHandsEvidenceAudit = await page.evaluate(() => {
+      const original=clone(state),oldComplete=complete,oldData=courseTwoHandsLessonData,oldEvents=courseTwoHandsEvents.slice(),oldStep=courseTwoHandsStep,oldStarted=courseTwoHandsStarted;
+      state.skills.left=0;state.skills.right=0;state.skills.chords=0;state.god={};state.lessons={};
+      complete=id=>{state.lessons[id]=true};
+      const event={left:[48,52,55],right:60};
+      courseTwoHandsEvents=[event];courseTwoHandsStep=1;courseTwoHandsLessonData={id:'th-a'};checkCourseTwoHands();
+      const first={left:state.skills.left,right:state.skills.right,chords:state.skills.chords};
+      courseTwoHandsLessonData={id:'th-b'};checkCourseTwoHands();
+      const duplicate={left:state.skills.left,right:state.skills.right,chords:state.skills.chords};
+      courseTwoHandsEvents=[{left:[48,52,55],right:62}];courseTwoHandsStep=1;courseTwoHandsLessonData={id:'th-c'};checkCourseTwoHands();
+      const different={left:state.skills.left,right:state.skills.right,chords:state.skills.chords};
+      state=original;complete=oldComplete;courseTwoHandsLessonData=oldData;courseTwoHandsEvents=oldEvents;courseTwoHandsStep=oldStep;courseTwoHandsStarted=oldStarted;saveState();
+      return {first,duplicate,different};
+    });
+    assert.deepEqual(twoHandsEvidenceAudit,{first:{left:1,right:1,chords:1},duplicate:{left:1,right:1,chords:1},different:{left:2,right:2,chords:2}},'La misma frase de dos manos volvió a acreditar competencias en otra lección');
+
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
