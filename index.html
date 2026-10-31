@@ -1954,10 +1954,14 @@ const COURSE_LEFT_CHORDS=[
 ];
 function courseTwoHandsLesson(l){
  resetExercise();courseTwoHandsLessonData=l;courseTwoHandsStep=0;courseTwoHandsWindow=[];courseTwoHandsStarted=false;
+ const assistance=autonomyHelpForLesson(l);
  const seq=l.seq||['C','D','E','G'];courseTwoHandsEvents=seq.map((note,i)=>{const chord=COURSE_LEFT_CHORDS[Math.floor(i/2)%4];return {left:chord.notes.slice(),right:60+Math.max(0,NOTE_NAMES.indexOf(note)),chord:chord.name,note:note};});
  const rows=courseTwoHandsEvents.map((e,i)=>'<div class="note-box"><b>Bloque '+(i+1)+'</b><div>Izquierda: <b>'+e.chord+'</b></div><div>Derecha: <b>'+localizedPianoNoteName(e.right)+'</b></div><small class="muted">Acorde completo + melodía</small></div>').join('');
- showHTML(pianoTranslateHTML(shell('🎹 '+l.title,'La izquierda forma el acorde grave; la derecha toca la melodía aguda. Cada bloque contiene las cuatro notas que tenés que reunir.','<div class="note-box"><b>Secuencia de coordinación</b><div class="two">'+rows+'</div><p id="courseTwoHandsMsg" class="muted">Prepará ambas manos. Tocá las tres notas del acorde grave y la nota aguda del mismo bloque.</p><div id="courseTwoHandsCount" class="target">0 / '+courseTwoHandsEvents.length+' bloques</div><div class="row-controls"><button class="btn primary" onclick="startCourseTwoHands()">▶ Empezar</button><button class="btn" onclick="clearCourseTwoHands()">× Reiniciar</button><button class="btn good" onclick="checkCourseTwoHands()">Comprobar</button></div></div>'+keyboard()+'<div class="note-box muted">La app comprueba que estén las cuatro notas de cada bloque. En esta versión no mide la simultaneidad exacta de las pulsaciones.</div>')));
+ const guide='<div id="courseTwoHandsGuide" class="'+(assistance.show?'':'hidden')+'"><div class="two">'+rows+'</div></div>';
+ const body='<div class="note-box"><b>Secuencia de coordinación</b>'+guide+'<div class="row-controls"><button class="btn" type="button" onclick="toggleCourseTwoHandsGuide()">👁 '+courseLocal('Mostrar / ocultar referencia','Mostrar / ocultar referência')+'</button></div><p class="muted">'+courseLocal('Nivel de ayuda: ','Nível de ajuda: ')+assistance.label+'.</p><p id="courseTwoHandsMsg" class="muted">'+courseLocal('Prepará ambas manos. Tocá las tres notas del acorde grave y la nota aguda del mismo bloque.','Prepare as duas mãos. Toque as três notas do acorde grave e a nota aguda do mesmo bloco.')+'</p><div id="courseTwoHandsCount" class="target">0 / '+courseTwoHandsEvents.length+' bloques</div><div class="row-controls"><button class="btn primary" onclick="startCourseTwoHands()">▶ '+courseLocal('Empezar','Começar')+'</button><button class="btn" onclick="clearCourseTwoHands()">× '+courseLocal('Reiniciar','Reiniciar')+'</button><button class="btn good" onclick="checkCourseTwoHands()">'+courseLocal('Comprobar','Conferir')+'</button></div></div>'+keyboard()+'<div class="note-box muted">'+courseLocal('La app comprueba que estén las cuatro notas de cada bloque. En esta versión no mide la simultaneidad exacta de las pulsaciones.','O app verifica as quatro notas de cada bloco. Nesta versão, não mede a simultaneidade exata das teclas.')+'</div>';
+ showHTML(pianoTranslateHTML(shell('🎹 '+l.title,courseLocal('La izquierda forma el acorde grave; la derecha toca la melodía aguda. Cada bloque contiene las cuatro notas que tenés que reunir.','A mão esquerda forma o acorde grave; a direita toca a melodia aguda. Cada bloco contém as quatro notas que você deve reunir.'),body)));
 }
+function toggleCourseTwoHandsGuide(){const guide=document.getElementById('courseTwoHandsGuide');if(guide)guide.classList.toggle('hidden');}
 function renderCourseTwoHandsCount(){const c=document.getElementById('courseTwoHandsCount');if(c)c.textContent=courseTwoHandsStep+' / '+courseTwoHandsEvents.length+' bloques'}
 function startCourseTwoHands(){courseTwoHandsStep=0;courseTwoHandsWindow=[];courseTwoHandsStarted=true;renderCourseTwoHandsCount();const m=document.getElementById('courseTwoHandsMsg');if(m)m.textContent=courseLocal('▶ Bloque 1: acorde grave con la izquierda + melodía aguda con la derecha.','▶ Bloco 1: acorde grave com a mão esquerda + melodia aguda com a mão direita.')}
 function clearCourseTwoHands(){courseTwoHandsStep=0;courseTwoHandsWindow=[];courseTwoHandsStarted=false;renderCourseTwoHandsCount();const m=document.getElementById('courseTwoHandsMsg');if(m)m.textContent=courseLocal('Intento reiniciado. Cuando estés listo, empezá de nuevo.','Tentativa reiniciada. Quando estiver pronto, comece novamente.')}
@@ -1971,9 +1975,11 @@ function registerCourseTwoHandsNote(n){
  }
 }
 function checkCourseTwoHands(){
- if(!courseTwoHandsLessonData||courseTwoHandsStep!==courseTwoHandsEvents.length){toast(courseLocal('Todavía faltan bloques por completar.','Ainda faltam blocos para concluir.'));return}
- state.skills.right=Math.min(100,(state.skills.right||0)+1);state.skills.chords=Math.min(100,(state.skills.chords||0)+1);saveState();
- courseTwoHandsStarted=false;complete(courseTwoHandsLessonData.id);
+ if(!courseTwoHandsLessonData||courseTwoHandsStep!==courseTwoHandsEvents.length){toast(courseLocal('Todavía faltan bloques por completar.','Ainda faltam blocos por concluir.'));return}
+ state.skills.left=Math.min(100,(Number(state.skills.left)||0)+1);
+ state.skills.right=Math.min(100,(Number(state.skills.right)||0)+1);
+ state.skills.chords=Math.min(100,(Number(state.skills.chords)||0)+1);
+ saveState();courseTwoHandsStarted=false;complete(courseTwoHandsLessonData.id);
 }
 let courseAutoLessonData=null,courseAutoExpected=[],courseAutoPlayed=[],courseAutoArmed=false,courseAutoCanAnswer=false,courseAutoPlaybackTimer=null;
 function courseLocal(es,pt){return pianoLanguage==='pt'?pt:es}
