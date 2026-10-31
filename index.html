@@ -1734,7 +1734,7 @@ function earAdvanced(){
 }
 function earAdvancedNew(pool,rerender=true){
  pool=pool||earAdvancedBank.filter(x=>x.level<=Math.max(1,Math.min(4,1+Math.floor((state.day||1)/23))));
- earAdvancedState.question=pool[Math.floor(Math.random()*pool.length)]; earAdvancedState.answer=[]; earAdvancedState.started=false;
+ earAdvancedState.question={...pool[Math.floor(Math.random()*pool.length)],_answered:false}; earAdvancedState.answer=[]; earAdvancedState.started=false;
  if(typeof state.earAdvanced!=='object') state.earAdvanced={correct:0,total:0,byType:{}};
  saveState();
  if(rerender) show('earAdvanced');
