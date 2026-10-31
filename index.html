@@ -1765,13 +1765,13 @@ function recordEarAdvancedResult(q,ok){
 }
 
 function earAdvancedCheckKeyboard(){
- const q=earAdvancedState.question;if(!q||!earAdvancedState.started)return toast('Primero escuchá el ejercicio.');
+ const q=earAdvancedState.question;if(!q||!earAdvancedState.started)return toast(courseLocal('Primero escuchá el ejercicio.','Primeiro ouça o exercício.'));
  const expected=q.type==='tonic'?[q.playNotes[0]]:q.playNotes.slice(),got=earAdvancedState.answer.slice();
  const ok=got.length===expected.length&&got.every((n,i)=>n===expected[i]);
  if(!recordEarAdvancedResult(q,ok))return toast('Esta pregunta ya fue evaluada. Elegí una nueva para seguir midiendo tu oído.');
  const r=document.getElementById('earAdvResult');
- if(ok){toast('¡Muy bien!');if(r)r.innerHTML='<strong>Correcto.</strong> Reprodujiste la información musical de oído.';}
- else if(r)r.innerHTML='<strong>Todavía no.</strong> Volvé a escuchar y compará la frase; elegí una nueva pregunta para otro intento.';
+ if(ok){toast(courseLocal('¡Muy bien!','Muito bem!'));if(r)r.innerHTML='<strong>'+courseLocal('Correcto.','Correto.')+'</strong> '+courseLocal('Reprodujiste la información musical de oído.','Você reproduziu de ouvido a informação musical.');}
+ else if(r)r.innerHTML='<strong>'+courseLocal('Todavía no.','Ainda não.')+'</strong> '+courseLocal('Volvé a escuchar y compará la frase; elegí una nueva pregunta para otro intento.','Ouça novamente e compare a frase; escolha uma nova pergunta para outra tentativa.');
 }
 function earAdvancedQuestion(q){
  const sets={direction:['Sube','Baja','Igual'],interval:['Más cerca','Más lejos'],quality:['Mayor','Menor'],chord:['Tónica','Dominante','Relativa menor'],progression:['I–V–vi–IV','I–vi–IV–V','vi–IV–I–V']};
@@ -1814,10 +1814,10 @@ function earAdvancedAnswer(ans){
  const expectedEs=q.type==='direction'?(q.playNotes[1]>q.playNotes[0]?'Sube':'Baja'):q.type==='interval'?(Math.abs(q.playNotes[1]-q.playNotes[0])<5?'Más cerca':'Más lejos'):q.type==='quality'?(q.playNotes[1]-q.playNotes[0]===3?'Menor':'Mayor'):q.type==='chord'||q.type==='progression'?q.expectedAnswer:'';
  const expected=pianoLanguage==='pt'?({'Sube':'Sobe','Baja':'Desce','Más cerca':'Mais perto','Más lejos':'Mais longe','Mayor':'Maior','Menor':'Menor','Tónica':'Tônica','Relativa menor':'Relativa menor'}[expectedEs]||expectedEs):expectedEs;
  const ok=ans===expected||ans.replaceAll('-','–')===expected;
- if(!recordEarAdvancedResult(q,ok))return toast('Este sonido ya fue evaluado. Generá una nueva pregunta para medir otro estímulo.');
+ if(!recordEarAdvancedResult(q,ok))return toast(courseLocal('Este sonido ya fue evaluado. Generá una nueva pregunta para medir otro estímulo.','Este som já foi avaliado. Gere uma nova pergunta para medir outro estímulo.'));
  const r=document.getElementById('earAdvResult');
- if(ok){toast('¡Muy bien!');if(r)r.innerHTML='<strong>Correcto.</strong> Reconociste la relación musical.';}
- else if(r)r.innerHTML='<strong>Todavía no.</strong> Escuchá otra vez y compará; elegí una nueva pregunta para otro intento.';
+ if(ok){toast(courseLocal('¡Muy bien!','Muito bem!'));if(r)r.innerHTML='<strong>'+courseLocal('Correcto.','Correto.')+'</strong> '+courseLocal('Reconociste la relación musical.','Você reconheceu a relação musical.');}
+ else if(r)r.innerHTML='<strong>'+courseLocal('Todavía no.','Ainda não.')+'</strong> '+courseLocal('Escuchá otra vez y compará; elegí una nueva pregunta para otro intento.','Ouça novamente e compare; escolha uma nova pergunta para outra tentativa.');
 }
 
 
