@@ -396,6 +396,46 @@ const assert = require('node:assert/strict');
     assert.equal(memorySkillAudit.duplicateAccepted, false, 'Una misma ronda de memoria se pudo contabilizar dos veces');
     assert.equal(memorySkillAudit.afterFailingBatch, 12, 'La memoria aumentó después de una ronda insuficiente');
 
+    // El modo de ayuda debe mostrar pistas progresivamente menores, no el mismo comportamiento para memoria y autonomía.
+    const adaptiveGuidanceAudit = await page.evaluate(() => {
+      const original = clone(state);
+      const lesson = { seq: ['C','D','E','F','G'] };
+      state.skills = { orientation:0, rhythm:0, right:0, left:0, chords:0, ear:0, memory:0, autonomy:0 };
+      const guide = autonomyHelpForLesson(lesson);
+      Object.keys(state.skills).forEach(key => { state.skills[key] = 40; });
+      const reduced = autonomyHelpForLesson(lesson);
+      Object.keys(state.skills).forEach(key => { state.skills[key] = 60; });
+      const memory = autonomyHelpForLesson(lesson);
+      Object.keys(state.skills).forEach(key => { state.skills[key] = 80; });
+      const autonomous = autonomyHelpForLesson(lesson);
+      const result = { guide: guide.text, reduced: reduced.text, memory: memory.text, autonomous: autonomous.text, autonomousHidden: !autonomous.show };
+      state = original;
+      saveState();
+      return result;
+    });
+    assert.deepEqual(adaptiveGuidanceAudit, { guide: 'C · D · E · F · G', reduced: 'C · ? · E · ? · G', memory: 'C · ? · ? · ? · G', autonomous: 'C · ? · ? · ? · ?', autonomousHidden: true }, 'Los cuatro niveles de ayuda no reducen progresivamente las pistas');
+
+    // No se puede aprobar memoria mientras la secuencia siga visible; al ocultarla se habilita la evaluación.
+    const memoryUiAudit = await page.evaluate(() => {
+      const original = clone(state);
+      state.lessons = { ...(state.lessons || {}), l4: false };
+      state.skills.memory = 0;
+      state.god = {};
+      memoryLesson();
+      checkMemory();
+      const beforeHide = state.god.memoryAssessment?.attempts || 0;
+      hideMemory();
+      mem = ['C','D','E','D','C'];
+      checkMemory();
+      const afterHide = { attempts: state.god.memoryAssessment?.attempts || 0, completed: !!state.lessons.l4, memory: state.skills.memory };
+      state = original;
+      saveState();
+      return { beforeHide, afterHide };
+    });
+    assert.equal(memoryUiAudit.beforeHide, 0, 'Se pudo evaluar memoria antes de ocultar la secuencia');
+    assert.deepEqual(memoryUiAudit.afterHide, { attempts: 1, completed: true, memory: 10 }, 'La memoria oculta no se evaluó o no acreditó la competencia inicial');
+    assert.equal((await page.evaluate(() => (document.documentElement.innerHTML.match(/function genericLesson\(l\)/g) || []).length)), 1, 'Hay definiciones duplicadas de genericLesson');
+
     const autonomyPanelAudit = await page.evaluate(() => {
       const html = godAutonomy();
       return { eightSkills: ['Lectura y orientación','Ritmo','Mano derecha','Mano izquierda','Acordes','Oído musical','Memoria','Autonomía'].every(x => html.includes(x)), weakest: html.includes('Competencia más débil'), mode: html.includes('Modo actual') };
