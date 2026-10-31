@@ -11,6 +11,17 @@ const assert = require('node:assert/strict');
     await page.waitForFunction(() => typeof window.selectLibraryPiece === 'function', null, { timeout: 20000 });
     assert.match(await page.title(), /Autonomía Piano/i, 'La página principal no cargó');
 
+    // En escritorio, el contenido principal debe quedar a la derecha del menú, sin superposición.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.evaluate(() => show('practice'));
+    const desktopLayout = await page.evaluate(() => {
+      const side = document.querySelector('aside')?.getBoundingClientRect();
+      const main = document.querySelector('.main')?.getBoundingClientRect();
+      return { sideRight: side?.right, mainLeft: main?.left, mainWidth: main?.width };
+    });
+    assert.ok(desktopLayout.mainLeft >= desktopLayout.sideRight - 1, 'El menú lateral tapa el contenido principal');
+    assert.ok(desktopLayout.mainWidth > 600, 'El contenido principal quedó demasiado estrecho en escritorio');
+
     // Recorrer la pieza didáctica y comprobar que la nota que suena queda identificada.
     await page.evaluate(() => {
       const piece = repertoireLibrary.find(item => item.id === 'rp10');
@@ -86,10 +97,37 @@ const assert = require('node:assert/strict');
     const portugueseMap = await page.locator('#main').innerText();
     assert.match(portugueseMap, /Mapa do teclado/, 'El mapa del teclado no tradujo su título al portugués');
     assert.match(portugueseMap, /As sete notas musicais/, 'La guía de notas no se tradujo al portugués');
+    await page.evaluate(() => pressKey(60));
+    const portugueseLastNote = await page.locator('#lastNote').innerText();
+    assert.match(portugueseLastNote, /Dó \\(C4\\)/, 'La devolución dinámica de notas sigue en español');
     await page.evaluate(() => show('practice'));
     const portuguesePractice = await page.locator('#main').innerText();
     assert.match(portuguesePractice, /Arpejo de Dó/, 'El repertorio de práctica libre no se tradujo al portugués');
     assert.match(portuguesePractice, /Mão esquerda/, 'El ejercicio de mano izquierda no se tradujo al portugués');
+
+    const freePracticeAudit = await page.evaluate(() => {
+      const results = FREE_PRACTICE.map(exercise => {
+        setFreePracticeExercise(exercise.id);
+        startFreePractice();
+        const expected = freePracticeExpected.slice();
+        pressKey(expected[0]);
+        const recorded = freePracticeInput[0] === expected[0];
+        resetFreePractice();
+        return { id: exercise.id, targetCount: expected.length, recorded };
+      });
+      setFreePracticeExercise('technique');
+      startFreePractice();
+      [61, 62, 64, 65, 67].forEach(note => pressKey(note));
+      return {
+        results,
+        score: document.getElementById('freePracticeResult')?.textContent || '',
+        detail: document.getElementById('freePracticeProgress')?.textContent || ''
+      };
+    });
+    assert.equal(freePracticeAudit.results.length, 9, 'La práctica libre no contiene nueve actividades');
+    assert.deepEqual(freePracticeAudit.results.filter(x => !x.targetCount || !x.recorded), [], 'Hay una actividad sin secuencia evaluable');
+    assert.match(freePracticeAudit.score, /4\/5 corretas/, 'La práctica libre no calcula correctamente los errores');
+    assert.match(freePracticeAudit.detail, /esperado Dó4/i, 'La práctica libre no identifica la nota esperada en portugués');
     const portugueseNav = await page.locator('#nav').innerText();
     assert.doesNotMatch(portugueseNav, /Lecciones|Práctica|Mapa del teclado|Teoría musical|Lectura musical|Tocar con dos manos|Frases musicales|Entrenamiento auditivo|Acompañamiento|Mi progreso|Repaso inteligente|Sistema y ajustes/, 'El menú conserva etiquetas principales en español');
     // Auditoría ampliada: los textos dinámicos de las pantallas también deben quedar en portugués.
