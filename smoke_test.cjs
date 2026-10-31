@@ -347,6 +347,31 @@ const assert = require('node:assert/strict');
     assert.deepEqual(autonomyTransferAudit.first, { autonomy: 17, memory: 22, completed: true }, 'La transferencia auditiva independiente no acreditó autonomía y memoria');
     assert.deepEqual(autonomyTransferAudit.repeated, { autonomy: 17, memory: 22 }, 'Repetir una lección ya aprobada infló las competencias');
 
+    // La coordinación de dos manos debe adaptar la visibilidad de la guía y acreditar ambas manos, no solo acordes y derecha.
+    const twoHandsMotorAudit = await page.evaluate(() => {
+      const original = clone(state);
+      const lesson = LESSONS.find(x => x.id === 'l61');
+      Object.keys(state.skills).forEach(key => { state.skills[key] = 0; });
+      courseTwoHandsLesson(lesson);
+      const guideForBeginner = !document.getElementById('courseTwoHandsGuide')?.classList.contains('hidden');
+      Object.keys(state.skills).forEach(key => { state.skills[key] = 80; });
+      courseTwoHandsLesson(lesson);
+      const guideForAdvanced = document.getElementById('courseTwoHandsGuide')?.classList.contains('hidden') || false;
+      state.lessons.l61 = true;
+      state.skills.left = 10; state.skills.right = 10; state.skills.chords = 10;
+      state.skills.memory = 7; state.skills.autonomy = 8;
+      courseTwoHandsLessonData = lesson;
+      courseTwoHandsEvents = [{}]; courseTwoHandsStep = 1;
+      checkCourseTwoHands();
+      const scored = { left: state.skills.left, right: state.skills.right, chords: state.skills.chords, memory: state.skills.memory, autonomy: state.skills.autonomy };
+      state = original;
+      saveState();
+      return { guideForBeginner, guideForAdvanced, scored };
+    });
+    assert.equal(twoHandsMotorAudit.guideForBeginner, true, 'El principiante no ve la referencia de coordinación');
+    assert.equal(twoHandsMotorAudit.guideForAdvanced, true, 'El motor no retira la guía al alumno competente');
+    assert.deepEqual(twoHandsMotorAudit.scored, { left: 11, right: 11, chords: 11, memory: 7, autonomy: 8 }, 'La coordinación no acreditó ambas manos y acordes de forma independiente');
+
     const autonomyPanelAudit = await page.evaluate(() => {
       const html = godAutonomy();
       return { eightSkills: ['Lectura y orientación','Ritmo','Mano derecha','Mano izquierda','Acordes','Oído musical','Memoria','Autonomía'].every(x => html.includes(x)), weakest: html.includes('Competencia más débil'), mode: html.includes('Modo actual') };
