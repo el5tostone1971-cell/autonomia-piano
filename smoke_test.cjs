@@ -168,6 +168,30 @@ const assert = require('node:assert/strict');
     assert.equal(theoryCourseAudit.correctAccepted, true, 'Una respuesta correcta no completó teoría musical');
     assert.equal(theoryCourseAudit.topics, 15, 'El nivel 3 no contiene 15 conceptos');
 
+    // La lectura musical exige comprender la regla, nombrar el pentagrama y tocar la frase.
+    const staffCourseAudit = await page.evaluate(() => {
+      openLesson('l16');
+      const rendered = !!document.getElementById('courseStaffTheoryFeedback') && !!document.querySelector('.staff') && !!document.querySelector('.keys .key');
+      checkCourseStaff();
+      const theoryGate = courseStaffStage === 'name';
+      answerCourseStaffTheory(0);
+      const wrongRejected = !state.lessons.l16;
+      answerCourseStaffTheory(1);
+      courseStaffExpected.forEach(note => nameCourseStaff(note));
+      checkCourseStaff();
+      const readingStageReached = courseStaffStage === 'play';
+      courseStaffExpected.map(note => READING_MIDI[note]).forEach(note => registerCourseStaffNote(note));
+      checkCourseStaff();
+      return { rendered, theoryGate, wrongRejected, readingStageReached, completed: !!state.lessons.l16, topics: STAFF_THEORY.length };
+    });
+    assert.equal(staffCourseAudit.rendered, true, 'El nivel 2 no muestra teoría, pentagrama y teclado');
+    assert.equal(staffCourseAudit.theoryGate, true, 'La lectura se habilitó sin teoría');
+    assert.equal(staffCourseAudit.wrongRejected, true, 'Una respuesta incorrecta aprobó la teoría de lectura');
+    assert.equal(staffCourseAudit.readingStageReached, true, 'No se habilitó la lectura tras responder teoría');
+    assert.equal(staffCourseAudit.completed, true, 'La lectura y ejecución correctas no completaron la lección');
+    assert.equal(staffCourseAudit.topics, 15, 'El nivel 2 no contiene 15 conceptos');
+
+
     // La armonía exige primero comprender el concepto y luego formar la progresión real.
     const chordCourseAudit = await page.evaluate(() => {
       openLesson('l46');
