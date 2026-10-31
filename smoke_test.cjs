@@ -248,6 +248,42 @@ const assert = require('node:assert/strict');
 
 
 
+    // La autonomía solo se acredita con el desafío de memoria sin ayudas.
+    await page.evaluate(() => {
+      state.day = 90;
+      openLesson('l12');
+    });
+    const autonomyBefore = await page.evaluate(() => ({ ready: autoChallengeReady, hidden: document.getElementById('autoHelp')?.classList.contains('hidden') || false }));
+    assert.equal(autonomyBefore.ready, false, 'El desafío de autonomía se habilitó antes de retirar la ayuda');
+    await page.evaluate(() => hideAutoHelp()); // Intento de saltarse los tres segundos.
+    assert.equal(await page.evaluate(() => autoChallengeReady), false, 'Se permitió omitir el tiempo mínimo de observación');
+    await page.waitForFunction(() => autoChallengeReady === true, null, { timeout: 5000 });
+    const autonomyFailure = await page.evaluate(() => {
+      autoInput = ['C'];
+      checkPattern('l12', patternExpected, 'autonomy');
+      return { inputLength: autoInput.length, completed: !!state.lessons.l12 };
+    });
+    assert.equal(autonomyFailure.inputLength, 0, 'Un intento incorrecto no reinició la respuesta');
+    assert.equal(autonomyFailure.completed, false, 'Una respuesta incompleta acreditó autonomía');
+
+    // Coordinar ambas manos o tocar una frase guiada no debe inflar memoria/autonomía.
+    const falseAutonomyCredits = await page.evaluate(() => {
+      const before = { autonomy: state.skills.autonomy, memory: state.skills.memory };
+      twoHandsPhrase = TWO_HANDS_PHRASES[0];
+      twoHandsStep = twoHandsPhrase.events.length;
+      twoHandsAwarded = false;
+      checkTwoHands();
+      const afterTwoHands = { autonomy: state.skills.autonomy, memory: state.skills.memory };
+      phrase = MUSICAL_PHRASES[0];
+      phraseStep = phrase.events.length;
+      phraseTimes = phrase.events.map((_, i) => i * (60000 / phrase.tempo));
+      phraseAwarded = false;
+      checkPhrase();
+      return { before, afterTwoHands, afterPhrase: { autonomy: state.skills.autonomy, memory: state.skills.memory } };
+    });
+    assert.deepEqual(falseAutonomyCredits.afterTwoHands, falseAutonomyCredits.before, 'La coordinación de dos manos otorgó autonomía/memoria sin evaluarlas');
+    assert.deepEqual(falseAutonomyCredits.afterPhrase, falseAutonomyCredits.before, 'La frase guiada otorgó autonomía/memoria sin evaluarlas');
+
     // La lectura rítmica debe validar la entrada inicial, las duraciones y los silencios.
     const rhythmAudit = await page.evaluate(() => {
       const p = RHYTHM_PATTERNS.find(x => x.id === 'quarter-rest');
