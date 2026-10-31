@@ -618,6 +618,22 @@ const assert = require('node:assert/strict');
     assert.deepEqual(chordEvidenceAudit.afterNext,{score:2,ledger:['C-Am-F-G:0','C-Am-F-G:1']},'Un acorde correcto en un paso nuevo no fue acreditado');
     assert.equal(chordEvidenceAudit.afterWrong,2,'Un acorde incorrecto sumó puntos de competencia');
 
+    // Las lecciones de acordes exigen C, G, Am y F; no se puede aprobar con cuatro acordes arbitrarios.
+    const chordLessonAudit = await page.evaluate(() => {
+      const oldComplete=complete,oldToast=toast,oldHits=chordHits,oldSequence=chordSequence;
+      const completed=[],messages=[];
+      complete=id=>completed.push(id);toast=message=>messages.push(String(message));
+      chordHits=new Set(['D','Em','E','G']);chordSequence=[];
+      checkChords('l6');const arbitraryAccepted=completed.includes('l6');
+      chordHits=new Set(['C','G','Am','F']);chordSequence=[];
+      checkChords('l6');const correctSetAccepted=completed.includes('l6');
+      completed.length=0;chordSequence=['C','Am','G','F'];checkChords('l11');const wrongOrderAccepted=completed.includes('l11');
+      completed.length=0;chordSequence=['C','G','Am','F'];checkChords('l11');const correctOrderAccepted=completed.includes('l11');
+      complete=oldComplete;toast=oldToast;chordHits=oldHits;chordSequence=oldSequence;
+      return {arbitraryAccepted,correctSetAccepted,wrongOrderAccepted,correctOrderAccepted};
+    });
+    assert.deepEqual(chordLessonAudit,{arbitraryAccepted:false,correctSetAccepted:true,wrongOrderAccepted:false,correctOrderAccepted:true},'La evaluación de acordes aceptó acordes incorrectos o rechazó la progresión correcta');
+
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
