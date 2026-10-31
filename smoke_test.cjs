@@ -763,6 +763,7 @@ const assert = require('node:assert/strict');
     const twoHandsTimingAudit = await page.evaluate(() => {
       const original=clone(state),oldPhrase=twoHandsPhrase,oldStep=twoHandsStep,oldTimes=twoHandsTimes.slice(),oldAwarded=twoHandsAwarded,oldStarted=twoHandsStarted;
       state.skills.left=0;state.skills.right=0;state.skills.chords=0;state.god={};
+      const oldMessage=document.getElementById('twoHandsMsg'),message=document.createElement('div');message.id='twoHandsMsg';document.body.appendChild(message);
       twoHandsPhrase=MUSICAL_PHRASES[0];twoHandsStep=twoHandsPhrase.events.length;twoHandsAwarded=false;twoHandsStarted=true;
       twoHandsTimes=Array.from({length:8},(_,i)=>i*833);
       checkTwoHands();
@@ -771,7 +772,7 @@ const assert = require('node:assert/strict');
       twoHandsTimes=[0,833,1666,4000,4833,5666,6499,7332];
       checkTwoHands();
       const offBeat={left:state.skills.left,right:state.skills.right,chords:state.skills.chords,message:document.getElementById('twoHandsMsg')?.textContent||''};
-      state=original;twoHandsPhrase=oldPhrase;twoHandsStep=oldStep;twoHandsTimes=oldTimes;twoHandsAwarded=oldAwarded;twoHandsStarted=oldStarted;saveState();
+      message.remove();if(oldMessage)document.body.appendChild(oldMessage);state=original;twoHandsPhrase=oldPhrase;twoHandsStep=oldStep;twoHandsTimes=oldTimes;twoHandsAwarded=oldAwarded;twoHandsStarted=oldStarted;saveState();
       return {onBeat,offBeat};
     });
     assert.deepEqual(twoHandsTimingAudit.onBeat,{left:3,right:3,chords:2},'Una coordinación a tempo no acreditó ambas manos y acordes');
