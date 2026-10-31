@@ -705,6 +705,19 @@ const assert = require('node:assert/strict');
     });
     assert.deepEqual(twoHandsEvidenceAudit,{first:{left:1,right:1,chords:1},duplicate:{left:1,right:1,chords:1},different:{left:2,right:2,chords:2}},'La misma frase de dos manos volvió a acreditar competencias en otra lección');
 
+    // La guía de digitación no debe afirmar que detecta el dedo físico: solo puede verificar notas y pulso.
+    const techniqueHonestyAudit = await page.evaluate(() => {
+      const oldLanguage=pianoLanguage,oldExercise=techniqueExercise,oldStep=techniqueStep,oldStarted=techniqueStarted;
+      techniqueExercise={hand:'Derecha',tempo:80,title:'Prueba de digitación',focus:'Prueba',notes:[60,62],fingers:[1,2]};
+      techniqueStep=0;techniqueStarted=false;pianoLanguage='es';
+      const spanish=techniqueView();
+      pianoLanguage='pt';const portuguese=techniqueView();
+      pianoLanguage=oldLanguage;techniqueExercise=oldExercise;techniqueStep=oldStep;techniqueStarted=oldStarted;
+      return {spanish,portuguese};
+    });
+    assert.match(techniqueHonestyAudit.spanish,/no puede detectar qué dedo físico presionaste/i,'La guía de técnica promete detectar un dedo que la app no puede medir');
+    assert.match(techniqueHonestyAudit.portuguese,/não consegue detectar qual dedo físico/i,'A explicação sobre dedilhado não foi localizada em português');
+
     // Simular progreso y recarga en el mismo navegador.
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
