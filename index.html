@@ -2005,9 +2005,8 @@ function checkCourseTwoHands(){
  const assessed=state.god.twoHandsAssessment=Array.isArray(state.god.twoHandsAssessment)?state.god.twoHandsAssessment:[];
  const lessonKey=String(courseTwoHandsLessonData.id);
  if(!assessed.includes(lessonKey)){
-  state.skills.left=Math.min(100,(Number(state.skills.left)||0)+1);
-  state.skills.right=Math.min(100,(Number(state.skills.right)||0)+1);
-  state.skills.chords=Math.min(100,(Number(state.skills.chords)||0)+1);
+  const evidenceId=courseTwoHandsEvents.map(e=>(e.left||[]).join('.')+':'+String(e.right)).join('|');
+  awardUniqueSkillEvidence('courseTwoHands',evidenceId,{left:1,right:1,chords:1});
   assessed.push(lessonKey);
  }
  saveState();courseTwoHandsStarted=false;complete(courseTwoHandsLessonData.id);
