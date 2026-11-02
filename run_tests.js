@@ -94,7 +94,7 @@
  try{newRepertoire();repertoireTempoOverride=null;startRepertoire();repertoireInput=repertoirePiece.notes.slice();const unit=60000/getRepertoireTempo();let elapsed=0;repertoireTimes=repertoirePiece.notes.map((_,i)=>{const at=elapsed;elapsed+=(repertoirePiece.dur[i]||1)*unit;return at});checkRepertoire();assert(repertoireAwarded,'repertorio no aprobó');pass('Repertorio','notas + timing aceptados')}catch(e){fail('Repertorio',e)}
  // Repertoire progression: learn by pitch class, read exact octave, then play from memory.
  try{
-  const originalPiece=repertoireLibrary.find(x=>x.id==='rp1'),originalNotes=originalPiece.notes.slice(),originalDur=originalPiece.dur.slice();
+  assert(repertoireLibrary.length===19,'la biblioteca no contiene las 19 piezas previstas');assert(repertoireLibrary.every(piece=>piece.notes.length===piece.dur.length&&piece.notes.every(note=>Number.isInteger(note)&&note>=36&&note<=96)&&piece.dur.every(duration=>duration>0)&&piece.tempo>=45&&piece.tempo<=140),'hay una pieza con notas, duraciones o tempo inválidos');assert(['Brasil','Bossa nova','Samba','Cumbia','Rock and roll','Pop'].every(tag=>repertoireLibrary.some(piece=>piece.tags.includes(tag))),'faltan estilos originales en el repertorio');const originalPiece=repertoireLibrary.find(x=>x.id==='rp1'),originalNotes=originalPiece.notes.slice(),originalDur=originalPiece.dur.slice();
   originalPiece.notes=[60,62];originalPiece.dur=[1,1];
   state=clone(defaultState);state.repertoireMilestones={};state.repertoireSessions={};state.repertoireProgress={};
   selectLibraryPiece('rp1');startRepertoireLearn();
@@ -140,7 +140,7 @@
   state.day=4;state.lessons={l1:true,l2:true,l3:true};
   state.repertoireProgress={rp1:50,rp2:25};
   state.repertoireMilestones={rp1:{learn:true,read:true}};
-  state.repertoireSessions={rp1:{mode:'learn',index:4,updatedAt:new Date().toISOString()},rp2:{mode:'play',index:2,notes:[60,62],updatedAt:new Date().toISOString()}};
+  state.repertoireSessions={rp1:{mode:'learn',index:4,updatedAt:new Date().toISOString()},rp2:{mode:'play',index:2,notes:[60,62],updatedAt:new Date().toISOString()},rp3:{mode:'read',index:3,updatedAt:new Date().toISOString()}};
   saveState();
   const savedRaw=localStorage.getItem(KEY);
   assert(!!savedRaw,'saveState no escribió la clave principal');
@@ -149,7 +149,7 @@
   assert(state.lessons.l1===true&&state.lessons.l3===true,'no restauró las lecciones completadas');
   assert(state.repertoireProgress.rp1===50&&state.repertoireProgress.rp2===25,'no restauró el porcentaje del repertorio');
   assert(state.repertoireMilestones.rp1.learn===true&&state.repertoireMilestones.rp1.read===true,'no restauró los hitos de canción');
-  assert(state.repertoireSessions.rp1.mode==='learn'&&state.repertoireSessions.rp1.index===4,'no restauró la sesión de aprendizaje');assert(state.repertoireSessions.rp2.mode==='play'&&state.repertoireSessions.rp2.index===2&&state.repertoireSessions.rp2.notes.join(',')==='60,62','no restauró las notas de interpretación ya tocadas');
+  assert(state.repertoireSessions.rp1.mode==='learn'&&state.repertoireSessions.rp1.index===4,'no restauró la sesión de aprendizaje');assert(state.repertoireSessions.rp2.mode==='play'&&state.repertoireSessions.rp2.index===2&&state.repertoireSessions.rp2.notes.join(',')==='60,62','no restauró las notas de interpretación ya tocadas');assert(state.repertoireSessions.rp3.mode==='read'&&state.repertoireSessions.rp3.index===3,'no restauró la sesión de lectura');
   pass('Persistencia tras recarga','lecciones, porcentaje, hitos y sesión del repertorio sobreviven al reinicio');
  }catch(e){fail('Persistencia tras recarga',e)}
 
