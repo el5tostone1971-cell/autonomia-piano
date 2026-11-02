@@ -963,11 +963,11 @@ const assert = require('node:assert/strict');
     assert.ok(importedTestSongId, 'No se guardó el MIDI importado en la biblioteca');
     await page.evaluate(id => startImportedSongPractice(id), importedTestSongId);
     assert.match(await page.locator('.card').last().innerText(), /C4|Do \(C\)/, 'La primera nota MIDI importada no se presenta como Do4');
-    await page.locator('.keys.imported-song-keys .key[data-midi="60"]').click();
+    await page.evaluate(() => pressKey(60));
     assert.match(await page.locator('.card').last().innerText(), /1 \/ 2/, 'La práctica no avanzó tras tocar la primera nota');
-    await page.locator('.keys.imported-song-keys .key[data-midi="60"]').click();
+    await page.evaluate(() => pressKey(60));
     assert.match(await page.locator('#importedSongFeedback').innerText(), /Buscá|Busca|D4|Re/, 'No se informó la nota equivocada');
-    await page.locator('.keys.imported-song-keys .key[data-midi="62"]').click();
+    await page.evaluate(() => pressKey(62));
     assert.match(await page.locator('.card').last().innerText(), /2 \/ 2|Canción completada/, 'La canción MIDI no se completó tras la segunda nota');
     await page.evaluate(() => stopImportedSongPlayback());
 
