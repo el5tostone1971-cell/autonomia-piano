@@ -90,7 +90,7 @@
   state.day=4;state.lessons={l1:true,l2:true,l3:true};
   state.repertoireProgress={rp1:50,rp2:25};
   state.repertoireMilestones={rp1:{learn:true,read:true}};
-  state.repertoireSessions={rp2:{mode:'learn',index:4,updatedAt:new Date().toISOString()}};
+  state.repertoireSessions={rp1:{mode:'learn',index:4,updatedAt:new Date().toISOString()},rp2:{mode:'play',index:2,notes:[60,62],updatedAt:new Date().toISOString()}};
   saveState();
   const savedRaw=localStorage.getItem(KEY);
   assert(!!savedRaw,'saveState no escribió la clave principal');
@@ -99,7 +99,7 @@
   assert(state.lessons.l1===true&&state.lessons.l3===true,'no restauró las lecciones completadas');
   assert(state.repertoireProgress.rp1===50&&state.repertoireProgress.rp2===25,'no restauró el porcentaje del repertorio');
   assert(state.repertoireMilestones.rp1.learn===true&&state.repertoireMilestones.rp1.read===true,'no restauró los hitos de canción');
-  assert(state.repertoireSessions.rp2.mode==='learn'&&state.repertoireSessions.rp2.index===4,'no restauró la sesión de canción en curso');
+  assert(state.repertoireSessions.rp1.mode==='learn'&&state.repertoireSessions.rp1.index===4,'no restauró la sesión de aprendizaje');assert(state.repertoireSessions.rp2.mode==='play'&&state.repertoireSessions.rp2.index===2&&state.repertoireSessions.rp2.notes.join(',')==='60,62','no restauró las notas de interpretación ya tocadas');
   pass('Persistencia tras recarga','lecciones, porcentaje, hitos y sesión del repertorio sobreviven al reinicio');
  }catch(e){fail('Persistencia tras recarga',e)}
 
