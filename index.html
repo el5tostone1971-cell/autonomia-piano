@@ -2081,20 +2081,41 @@ const THEORY_COURSE=[
  {topic:'Tónica y dominante',explain:'La tónica (I) es el centro de reposo tonal. La dominante (V) crea tensión y suele conducir de vuelta a la tónica.',example:'En Do mayor, el movimiento Sol–Do (V–I) produce una resolución muy reconocible.',q:'En Do mayor, ¿cuál es la dominante?',opts:['Fa','Sol','La'],a:1,why:'Sol es el quinto grado y funciona como dominante.'},
  {topic:'Aplicación: leer una escala',explain:'Para analizar una escala, identificá su tónica, escribí los siete grados y verificá el patrón de tonos y semitonos. No alcanza con memorizar la digitación.',example:'Re mayor: Re–Mi–Fa♯–Sol–La–Si–Do♯–Re. Sus alteraciones son Fa♯ y Do♯.',q:'¿Qué dos notas llevan sostenido en Re mayor?',opts:['Fa y Do','Sol y Re','Mi y La'],a:0,why:'Re mayor tiene dos sostenidos: Fa♯ y Do♯.'}
 ];
+const THEORY_COURSE_PRACTICE=[
+ {prompt:'Tocá Mi y luego Fa: escuchá el semitono natural.',notes:[64,65]},
+ {prompt:'Tocá Do y Re: entre ambas notas hay un tono.',notes:[60,62]},
+ {prompt:'Tocá Do y Mi: comprobá la tercera mayor.',notes:[60,64]},
+ {prompt:'Tocá la escala de Do mayor ascendente y volvé a Do.',notes:[60,62,64,65,67,69,71,72]},
+ {prompt:'Tocá Sol mayor: recordá que Fa se convierte en Fa sostenido.',notes:[67,69,71,72,74,76,78,79]},
+ {prompt:'Tocá La menor natural ascendente.',notes:[69,71,72,74,76,77,79,81]},
+ {prompt:'Tocá Do, Do sostenido y Re: subí un semitono cada vez.',notes:[60,61,62]},
+ {prompt:'Tocá Fa sostenido y luego Fa natural: el becuadro cancela la alteración.',notes:[66,65]},
+ {prompt:'Tocá Do sostenido y Re bemol: son la misma altura en el piano.',notes:[61,61]},
+ {prompt:'Tocá Do y Re: escuchá el intervalo de segunda.',notes:[60,62]},
+ {prompt:'Tocá Do y Mi bemol: formá una tercera menor.',notes:[60,63]},
+ {prompt:'Tocá Do y Sol: formá una quinta justa.',notes:[60,67]},
+ {prompt:'Tocá Do, Mi y Sol: identificá la tónica y la dominante.',notes:[60,64,67]},
+ {prompt:'Tocá Sol y después Do: resolvé de dominante a tónica.',notes:[67,72]},
+ {prompt:'Tocá Re mayor ascendente: Fa y Do deben ser sostenidos.',notes:[62,64,66,67,69,71,73,74]}
+];
+let theoryCoursePracticeExpected=[],theoryCoursePracticePlayed=[],theoryCoursePracticeActive=false;
 function theoryCourseLesson(l){
- resetExercise();const t=THEORY_COURSE[l.theoryIndex];if(!t)return toast('Contenido teórico no disponible.');
+ resetExercise();const t=THEORY_COURSE[l.theoryIndex],practice=THEORY_COURSE_PRACTICE[l.theoryIndex];if(!t||!practice)return toast('Contenido teórico o práctica no disponible.');
+ theoryCoursePracticeExpected=practice.notes.slice();theoryCoursePracticePlayed=[];theoryCoursePracticeActive=false;
  const opts=t.opts.map((v,i)=>'<button class="btn" type="button" onclick="answerTheoryCourse('+i+')">'+String.fromCharCode(65+i)+'. '+v+'</button>').join('');
  showHTML(shell('📘 '+t.topic,l.desc+'<br><br>'+t.explain+'<br><br><b>Ejemplo:</b> '+t.example,
- '<div class="note-box"><div class="pill">COMPRENDER ANTES DE RESPONDER</div><h3>'+t.q+'</h3><div class="row-controls">'+opts+'</div><p id="theoryCourseFeedback" class="muted" aria-live="polite">Elegí una respuesta. La explicación de corrección aparecerá después.</p><button class="btn primary" id="theoryCourseRetry" style="display:none" onclick="theoryCourseLesson(LESSONS.find(x=>x.id===currentLessonId))">Volver a intentar</button></div><div class="note-box"><b>Explorá el concepto en el piano</b><p class="muted">Tocá las notas del ejemplo en el teclado. Escuchá la distancia y compará las teclas blancas y negras antes de responder.</p></div>'+keyboard()));
+ '<div class="note-box"><div class="pill">COMPRENDER ANTES DE RESPONDER</div><h3>'+t.q+'</h3><div class="row-controls">'+opts+'</div><p id="theoryCourseFeedback" class="muted" aria-live="polite">Elegí una respuesta. La explicación de corrección aparecerá después.</p><button class="btn primary" id="theoryCourseRetry" style="display:none" onclick="theoryCourseLesson(LESSONS.find(x=>x.id===currentLessonId))">Volver a intentar</button></div><div class="note-box" id="theoryCoursePractice" style="display:none"><b>Ahora demostralo en el piano</b><p id="theoryCoursePracticePrompt" class="muted">'+practice.prompt+'</p><div id="theoryCoursePracticeInput" class="target">—</div><div class="row-controls"><button class="btn" onclick="clearTheoryCoursePractice()">× Borrar intento</button><button class="btn good" onclick="checkTheoryCoursePractice()">Comprobar práctica</button></div><p id="theoryCoursePracticeFeedback" class="muted" aria-live="polite"></p></div>'+keyboard()));
  window._theoryCourseAnswered=false;
 }
 function answerTheoryCourse(choice){
  if(window._theoryCourseAnswered)return;
  const l=LESSONS.find(x=>x.id===currentLessonId),t=l&&THEORY_COURSE[l.theoryIndex],el=document.getElementById('theoryCourseFeedback');if(!t||!el)return;
- window._theoryCourseAnswered=true;
- if(choice===t.a){el.textContent='✓ '+t.why+' Concepto comprendido.';complete(l.id);}
+ if(choice===t.a){window._theoryCourseAnswered=true;theoryCoursePracticeActive=true;const panel=document.getElementById('theoryCoursePractice');if(panel)panel.style.display='block';el.textContent='✓ '+t.why+' Concepto comprendido. Ahora aplicalo tocando la secuencia indicada.';}
  else{el.textContent='Todavía no. '+t.why+' Volvé a leer la explicación y reintentá.';const retry=document.getElementById('theoryCourseRetry');if(retry)retry.style.display='inline-block';}
 }
+function registerTheoryCoursePracticeNote(note){if(!theoryCoursePracticeActive||theoryCoursePracticePlayed.length>=theoryCoursePracticeExpected.length)return;theoryCoursePracticePlayed.push(note);const el=document.getElementById('theoryCoursePracticeInput');if(el)el.textContent=theoryCoursePracticePlayed.map(n=>localizedPianoNoteName(n)+(Math.floor(n/12)-1)).join(' · ');}
+function clearTheoryCoursePractice(){theoryCoursePracticePlayed=[];const el=document.getElementById('theoryCoursePracticeInput');if(el)el.textContent='—';const msg=document.getElementById('theoryCoursePracticeFeedback');if(msg)msg.textContent='Intento borrado. Volvé a tocar la secuencia.';}
+function checkTheoryCoursePractice(){if(!theoryCoursePracticeActive)return;const msg=document.getElementById('theoryCoursePracticeFeedback');if(theoryCoursePracticePlayed.length!==theoryCoursePracticeExpected.length){if(msg)msg.textContent='Faltan notas: '+theoryCoursePracticePlayed.length+' / '+theoryCoursePracticeExpected.length+'.';return}const wrong=theoryCoursePracticePlayed.findIndex((n,i)=>n!==theoryCoursePracticeExpected[i]);if(wrong>=0){const expected=theoryCoursePracticeExpected[wrong];if(msg)msg.textContent='La nota '+(wrong+1)+' no coincide. Se esperaba '+localizedPianoNoteName(expected)+(Math.floor(expected/12)-1)+'. Corregí la secuencia y volvé a comprobar.';return}theoryCoursePracticeActive=false;complete(currentLessonId);if(msg)msg.textContent='✓ Concepto comprendido y aplicado en el teclado. Lección completada.';}
 
 const CHORD_THEORY=[
 {topic:'Qué es una tríada',explain:'Una tríada es un acorde de tres notas distintas organizadas por terceras: fundamental, tercera y quinta. Se puede tocar en distintas octavas y seguir siendo el mismo acorde.',example:'Do–Mi–Sol: fundamental Do, tercera Mi y quinta Sol.',q:'¿Qué notas forman la estructura básica de una tríada?',opts:['Fundamental, tercera y quinta','Fundamental, cuarta y sexta','Tres notas consecutivas'],a:0,why:'Una tríada se construye apilando terceras: fundamental, tercera y quinta.'},
@@ -2572,6 +2593,7 @@ function handleExerciseNote(n,name){if(typeof registerFreePracticeNote==='functi
  if(document.getElementById('courseStaffInput')) registerCourseStaffNote(n);
  if(document.getElementById('courseTwoHandsCount')) registerCourseTwoHandsNote(n);
  if(document.getElementById('courseAutoInput')) registerCourseAutoNote(n);
+ if(document.getElementById('theoryCoursePracticeInput')) registerTheoryCoursePracticeNote(n);
  if(document.getElementById('doCount')&&name==='C'){doFound.add(n);document.getElementById('doCount').textContent=Math.min(4,doFound.size);if(doFound.size>=4){document.getElementById('findMsg').textContent='✓ Cuatro Do diferentes. ¡Orientación demostrada!';complete('l1')}}
  if(document.getElementById('patInput')){pattern.push(pc);document.getElementById('patInput').textContent=pattern.join(' · ')}
  if(document.getElementById('memInput')&&memoryHelpHidden){mem.push(pc);document.getElementById('memInput').textContent=mem.join(' · ')}
