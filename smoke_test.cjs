@@ -812,6 +812,22 @@ const assert = require('node:assert/strict');
     assert.equal(restored.progress, 35, 'El porcentaje de repertorio no sobrevivió a la recarga');
     assert.equal(restored.session.mode, 'learn', 'No se restauró el modo de la sesión');
     assert.equal(restored.session.index, 3, 'No se restauró el índice de la sesión');
+    await page.evaluate(() => { selectLibraryPiece('rp10'); startRepertoireLearn(); });
+    const resumedLearn = await page.evaluate(() => ({ index: repertoireLearnIndex, count: document.getElementById('repertoireCount')?.textContent || '', note: document.getElementById('repertoireCurrentNoteName')?.textContent || '' }));
+    assert.equal(resumedLearn.index, 3, 'El aprendizaje no retomó desde la cuarta nota');
+    assert.match(resumedLearn.count, /^3 \/ /, 'El contador de aprendizaje no refleja las notas ya realizadas');
+    assert.match(resumedLearn.note, /octava/i, 'La nota de reanudación no se mostró');
+    await page.evaluate(() => {
+      const piece = repertoireLibrary.find(item => item.id === 'rp10');
+      repertoireInput = piece.notes.slice(0, 2);
+      saveRepertoireSession('play', 2);
+    });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => typeof window.selectLibraryPiece === 'function', null, { timeout: 20000 });
+    await page.evaluate(() => { selectLibraryPiece('rp10'); startRepertoire(); });
+    const resumedPlay = await page.evaluate(() => ({ notes: repertoireInput.slice(), count: document.getElementById('repertoireCount')?.textContent || '' }));
+    assert.equal(resumedPlay.notes.length, 2, 'La interpretación no recuperó las dos notas guardadas');
+    await page.evaluate(() => stopRepertoirePractice());
     assert.deepEqual(pageErrors, [], 'La aplicación produjo errores JavaScript: ' + pageErrors.join(' | '));
 
     console.log('PASS: carga inicial');
