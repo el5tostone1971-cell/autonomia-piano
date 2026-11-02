@@ -3085,6 +3085,7 @@ function playImportedSongWithBacking(){
  if(p.playing)return;
  const all=song.data.sequence||[],target=getImportedSongPracticeSequence(song),backing=all.filter(n=>!target.includes(n));
  if(!target.length)return toast('La selección no tiene notas para practicar.');
+ if(!backing.length)return toast('Este archivo no contiene otra parte para usar como acompañamiento. Importá un MIDI multipista o elegí otra mano/pista.');
  const scale=p.tempoScale||.75,offset=Math.max(0,Number(p.offsetMs)||0),token=++p.playToken;
  p.mode='play';p.backingMode=true;p.waiting=false;p.waitGroup=[];p.playing=true;p.paused=false;p.startedAt=Date.now()-offset/scale;p.currentNotes=[];clearImportedSongTimers();
  const events=[];
