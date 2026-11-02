@@ -59,8 +59,8 @@
 
  // Reading.
  try{show('reading'); readingExpectedSeq=[60];readingStage='play';readingPlayedSeq=[60];checkReading();pass('Lectura musical','respuesta correcta aceptada')}catch(e){fail('Lectura musical',e)}
- // Rhythm reading.
- try{show('rhythmReading');newRhythmReading();rhythmReadingArmed=true;rhythmReadingTimes=rhythmReadingPattern.beats.reduce((a,b,i)=>{a.push((i? a[i-1]:0)+(i?b*600:0));return a},[]);checkRhythmReading();assert(!rhythmReadingArmed,'ritmo no cerró el ejercicio');pass('Lectura rítmica','pulso correcto aceptado')}catch(e){fail('Lectura rítmica',e)}
+ // Rhythm reading: the current rhythm model stores steps (note/rest + duration), not a legacy beats array.
+ try{show('rhythmReading');newRhythmReading();rhythmReadingCountdownTimer=setTimeout(()=>{},10000);rhythmReadingArmed=true;newRhythmReading();assert(rhythmReadingCountdownTimer===null&&!rhythmReadingArmed,'Nueva lectura no canceló el conteo pendiente');rhythmReadingTimes=rhythmPatternAttacks(rhythmReadingPattern).map(beat=>beat*600);rhythmReadingArmed=true;checkRhythmReading();assert(!rhythmReadingArmed,'ritmo no cerró el ejercicio');assert(state.god.rhythmAssessment.mastered.includes(rhythmReadingPattern.id),'no guardó el patrón rítmico');pass('Lectura rítmica','cancelación de conteo + ataques derivados de steps + dominio acreditado')}catch(e){fail('Lectura rítmica',e)}
  // Two hands.
  try{newTwoHands();startTwoHands();for(const ev of twoHandsPhrase.events)for(const n of ev.left.concat(ev.right))registerTwoHandsNote(n);checkTwoHands();assert(twoHandsAwarded,'dos manos no otorgó dominio');pass('Dos manos','todos los bloques coordinados')}catch(e){fail('Dos manos',e)}
  // Technique.
