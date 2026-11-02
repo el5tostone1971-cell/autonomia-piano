@@ -570,7 +570,9 @@ const assert = require('node:assert/strict');
     });
     assert.match(motorPortugueseAudit.memory,/Primeira memória/i,'A primeira memória não foi traduzida para português');
     assert.match(motorPortugueseAudit.memory,/Ocultar ajuda/i,'O botão de ocultar ajuda não foi traduzido');
-    assert.match(motorPortugueseAudit.memory2,/Memória com lacunas/i,'A memória com lacunas não foi traduzida');
+    assert.match(motorPortugueseAudit.memory2,/Memória em blocos curtos/i,'A memória em blocos curtos não foi traduzida');
+    assert.match(motorPortugueseAudit.memory2,/cinco notas/i,'A explicação da memória em blocos não foi traduzida');
+    assert.match(motorPortugueseAudit.memory2,/Conferir memória/i,'O botão de conferir memória não foi traduzido');
     assert.match(motorPortugueseAudit.autonomy,/Desafio de autonomia/i,'O desafio de autonomia não foi traduzido');
     assert.match(motorPortugueseAudit.autonomy,/Verificar autonomia/i,'O botão de autonomia não foi traduzido');
 
