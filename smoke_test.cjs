@@ -22,6 +22,26 @@ const assert = require('node:assert/strict');
     assert.ok(desktopLayout.mainLeft >= desktopLayout.sideRight - 1, 'El menú lateral tapa el contenido principal');
     assert.ok(desktopLayout.mainWidth > 600, 'El contenido principal quedó demasiado estrecho en escritorio');
 
+
+    // Prueba real de móvil: el documento no debe desbordarse horizontalmente y el teclado debe seguir siendo accesible.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.evaluate(() => { changePianoLanguage('es'); show('keyboard'); });
+    const mobileLayout = await page.evaluate(() => ({
+      viewport: document.documentElement.clientWidth,
+      document: document.documentElement.scrollWidth,
+      keyboard: !!document.querySelector('.keys .key'),
+      nav: document.querySelectorAll('#nav button').length,
+      main: !!document.querySelector('#main')
+    }));
+    assert.ok(mobileLayout.document <= mobileLayout.viewport + 1, 'La interfaz móvil genera desplazamiento horizontal global');
+    assert.ok(mobileLayout.keyboard, 'El teclado virtual no aparece en móvil');
+    assert.ok(mobileLayout.nav >= 10, 'El menú de navegación no conserva sus accesos en móvil');
+    await page.evaluate(() => show('practice'));
+    assert.ok(await page.locator('[data-free-exercise]').count() >= 8, 'La práctica libre no queda disponible en móvil');
+    await page.setViewportSize({ width: 768, height: 1024 });
+    await page.evaluate(() => show('repertoire'));
+    assert.ok(await page.locator('#main').isVisible(), 'El contenido principal no aparece en tablet');
+
     // Recorrer la pieza didáctica y comprobar que la nota que suena queda identificada.
     await page.evaluate(() => {
       const piece = repertoireLibrary.find(item => item.id === 'rp10');
@@ -130,6 +150,28 @@ const assert = require('node:assert/strict');
     assert.match(freePracticeAudit.detail, /esperado Dó4/i, 'La práctica libre no identifica la nota esperada en portugués');
     const portugueseNav = await page.locator('#nav').innerText();
     assert.doesNotMatch(portugueseNav, /Lecciones|Práctica|Mapa del teclado|Teoría musical|Lectura musical|Tocar con dos manos|Frases musicales|Entrenamiento auditivo|Acompañamiento|Mi progreso|Repaso inteligente|Sistema y ajustes/, 'El menú conserva etiquetas principales en español');
+
+    // Las seis guías pedagógicas deben existir también en portugués, no desaparecer al cambiar el idioma.
+    await page.evaluate(() => {
+      window._testMode = false;
+      changePianoLanguage('pt');
+      show('course');
+      [1,16,31,46,61,76].forEach(day => {
+        document.querySelector('.courseTeachingGuide')?.remove();
+        const lesson = LESSONS.find(item => item.day === day);
+        insertCourseTeachingGuide(lesson);
+        const guide = document.querySelector('.courseTeachingGuide');
+        if (!guide) throw new Error('A guia pedagógica não apareceu no nível ' + Math.ceil(day/15));
+        const content = guide.innerText;
+        for (const required of ['O que você precisa compreender','Como resolver este exercício','Erro frequente:','Critério de aprovação:']) {
+          if (!content.includes(required)) throw new Error('A guia em português está incompleta: ' + required);
+        }
+        if (/Qué tenés|Cómo resolver|Error frecuente|Criterio de aprobación/.test(content)) throw new Error('A guia em português contém texto em espanhol');
+      });
+      window._testMode = true;
+      changePianoLanguage('es');
+    });
+
     // Auditoría ampliada: los textos dinámicos de las pantallas también deben quedar en portugués.
     await page.evaluate(() => { state.theory = state.theory || { completed: {}, xp: 0 }; state.theory.completed = Object.fromEntries(THEORY_LESSONS.map(item => [item.id, true])); });
     await page.evaluate(() => show('course'));
