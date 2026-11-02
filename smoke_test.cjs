@@ -573,7 +573,7 @@ const assert = require('node:assert/strict');
     assert.match(motorPortugueseAudit.memory2,/Memória em blocos curtos/i,'A memória em blocos curtos não foi traduzida');
     assert.match(motorPortugueseAudit.memory2,/cinco notas/i,'A explicação da memória em blocos não foi traduzida');
     assert.match(motorPortugueseAudit.memory2,/Conferir memória/i,'O botão de conferir memória não foi traduzido');
-    assert.match(motorPortugueseAudit.autonomy,/Desafio de autonomia/i,'O desafio de autonomia não foi traduzido');
+    assert.match(motorPortugueseAudit.autonomy,/Memória sem dicas/i,'A memória imediata sem pistas não foi traduzida');
     assert.match(motorPortugueseAudit.autonomy,/Verificar autonomia/i,'O botão de autonomia não foi traduzido');
 
     // El oído avanzado debe traducir las opciones y evaluar la respuesta portuguesa correcta.
