@@ -32,3 +32,5 @@ jobs:
           exit 1
       - name: Test note display and persistence after reload
         run: node smoke_test.cjs
+      - name: Run comprehensive course, Motor 11 and repertoire tests
+        run: node run_tests_browser.cjs
