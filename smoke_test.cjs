@@ -262,7 +262,7 @@ const assert = require('node:assert/strict');
         const guideText = guide?.innerText || '';
         const guideValid = !!guide && ['O que você precisa compreender','Como resolver este exercício','Erro frequente:','Critério de aprovação:'].every(label => guideText.includes(label));
         const guideSpanishLeak = /Qué tenés|Cómo resolver|Error frecuente|Criterio de aprobación/.test(guideText);
-        const specificGuidance = {l1:'grupos de duas teclas pretas',l2:'Dedilhado inicial',l3:'Conte 1–2–3–4',l4:'divida a frase em partes pequenas',l5:'escute as três notas até o fim',l6:'um conjunto de notas que soam juntas',l7:'região grave',l8:'Mãos separadas',l9:'Memória com pistas',l10:'Ritmo e melodia',l11:'Progressão de acordes',l12:'memória imediata'};
+        const specificGuidance = {l1:'grupos de duas teclas pretas',l2:'Dedilhado inicial',l3:'Conte 1–2–3–4',l4:'divida a frase em partes pequenas',l5:'escute as três notas até o fim',l6:'um conjunto de notas que soam juntas',l7:'região grave',l8:'Mãos separadas',l9:'Memória em blocos curtos',l10:'Ritmo e melodia',l11:'Progressão de acordes',l12:'memória imediata'};
         const guideSpecific = !specificGuidance[lesson.id] || guideText.toLowerCase().includes(specificGuidance[lesson.id].toLowerCase());
         results.push({ id: lesson.id, kind: lesson.kind, engineMapped: typeof window[exerciseFunctionName(lesson.kind)] === 'function', rendered: !!main && html.length > 100, unimplemented: text.includes('Ejercicio no implementado'), interactive: !!main?.querySelector('button, .keys, input, [data-free-exercise]'), spanishLeak, spanishMatch, guideValid, guideSpanishLeak, guideSpecific, excerpt: spanishLeak ? text.slice(0, 240) : '' });
       }
