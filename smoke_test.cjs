@@ -949,6 +949,26 @@ const assert = require('node:assert/strict');
     const resumedPlay = await page.evaluate(() => ({ notes: repertoireInput.slice(), count: document.getElementById('repertoireCount')?.textContent || '' }));
     assert.equal(resumedPlay.notes.length, 2, 'La interpretación no recuperó las dos notas guardadas');
     await page.evaluate(() => stopRepertoirePractice());
+    // Motor 06: subir un MIDI fixture, reproducirlo y practicar las notas en orden.
+    const tinyMidi = Buffer.concat([
+      Buffer.from('MThd'), Buffer.from([0,0,0,6,0,0,0,1,1,0xE0]),
+      Buffer.from('MTrk'), Buffer.from([0,0,0,22]),
+      Buffer.from([0,0x90,60,100,0x83,0x60,0x80,60,0,0,0x90,62,100,0x83,0x60,0x80,62,0,0,0xFF,0x2F,0])
+    ]);
+    await page.evaluate(() => { showHTML(advancedSystemView()); openGodFeature('06'); });
+    await page.locator('#musicFile').setInputFiles({ name: 'smoke-melody.mid', mimeType: 'audio/midi', buffer: tinyMidi });
+    await page.waitForFunction(() => document.body.innerText.includes('2 notas'), null, { timeout: 10000 });
+    assert.ok(await page.locator('button[onclick*="startImportedSongPractice"]').count() > 0, 'El MIDI no aparece como canción practicable');
+    await page.locator('button[onclick*="startImportedSongPractice"]').first().click();
+    assert.match(await page.locator('.card').last().innerText(), /C4|Do \(C\)/, 'La primera nota MIDI importada no se presenta como Do4');
+    await page.locator('.keys.imported-song-keys .key[data-midi="60"]').click();
+    assert.match(await page.locator('.card').last().innerText(), /1 \/ 2/, 'La práctica no avanzó tras tocar la primera nota');
+    await page.locator('.keys.imported-song-keys .key[data-midi="60"]').click();
+    assert.match(await page.locator('#importedSongFeedback').innerText(), /Buscá|Busca|D4|Re/, 'No se informó la nota equivocada');
+    await page.locator('.keys.imported-song-keys .key[data-midi="62"]').click();
+    assert.match(await page.locator('.card').last().innerText(), /2 \/ 2|Canción completada/, 'La canción MIDI no se completó tras la segunda nota');
+    await page.evaluate(() => stopImportedSongPlayback());
+
     assert.deepEqual(pageErrors, [], 'La aplicación produjo errores JavaScript: ' + pageErrors.join(' | '));
 
     console.log('PASS: carga inicial');
