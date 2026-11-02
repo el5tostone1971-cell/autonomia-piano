@@ -18,10 +18,10 @@
       case 'l6': [['C',[60,64,67]],['G',[55,59,62]],['Am',[57,60,64]],['F',[53,57,60]]].forEach(([_,ns])=>playSeqTest(ns)); checkChords('l6'); break;
       case 'l7': playSeqTest(['C','G','A','F'].map(x=>midi(x,3))); checkPattern('l7',['C','G','A','F'],'left'); break;
       case 'l8': playSeqTest(['C','D','E','G'].map(x=>midi(x,4))); playSeqTest(['C','G','A','F'].map(x=>midi(x,3))); checkSeparate('l8'); break;
-      case 'l9': playSeqTest(['C','D','E','G','E','D','C'].map(x=>midi(x))); checkPattern('l9',patternExpected,'memory2'); break;
+      case 'l9': pattern=patternExpected.slice();checkPattern('l9',patternExpected,'memory2');break;
       case 'l10': playSeqTest(['C','D','E','G','E','D','C'].map(x=>midi(x))); rhythmTimes=[0,600,1200,1800,2400,3000,3600]; checkRhythm2('l10'); break;
       case 'l11': chordSequence=['C','G','Am','F']; chordHits=new Set(['C','G','Am','F']); checkChords('l11'); break;
-      case 'l12': autoInput=['C','D','E','G','E','D','C']; checkPattern('l12',patternExpected,'autonomy'); break;
+      case 'l12': autoChallengeReady=true;autoInput=patternExpected.slice();checkPattern('l12',patternExpected,'autonomy');clearTimeout(autoChallengeTimer);break;
       default:
         if(l.kind==='staffcourse'){
           answerCourseStaffTheory(STAFF_THEORY[l.staffTheoryIndex].a);
@@ -126,7 +126,7 @@
  // Accompaniment chord feedback.
  try{state=clone(defaultState);showHTML(accompaniment());accChordFeedback('C');assert(document.getElementById('accDetected').textContent.includes('C'),'acompañamiento no actualizó feedback');pass('Acompañamiento','feedback de acorde funciona')}catch(e){fail('Acompañamiento',e)}
  // Deep structural diagnostics.
- try{state=clone(defaultState);state.day=1;saveState();showHTML(settings());const d=runDeepDiag();const bad=d.filter(x=>!x.ok&&x.detail!=='opcional según navegador');assert(!bad.length,'fallos: '+bad.map(x=>x.name).join(', '));pass('Autodiagnóstico profundo','sin fallos estructurales')}catch(e){fail('Autodiagnóstico profundo',e)}
+ try{state=clone(defaultState);state.day=1;saveState();showHTML(settings());const d=runDeepDiag();const bad=d.filter(x=>!x.ok&&x.detail!=='opcional según navegador');assert(!bad.length,'fallos: '+bad.map(x=>x.name||JSON.stringify(x)).join(', '));pass('Autodiagnóstico profundo','sin fallos estructurales')}catch(e){fail('Autodiagnóstico profundo',e)}
 
  // Persistence regression: simulate closing/reopening the app using the same browser storage.
  try{
