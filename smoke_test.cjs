@@ -170,7 +170,6 @@ const assert = require('node:assert/strict');
         if (/Qué tenés|Cómo resolver|Error frecuente|Criterio de aprobación/.test(content)) throw new Error('A guia em português contém texto em espanhol');
       });
       window._testMode = true;
-      changePianoLanguage('es');
     });
 
     // Auditoría ampliada: los textos dinámicos de las pantallas también deben quedar en portugués.
