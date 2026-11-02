@@ -2057,11 +2057,11 @@ function insertCourseTeachingGuide(l){
  const heading=main.querySelector('h1');if(heading)heading.insertAdjacentHTML('afterend',html);else main.insertAdjacentHTML('afterbegin',html);
 }
 function openLesson(id){clearTimeout(window._nextTimer);if(adaptiveRunActive&&adaptiveLessonId!==id){adaptiveRunActive=false;adaptiveLessonId=null}const l=LESSONS.find(x=>x.id===id);if(!l)return;if(l.day>state.day){toast('Todavía no está desbloqueado. Primero demostramos el día '+state.day+'.');return}currentLessonId=id;const rb=document.getElementById('retryBtn');if(rb)rb.style.display='inline-block';const f={find:findLesson,pattern:patternLesson,rhythm:rhythmLesson,memory:memoryLesson,ear:earLesson,chords:chordLesson,left:leftLesson,separate:separateLesson,memory2:memory2Lesson,rhythm2:rhythm2Lesson,chordseq:chordSeqLesson,autonomy:autonomyLesson,staffcourse:courseStaffLesson,courseTwoHands:courseTwoHandsLesson,courseAuto:courseAutoLesson,theorycourse:theoryCourseLesson,generic:genericLesson,chordgeneric:chordGenericLesson,orientationCourse:orientationCourseLesson,pulseCourse:pulseCourseLesson,echoCourse:echoCourseLesson};if(f[l.kind]){f[l.kind](l);insertCourseTeachingGuide(l)}else toast('Ejercicio no implementado: '+l.kind)}
-let orientationCourseExpected=[60,65,67,72,77,79],orientationCourseStep=0,orientationCourseSeen=[];
+let orientationCourseExpected=[48,53,55,60,65,67],orientationCourseStep=0,orientationCourseSeen=[];
 let pulseCourseTimes=[],pulseCourseArmed=false,pulseCourseStartedAt=0;
 let echoCourseExpected=[],echoCourseInput=[],echoCourseScored=false,echoCourseTimers=[];
 function orientationCourseLesson(){
- resetExercise();orientationCourseExpected=[60,65,67,72,77,79];orientationCourseStep=0;orientationCourseSeen=[];
+ resetExercise();orientationCourseExpected=[48,53,55,60,65,67];orientationCourseStep=0;orientationCourseSeen=[];
  const pt=pianoLanguage==='pt';
  const title=pt?'Mapa do teclado: Dó, Fá e Sol':'Mapa del teclado: Do, Fa y Sol';
  const intro=pt?'Use os grupos de duas e três teclas pretas como pontos de referência. Dó fica à esquerda do grupo de duas; Fá fica à esquerda do grupo de três. Encontre as seis notas na oitava pedida.':'Usá los grupos de dos y tres teclas negras como referencias. Do está a la izquierda del grupo de dos; Fa, a la izquierda del grupo de tres. Encontrá las seis notas en la octava indicada.';
