@@ -273,6 +273,31 @@ const assert = require('node:assert/strict');
     assert.equal(lessonAudit.results.length, 90, 'No se recorrieron las 90 lecciones');
     assert.deepEqual(lessonAudit.results.filter(x => !x.rendered || x.unimplemented || !x.interactive), [], 'Hay lecciones que no renderizan un ejercicio funcional: ' + JSON.stringify(lessonAudit.results.filter(x => !x.rendered || x.unimplemented || !x.interactive)));
     assert.deepEqual(lessonAudit.results.filter(x => !x.engineMapped), [], 'Hay motores de ejercicios sin mapear: ' + JSON.stringify(lessonAudit.results.filter(x => !x.engineMapped)));
+
+    // Los días 13–15 deben tener motores propios y acreditar la habilidad que anuncian.
+    const beginnerSkillsAudit = await page.evaluate(() => {
+      const original=clone(state),oldDay=state.day;
+      state.day=90;state.lessons={};
+      const kinds=['orientationCourse','pulseCourse','echoCourse'];
+      const mapped=kinds.map(kind=>typeof window[exerciseFunctionName(kind)]==='function');
+      openLesson('l13');
+      const orientationRendered=!!document.getElementById('orientationCourseTarget');
+      orientationCourseExpected.forEach(note=>registerOrientationCourseNote(note));
+      const orientationPassed=!!state.lessons.l13;
+      state.lessons={};openLesson('l14');
+      const pulseRendered=!!document.getElementById('pulseCourseCount');
+      pulseCourseTimes=Array.from({length:8},(_,i)=>1000+i*600);pulseCourseArmed=true;checkPulseCourse();
+      const pulsePassed=!!state.lessons.l14;
+      state.lessons={};openLesson('l15');
+      const echoRendered=!!document.getElementById('echoCourseInput');
+      echoCourseExpected=[60,62,64,67];echoCourseInput=[60,62,64,67];checkEchoCourse();
+      const echoPassed=!!state.lessons.l15;
+      state=original;state.day=oldDay;saveState();
+      return {mapped,orientationRendered,orientationPassed,pulseRendered,pulsePassed,echoRendered,echoPassed};
+    });
+    assert.deepEqual(beginnerSkillsAudit.mapped,[true,true,true],'Faltan motores específicos para los días 13–15');
+    assert.deepEqual({orientationRendered:beginnerSkillsAudit.orientationRendered,orientationPassed:beginnerSkillsAudit.orientationPassed,pulseRendered:beginnerSkillsAudit.pulseRendered,pulsePassed:beginnerSkillsAudit.pulsePassed,echoRendered:beginnerSkillsAudit.echoRendered,echoPassed:beginnerSkillsAudit.echoPassed},{orientationRendered:true,orientationPassed:true,pulseRendered:true,pulsePassed:true,echoRendered:true,echoPassed:true},'Una de las actividades de orientación, pulso u oído no se renderiza o no evalúa su habilidad');
+
     assert.deepEqual(lessonAudit.results.filter(x => x.spanishLeak), [], 'Hay instrucciones en español al recorrer lecciones en portugués: ' + JSON.stringify(lessonAudit.results.filter(x => x.spanishLeak)));
     assert.deepEqual(lessonAudit.results.filter(x => !x.guideValid || x.guideSpanishLeak), [], 'Hay guías pedagógicas ausentes o incompletas en portugués: ' + JSON.stringify(lessonAudit.results.filter(x => !x.guideValid || x.guideSpanishLeak)));
     assert.deepEqual(lessonAudit.results.filter(x => Number(x.id.slice(1)) <= 12 && !x.guideSpecific), [], 'Las primeras doce lecciones no tienen orientación específica para su ejercicio: ' + JSON.stringify(lessonAudit.results.filter(x => Number(x.id.slice(1)) <= 12 && !x.guideSpecific)));
