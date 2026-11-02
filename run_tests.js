@@ -126,7 +126,7 @@
  // Accompaniment chord feedback.
  try{state=clone(defaultState);showHTML(accompaniment());accChordFeedback('C');assert(document.getElementById('accDetected').textContent.includes('C'),'acompañamiento no actualizó feedback');pass('Acompañamiento','feedback de acorde funciona')}catch(e){fail('Acompañamiento',e)}
  // Deep structural diagnostics.
- try{state=clone(defaultState);state.day=1;saveState();showHTML(settings());const d=runDeepDiag();const bad=d.filter(x=>!x.ok&&x.detail!=='opcional según navegador');assert(!bad.length,'fallos: '+bad.map(x=>x.name||JSON.stringify(x)).join(', '));pass('Autodiagnóstico profundo','sin fallos estructurales')}catch(e){fail('Autodiagnóstico profundo',e)}
+ try{state=clone(defaultState);state.day=1;saveState();showHTML(settings());const d=runDeepDiag();const bad=d.filter(x=>!x.o&&x.d!=='opcional según navegador');assert(!bad.length,'fallos: '+bad.map(x=>x.n||JSON.stringify(x)).join(', '));pass('Autodiagnóstico profundo','sin fallos estructurales')}catch(e){fail('Autodiagnóstico profundo',e)}
 
  // Persistence regression: simulate closing/reopening the app using the same browser storage.
  try{
