@@ -153,6 +153,43 @@
   pass('Persistencia tras recarga','lecciones, porcentaje, hitos y sesión del repertorio sobreviven al reinicio');
  }catch(e){fail('Persistencia tras recarga',e)}
 
+
+ // Course teaching guide: six levels must expose an explanation, method, common error and approval criterion.
+ try{
+  const previousTestMode=window._testMode;window._testMode=false;
+  const samples=[1,16,31,46,61,76].map(day=>LESSONS.find(x=>x.day===day));
+  samples.forEach(l=>{insertCourseTeachingGuide(l);const guide=document.querySelector('.courseTeachingGuide');assert(guide,'no se insertó la guía para '+l.id);assert(guide.textContent.includes('Qué tenés que comprender')&&guide.textContent.includes('Cómo resolver este ejercicio')&&guide.textContent.includes('Error frecuente')&&guide.textContent.includes('Criterio de aprobación'),'guía incompleta en '+l.id);guide.remove()});
+  window._testMode=previousTestMode;pass('Guía pedagógica en seis niveles','cada nivel explica concepto, estrategia, error frecuente y criterio de aprobación');
+ }catch(e){window._testMode=true;fail('Guía pedagógica en seis niveles',e)}
+ // Motor 11: only valid, unique, bounded evidence can raise a competence.
+ try{
+  state=clone(defaultState);state.skills=Object.fromEntries(MOTOR11_SKILLS.map(k=>[k,0]));
+  assert(awardUniqueSkillEvidence('motor-test','ear-phrase-1',{ear:2,autonomy:25,unknown:8})===true,'no registró evidencia válida');
+  assert(state.skills.ear===2&&state.skills.autonomy===10,'no validó ni limitó los puntos');
+  assert(awardUniqueSkillEvidence('motor-test','ear-phrase-1',{ear:5})===false,'la misma evidencia sumó dos veces');
+  assert(awardUniqueSkillEvidence('motor-test','invalid',{unknown:5})===false,'aceptó una competencia inexistente');
+  assert(state.god.skillEvidenceLog.length===1,'el registro de evidencias no coincide');
+  pass('Motor 11 · evidencia única y acotada','sin duplicados, competencias desconocidas ni incrementos excesivos');
+ }catch(e){fail('Motor 11 · evidencia única y acotada',e)}
+ // Repertoire resume: all three stages recover their own index and the played notes.
+ try{
+  state=normalizeState(clone(defaultState));state.repertoireMilestones={};state.repertoireSessions={
+   rp1:{mode:'learn',index:1,updatedAt:new Date().toISOString()},
+   rp2:{mode:'read',index:2,updatedAt:new Date().toISOString()},
+   rp3:{mode:'play',index:2,notes:[64,64],updatedAt:new Date().toISOString()}
+  };saveState();
+  selectLibraryPiece('rp1');assert(repertoireLearnActive&&repertoireLearnIndex===1,'no retomó aprendizaje en su índice');
+  selectLibraryPiece('rp2');assert(repertoireReadActive&&repertoireReadIndex===2,'no retomó lectura en su índice');
+  selectLibraryPiece('rp3');assert(repertoireInput.length===2&&repertoireInput[0]===64&&repertoireInput[1]===64,'no restauró las notas tocadas');
+  startRepertoire();assert(repertoireInput.length===2,'Continuar interpretación descartó las notas recuperadas');
+  stopRepertoirePractice();
+  state.repertoireMilestones={};repertoirePiece=repertoireLibrary.find(x=>x.id==='rp1');
+  markRepertoireMilestone('learn');assert(state.repertoireProgress.rp1===25,'aprendizaje no computó 25%');
+  markRepertoireMilestone('read');assert(state.repertoireProgress.rp1===50,'lectura no computó 50%');
+  markRepertoireMilestone('play');assert(state.repertoireProgress.rp1===100,'interpretación no completó 100%');
+  pass('Repertorio · recuperación de las tres etapas','aprendizaje, lectura e interpretación retoman índice/notas y guardan 25/50/100%');
+ }catch(e){fail('Repertorio · recuperación de las tres etapas',e);stopRepertoirePractice()}
+
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
