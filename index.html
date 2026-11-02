@@ -2119,13 +2119,13 @@ function pulseCourseLesson(){
 function startPulseCourse(){
  pulseCourseTimes=[];pulseCourseArmed=false;const pt=pianoLanguage==='pt',msg=document.getElementById('pulseCourseFeedback'),count=document.getElementById('pulseCourseCount');
  if(count)count.textContent='0 / 8';if(msg)msg.textContent=pt?'Escute as quatro batidas de preparação…':'Escuchá los cuatro pulsos de preparación…';
- let i=0;const beat=()=>{const c=audio();if(c){const o=c.createOscillator(),g=c.createGain();o.frequency.value=i===0?1000:700;g.gain.value=.09;o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.07)}i++;if(i<4)setTimeout(beat,600);else{pulseCourseStartedAt=performance.now();pulseCourseArmed=true;if(msg)msg.textContent=pt?'Agora toque oito ataques, um por pulsação.':'Ahora tocá ocho ataques, uno por pulso.'}};beat();
+ let i=0;const beat=()=>{const c=audio();if(c){const o=c.createOscillator(),g=c.createGain();o.frequency.value=i===0?1000:700;g.gain.value=.09;o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.07)}i++;if(i<4)setTimeout(beat,600);else{pulseCourseStartedAt=performance.now()+600;pulseCourseArmed=true;if(msg)msg.textContent=pt?'Agora toque oito ataques, um por pulsação.':'Ahora tocá ocho ataques, uno por pulso.'}};beat();
 }
 function registerPulseCourseTap(){if(!pulseCourseArmed||pulseCourseTimes.length>=8)return;pulseCourseTimes.push(performance.now());const el=document.getElementById('pulseCourseCount');if(el)el.textContent=pulseCourseTimes.length+' / 8';}
 function checkPulseCourse(){
  const pt=pianoLanguage==='pt',msg=document.getElementById('pulseCourseFeedback');
  if(pulseCourseTimes.length!==8){if(msg)msg.textContent=pt?'Você registrou '+pulseCourseTimes.length+' de 8 ataques. Complete os oito.':'Registraste '+pulseCourseTimes.length+' de 8 ataques. Completá los ocho.';return}
- const base=pulseCourseTimes[0],errors=pulseCourseTimes.map((t,i)=>(t-base)-i*600),abs=errors.map(Math.abs),avg=abs.reduce((a,b)=>a+b,0)/8,max=Math.max(...abs);
+ const errors=pulseCourseTimes.map((t,i)=>(t-pulseCourseStartedAt)-i*600),abs=errors.map(Math.abs),avg=abs.reduce((a,b)=>a+b,0)/8,max=Math.max(...abs);
  if(avg<=150&&max<=260){pulseCourseArmed=false;if(msg)msg.textContent=pt?'✓ Pulso estável: oito ataques regulares.':'✓ Pulso estable: ocho ataques regulares.';complete('l14');return}
  const drift=errors.reduce((a,b)=>a+b,0)/8,worst=abs.indexOf(max),when=errors[worst]>0?(pt?'atrasado':'tarde'):(pt?'adiantado':'temprano');
  if(msg)msg.textContent=(pt?'Ataque ':'Ataque ')+(worst+1)+': '+Math.round(max)+' ms '+when+'. '+(Math.abs(drift)>70?(drift>0?(pt?'Você está desacelerando; antecipe a próxima pulsação.':'Te estás atrasando; anticipá el siguiente pulso.'):(pt?'Você está acelerando; espere a pulsação.':'Te estás adelantando; esperá el pulso.')):(pt?'O intervalo entre ataques ainda varia. Conte em voz alta e tente novamente.':'Los intervalos todavía varían. Contá en voz alta y volvé a intentarlo.'));
