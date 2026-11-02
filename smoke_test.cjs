@@ -286,7 +286,7 @@ const assert = require('node:assert/strict');
       const orientationPassed=!!state.lessons.l13;
       state.lessons={};openLesson('l14');
       const pulseRendered=!!document.getElementById('pulseCourseCount');
-      pulseCourseTimes=Array.from({length:8},(_,i)=>1000+i*600);pulseCourseArmed=true;checkPulseCourse();
+      pulseCourseStartedAt=1000;pulseCourseTimes=Array.from({length:8},(_,i)=>1000+i*600);pulseCourseArmed=true;checkPulseCourse();
       const pulsePassed=!!state.lessons.l14;
       state.lessons={};openLesson('l15');
       const echoRendered=!!document.getElementById('echoCourseInput');
