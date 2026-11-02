@@ -31,9 +31,10 @@ const assert = require('node:assert/strict');
       document: document.documentElement.scrollWidth,
       keyboard: !!document.querySelector('.keys .key'),
       nav: document.querySelectorAll('#nav button').length,
-      main: !!document.querySelector('#main')
+      main: !!document.querySelector('#main'),
+      overflowers: [...document.querySelectorAll('body *')].map(el => ({tag:el.tagName,id:el.id,cls:typeof el.className==='string'?el.className:'',left:Math.round(el.getBoundingClientRect().left),right:Math.round(el.getBoundingClientRect().right),width:Math.round(el.getBoundingClientRect().width),scroll:el.scrollWidth,client:el.clientWidth})).filter(x=>x.right>document.documentElement.clientWidth+2||x.left < -2).sort((a,b)=>b.right-a.right).slice(0,20)
     }));
-    assert.ok(mobileLayout.document <= mobileLayout.viewport + 1, 'La interfaz móvil genera desplazamiento horizontal global');
+    assert.ok(mobileLayout.document <= mobileLayout.viewport + 1, 'La interfaz móvil genera desplazamiento horizontal global: '+JSON.stringify(mobileLayout));
     assert.ok(mobileLayout.keyboard, 'El teclado virtual no aparece en móvil');
     assert.ok(mobileLayout.nav >= 10, 'El menú de navegación no conserva sus accesos en móvil');
     await page.evaluate(() => show('practice'));
