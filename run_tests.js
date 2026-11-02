@@ -111,6 +111,11 @@
   assert(!document.querySelector('.repertoireKeys .key.target-note'),'la interpretación sigue iluminando la tecla objetivo');
   repertoireInput=[60,62];repertoireTimes=[0,60000/70];checkRepertoire();
   assert(repertoireAwarded&&state.repertoireMilestones.rp1.play,'la canción no se aprobó con el tempo ajustado');
+  const earned={right:state.skills.right,rhythm:state.skills.rhythm};
+  selectLibraryPiece('rp1');assert(repertoireInput.length===2,'la biblioteca no refleja la pieza ya completada');
+  startRepertoire();assert(repertoireInput.length===0,'una repetición no comenzó desde el principio');
+  repertoireInput=[60,62];repertoireTimes=[0,60000/70];checkRepertoire();
+  assert(state.skills.right===earned.right&&state.skills.rhythm===earned.rhythm,'repetir una canción volvió a otorgar puntos de competencia');
   stopRepertoirePractice();repertoireTempoOverride=null;
   originalPiece.notes=originalNotes;originalPiece.dur=originalDur;
   pass('Repertorio progresivo','aprendizaje por altura + lectura con octava + memoria sin pistas + tempo ajustable');
