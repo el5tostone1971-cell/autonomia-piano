@@ -115,7 +115,7 @@ const LESSONS=[
 {id:'l8',day:8,title:'Manos separadas',desc:'Completá derecha e izquierda por separado.',kind:'separate',skill:'left',xp:35,inc:10},
 {id:'l9',day:9,title:'Memoria en bloques cortos',desc:'Reconstruí una frase breve con algunas pistas visibles; aprendé a agrupar antes de memorizar más notas.',kind:'memory2',skill:'memory',xp:35,inc:8},
 {id:'l10',day:10,title:'Una melodía con pulso',desc:'Tocá una frase de siete notas. Primero comprobá el orden; después trabajá la regularidad de los siete ataques.',kind:'rhythm2',skill:'rhythm',xp:40,inc:8},
-{id:'l11',day:11,title:'Cambios de acorde',desc:'C → G → Am → F sin detener el pulso.',kind:'chordseq',skill:'chords',xp:45,inc:12},
+{id:'l11',day:11,title:'Primer cambio de acorde',desc:'Do mayor → Sol mayor: prepará dos formas y reconocé la nota común antes de avanzar a más acordes.',kind:'chordseq',skill:'chords',xp:45,inc:12},
 {id:'l12',day:12,title:'Memoria sin pistas',desc:'Recordá una frase breve después de observarla. Esta prueba mide memoria inmediata, no autonomía musical completa.',kind:'autonomy',skill:'memory',xp:40,inc:5}
 ];
 const GENERIC_LESSONS=[];
@@ -1984,7 +1984,7 @@ function insertCourseTeachingGuide(l){
    separate:'Manos separadas: todavía no las unas. Practicá primero la frase de la derecha (Do–Re–Mi–Sol); después, sin cambiar de ejercicio, tocá el patrón grave de la izquierda (Do–Sol–La–Fa). Comprobá cada parte por separado.',
    memory2:'Memoria en bloques cortos: la frase tiene siete notas y tres pistas visibles. Agrupá el recorrido en tres partes: inicio, punto medio y llegada. Reconstruí los cuatro espacios ocultos sin mirar la solución.',
    rhythm2:'Ritmo y melodía: primero resolvé la secuencia de notas sin preocuparte por el tiempo. La devolución identifica la primera nota equivocada. Cuando las siete notas estén bien, se evalúan los siete ataques por separado: si te adelantás, atrasás o variás el intervalo, recibirás ese diagnóstico.',
-   chordseq:'Progresión de acordes: una progresión es una sucesión de acordes. Formá Do, Sol, La menor y Fa en ese orden; escuchá cuándo cambia la armonía y mantené el pulso entre un acorde y el siguiente.',
+   chordseq:'Primer cambio: ya conocés Do mayor. Ahora prepará Sol mayor (Sol–Si–Re). Sol es una nota común que te ayuda a orientar el movimiento. La práctica exige tocar los dos acordes completos en el orden correcto; no evalúa todavía cambios a tempo.',
    autonomy:'Memoria inmediata: observá una frase de cinco notas durante tres segundos y reproducila cuando desaparezca. Esta actividad mide recuerdo inmediato, no autonomía musical; no certifica lectura, interpretación ni autocorrección.',
    staffcourse:'Lectura: resolvé la posición en el pentagrama y luego trasladala al teclado sin pistas.',
    theorycourse:'Concepto + aplicación: comprender la regla no alcanza; demostrá que podés usarla en el instrumento.',
@@ -2004,7 +2004,7 @@ function insertCourseTeachingGuide(l){
    separate:'Mãos separadas: ainda não junte as duas. Pratique primeiro a frase da direita (Dó–Ré–Mi–Sol); depois, sem mudar de exercício, toque o padrão grave da esquerda (Dó–Sol–Lá–Fá). Confira cada parte separadamente.',
    memory2:'Memória em blocos curtos: a frase tem sete notas e três pistas visíveis. Agrupe o percurso em três partes: início, ponto intermediário e chegada. Reconstrua os quatro espaços ocultos sem olhar a solução.',
    rhythm2:'Ritmo e melodia: primeiro resolva a sequência de notas sem se preocupar com o tempo. O retorno identifica a primeira nota errada. Quando as sete notas estiverem corretas, os sete ataques serão avaliados separadamente: se você adiantar, atrasar ou variar o intervalo, receberá esse diagnóstico.',
-   chordseq:'Progressão de acordes: uma progressão é uma sequência de acordes. Forme Dó, Sol, Lá menor e Fá nessa ordem; escute quando a harmonia muda e mantenha a pulsação entre um acorde e o próximo.',
+   chordseq:'Primeira troca: você já conhece Dó maior. Agora prepare Sol maior (Sol–Si–Ré). Sol é uma nota em comum que ajuda a orientar o movimento. A prática exige tocar os dois acordes completos na ordem correta; ainda não avalia as trocas no tempo.',
    autonomy:'Memória imediata: observe uma frase de cinco notas durante três segundos e reproduza quando ela desaparecer. Esta atividade mede lembrança imediata, não autonomia musical; não certifica leitura, interpretação nem autocorreção.',
    staffcourse:'Leitura: encontre a posição na pauta e depois leve-a ao teclado sem pistas.',
    theorycourse:'Conceito + aplicação: compreender a regra não basta; demonstre que consegue usá-la no instrumento.',
