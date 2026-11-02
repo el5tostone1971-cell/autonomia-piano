@@ -70,6 +70,29 @@
  try{newTechnique();startTechnique();const beat=60000/techniqueExercise.tempo;techniqueTimes=techniqueExercise.notes.map((_,i)=>i*beat);techniqueStep=techniqueExercise.notes.length;checkTechnique();assert(techniqueAwarded,'técnica no aprobó');pass('Técnica/digitación','secuencia + pulso aceptados')}catch(e){fail('Técnica/digitación',e)}
  // Repertoire.
  try{newRepertoire();startRepertoire();repertoireInput=repertoirePiece.notes.slice();const unit=60000/repertoirePiece.tempo;repertoireTimes=repertoirePiece.notes.map((_,i)=>i===0?0:repertoireTimes[0]+repertoirePiece.dur.slice(0,i).reduce((a,b)=>a+b*unit,0));checkRepertoire();assert(repertoireAwarded,'repertorio no aprobó');pass('Repertorio','notas + timing aceptados')}catch(e){fail('Repertorio',e)}
+ // Repertoire progression: learn by pitch class, read exact octave, then play from memory.
+ try{
+  const originalPiece=repertoireLibrary.find(x=>x.id==='rp1'),originalNotes=originalPiece.notes.slice(),originalDur=originalPiece.dur.slice();
+  originalPiece.notes=[60,62];originalPiece.dur=[1,1];
+  state=clone(defaultState);state.repertoireMilestones={};state.repertoireSessions={};state.repertoireProgress={};
+  selectLibraryPiece('rp1');startRepertoireLearn();
+  assert(repertoireStage===0,'el aprendizaje inicial no permite reconocer la nota por clase');
+  registerRepertoireLearnNote(72);assert(repertoireLearnIndex===1,'el aprendizaje inicial no aceptó la misma nota en otra octava');
+  repertoireLearnActive=false;repertoireLearnToken++;
+  startRepertoireRead();assert(repertoireStage===1,'la lectura no avanzó al segundo nivel');
+  registerRepertoireReadNote(72);assert(repertoireReadIndex===0,'la lectura aceptó una octava incorrecta');
+  registerRepertoireReadNote(60);assert(repertoireReadIndex===1,'la lectura rechazó la nota exacta');
+  repertoireReadActive=false;repertoireReadToken++;
+  repertoireTempoOverride=70;startRepertoire();
+  assert(repertoireStage===2,'la interpretación no activó el modo memoria');
+  assert(document.getElementById('repertoireCurrentNoteName').textContent.includes('Memoria activa'),'la interpretación sigue mostrando el nombre de la nota objetivo');
+  assert(!document.querySelector('.repertoireKeys .key.target-note'),'la interpretación sigue iluminando la tecla objetivo');
+  repertoireInput=[60,62];repertoireTimes=[0,60000/70];checkRepertoire();
+  assert(repertoireAwarded&&state.repertoireMilestones.rp1.play,'la canción no se aprobó con el tempo ajustado');
+  stopRepertoirePractice();repertoireTempoOverride=null;
+  originalPiece.notes=originalNotes;originalPiece.dur=originalDur;
+  pass('Repertorio progresivo','aprendizaje por altura + lectura con octava + memoria sin pistas + tempo ajustable');
+ }catch(e){fail('Repertorio progresivo',e);repertoireTempoOverride=null;stopRepertoirePractice()}
  // PRS.
  try{state=clone(defaultState);state.god.sight={score:0,attempts:0,history:[]};startSightTest();prsInput=prsExpected.slice();const beat=60000/prsExcerpt.tempo;prsTimes=prsExpected.map((_,i)=>i*beat);finishSightTest();assert(state.god.sight.attempts===1,'PRS no registró intento');pass('PRS lectura a primera vista','puntaje registrado')}catch(e){fail('PRS lectura a primera vista',e)}
  // Performance.
