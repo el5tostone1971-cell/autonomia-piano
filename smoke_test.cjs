@@ -55,7 +55,7 @@ const assert = require('node:assert/strict');
       assert.equal(await touchPage.locator('[data-free-exercise]').count(), 9, 'La navegación táctil no abre las nueve prácticas');
       await touchPage.locator('#nav button[data-view="keyboard"]').tap();
       await touchPage.locator('.keys .key[data-midi="60"]').tap();
-      assert.match(await touchPage.locator('#lastNote').innerText(), /Do4/, 'El toque táctil no ejecutó la nota en el teclado');
+      assert.match(await touchPage.locator('#lastNote').innerText(), /Do \(C4\)/, 'El toque táctil no ejecutó la nota en el teclado');
       const touchWidth = await touchPage.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth }));
       assert.ok(touchWidth.document <= touchWidth.viewport + 1, 'El modo táctil móvil desborda el ancho de pantalla: ' + JSON.stringify(touchWidth));
       const pwa = await touchPage.evaluate(async () => {
