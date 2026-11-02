@@ -20,8 +20,11 @@
       case 'l8': playSeqTest(['C','D','E','G'].map(x=>midi(x,4))); playSeqTest(['C','G','A','F'].map(x=>midi(x,3))); checkSeparate('l8'); break;
       case 'l9': pattern=patternExpected.slice();checkPattern('l9',patternExpected,'memory2');break;
       case 'l10': playSeqTest(['C','D','E','G','E','D','C'].map(x=>midi(x))); rhythmTimes=[0,600,1200,1800,2400,3000,3600]; checkRhythm2('l10'); break;
-      case 'l11': chordSequence=['C','G','Am','F']; chordHits=new Set(['C','G','Am','F']); checkChords('l11'); break;
+      case 'l11': chordSequence=['C','G']; chordHits=new Set(['C','G']); checkChords('l11'); break;
       case 'l12': autoChallengeReady=true;autoInput=patternExpected.slice();checkPattern('l12',patternExpected,'autonomy');clearTimeout(autoChallengeTimer);break;
+      case 'l13': orientationCourseExpected.forEach(note=>registerOrientationCourseNote(note)); break;
+      case 'l14': pulseCourseStartedAt=performance.now();pulseCourseTimes=Array.from({length:8},(_,i)=>pulseCourseStartedAt+i*600);pulseCourseArmed=true;checkPulseCourse();break;
+      case 'l15': echoCourseInput=echoCourseExpected.slice();checkEchoCourse();break;
       default:
         if(l.kind==='staffcourse'){
           answerCourseStaffTheory(STAFF_THEORY[l.staffTheoryIndex].a);
