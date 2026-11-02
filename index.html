@@ -2130,7 +2130,7 @@ function echoCourseLesson(){
  showHTML('<h1>'+(pt?'Eco melódico de quatro notas':'Eco melódico de cuatro notas')+'</h1><p>'+(pt?'Ouça as quatro notas até o fim. Cante ou imagine o contorno (sobe, desce ou repete). Depois reproduza no teclado.':'Escuchá las cuatro notas hasta el final. Cantá o imaginá el contorno (sube, baja o repite). Después reproducilo en el teclado.')+'</p><div class="note-box"><button class="btn primary" onclick="playEchoCourse()">'+(pt?'▶ Ouvir frase':'▶ Escuchar frase')+'</button><div id="echoCourseStatus" class="muted">'+(pt?'Primeiro escute; depois responda.':'Primero escuchá; después respondé.')+'</div><div id="echoCourseInput" class="target">—</div><div id="echoCourseCount" class="muted">0 / 4</div><button class="btn" onclick="clearEchoCourse()">'+(pt?'Apagar resposta':'Borrar respuesta')+'</button><button class="btn good" onclick="checkEchoCourse()">'+(pt?'Conferir':'Comprobar')+'</button></div>'+keyboard()+'<p class="muted">'+(pt?'A aplicação compara a sequência tocada; não mede se você cantou em voz alta.':'La app compara la secuencia tocada; no puede medir si cantaste en voz alta.')+'</p>');
 }
 function playEchoCourse(){
- echoCourseInput=[];echoCourseScored=false;renderEchoCourseInput();const status=document.getElementById('echoCourseStatus');
+ echoCourseTimers.forEach(clearTimeout);echoCourseTimers=[];echoCourseInput=[];echoCourseScored=false;renderEchoCourseInput();const status=document.getElementById('echoCourseStatus');
  if(status)status.textContent=courseLocal('Escuchá la frase completa…','Ouça a frase inteira…');
  echoCourseExpected.forEach((n,i)=>echoCourseTimers.push(setTimeout(()=>tone(n,.38),i*620)));
 }
@@ -2139,7 +2139,7 @@ function clearEchoCourse(){echoCourseInput=[];renderEchoCourseInput();const m=do
 function registerEchoCourseNote(n){if(echoCourseScored||echoCourseInput.length>=4)return;echoCourseInput.push(n);renderEchoCourseInput()}
 function checkEchoCourse(){
  const m=document.getElementById('echoCourseStatus');if(echoCourseInput.length!==4){if(m)m.textContent=courseLocal('Faltan notas: llevás '+echoCourseInput.length+' de 4.','Faltam notas: você registrou '+echoCourseInput.length+' de 4.');return}
- const wrong=echoCourseInput.findIndex((n,i)=>n%12!==echoCourseExpected[i]%12);
+ const wrong=echoCourseInput.findIndex((n,i)=>n!==echoCourseExpected[i]);
  if(wrong<0){echoCourseScored=true;if(m)m.textContent=courseLocal('✓ Eco correcto: reconociste y reprodujiste las cuatro alturas relativas.','✓ Eco correto: você reconheceu e reproduziu as quatro alturas relativas.');complete('l15');return}
  if(m)m.textContent=courseLocal('La primera diferencia está en la nota '+(wrong+1)+'. Tocaste '+localizedPianoNoteName(echoCourseInput[wrong])+' y el eco esperado era '+localizedPianoNoteName(echoCourseExpected[wrong])+'. Escuchá otra vez y corregí.','A primeira diferença está na nota '+(wrong+1)+'. Você tocou '+localizedPianoNoteName(echoCourseInput[wrong])+' e o eco esperado era '+localizedPianoNoteName(echoCourseExpected[wrong])+'. Ouça novamente e corrija.');
 }
