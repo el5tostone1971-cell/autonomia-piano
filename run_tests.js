@@ -30,7 +30,7 @@
           courseStaffExpected.map(note=>READING_MIDI[note]).forEach(note=>registerCourseStaffNote(note));
           checkCourseStaff();
         }else if(l.kind==='theorycourse'){
-          answerTheoryCourse(THEORY_COURSE[l.theoryIndex].a);
+          answerTheoryCourse(THEORY_COURSE[l.theoryIndex].a);assert(!state.lessons[l.id],'la teoría se completó sin práctica de teclado');theoryCoursePracticeExpected.forEach(note=>registerTheoryCoursePracticeNote(note));checkTheoryCoursePractice();
         }else if(l.kind==='chordgeneric'){
           answerChordTheory(CHORD_THEORY[l.chordTheoryIndex].a);
           chordSequence=l.targetChords.slice();checkGenericChords(l.id);
