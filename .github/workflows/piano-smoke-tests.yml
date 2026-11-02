@@ -49,4 +49,6 @@ jobs:
           curl -fsS --max-time 30 https://autonomia-piano.onrender.com/ -o /tmp/render-index.html
           grep -q 'function insertCourseTeachingGuide' /tmp/render-index.html
           grep -q '.top-actions{width:100%;flex-wrap:wrap;gap:6px}' /tmp/render-index.html
+          grep -q 'pc===0?octave' /tmp/render-index.html
+          grep -q 'transition:none !important;z-index:50 !important' /tmp/render-index.html
           echo "Render health and latest Portuguese/mobile changes verified."
