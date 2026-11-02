@@ -261,7 +261,9 @@ const assert = require('node:assert/strict');
         const guideText = guide?.innerText || '';
         const guideValid = !!guide && ['O que você precisa compreender','Como resolver este exercício','Erro frequente:','Critério de aprovação:'].every(label => guideText.includes(label));
         const guideSpanishLeak = /Qué tenés|Cómo resolver|Error frecuente|Criterio de aprobación/.test(guideText);
-        results.push({ id: lesson.id, kind: lesson.kind, engineMapped: typeof window[exerciseFunctionName(lesson.kind)] === 'function', rendered: !!main && html.length > 100, unimplemented: text.includes('Ejercicio no implementado'), interactive: !!main?.querySelector('button, .keys, input, [data-free-exercise]'), spanishLeak, spanishMatch, guideValid, guideSpanishLeak, excerpt: spanishLeak ? text.slice(0, 240) : '' });
+        const specificGuidance = {l1:'grupos de duas teclas pretas',l2:'Dedilhado inicial',l3:'Conte 1–2–3–4',l4:'divida a frase em partes pequenas',l5:'escute as três notas até o fim',l6:'um conjunto de notas que soam juntas',l7:'região grave',l8:'Mãos separadas',l9:'Memória com pistas',l10:'Ritmo e melodia',l11:'Progressão de acordes',l12:'Autonomia: observe a frase'};
+        const guideSpecific = !specificGuidance[lesson.id] || guideText.toLowerCase().includes(specificGuidance[lesson.id].toLowerCase());
+        results.push({ id: lesson.id, kind: lesson.kind, engineMapped: typeof window[exerciseFunctionName(lesson.kind)] === 'function', rendered: !!main && html.length > 100, unimplemented: text.includes('Ejercicio no implementado'), interactive: !!main?.querySelector('button, .keys, input, [data-free-exercise]'), spanishLeak, spanishMatch, guideValid, guideSpanishLeak, guideSpecific, excerpt: spanishLeak ? text.slice(0, 240) : '' });
       }
       return { count: ids.length, unique: unique.size, results };
     });
@@ -272,6 +274,7 @@ const assert = require('node:assert/strict');
     assert.deepEqual(lessonAudit.results.filter(x => !x.engineMapped), [], 'Hay motores de ejercicios sin mapear: ' + JSON.stringify(lessonAudit.results.filter(x => !x.engineMapped)));
     assert.deepEqual(lessonAudit.results.filter(x => x.spanishLeak), [], 'Hay instrucciones en español al recorrer lecciones en portugués: ' + JSON.stringify(lessonAudit.results.filter(x => x.spanishLeak)));
     assert.deepEqual(lessonAudit.results.filter(x => !x.guideValid || x.guideSpanishLeak), [], 'Hay guías pedagógicas ausentes o incompletas en portugués: ' + JSON.stringify(lessonAudit.results.filter(x => !x.guideValid || x.guideSpanishLeak)));
+    assert.deepEqual(lessonAudit.results.filter(x => Number(x.id.slice(1)) <= 12 && !x.guideSpecific), [], 'Las primeras doce lecciones no tienen orientación específica para su ejercicio: ' + JSON.stringify(lessonAudit.results.filter(x => Number(x.id.slice(1)) <= 12 && !x.guideSpecific)));
 
     await page.evaluate(() => changePianoLanguage('es'));
 
