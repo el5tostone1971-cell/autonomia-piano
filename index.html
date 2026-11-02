@@ -1653,7 +1653,7 @@ function reading(){readingExpectedSeq=[randomReadingNote()];readingNamedSeq=[];r
 function randomReadingNote(){return READING_NOTES[Math.floor(Math.random()*READING_NOTES.length)][0]}
 function newReadingPhrase(){readingExpectedSeq=Array.from({length:4},randomReadingNote);readingNamedSeq=[];readingPlayedSeq=[];readingStage='name';readingInput=[];renderReading()}
 function readingView(){
- const choices=READING_NOTES.map(([n,label])=>`<button class="btn small" type="button" onclick="nameReading('${n}')">${label}</button>`).join('');
+ const choices=READING_NOTES.map(([n,label])=>{const octave=n.slice(-1);return `<button class="btn small" type="button" onclick="nameReading('${n}')">${label}${octave}</button>`}).join('');
  const stageText=readingStage==='name'?`1. Leé las ${readingExpectedSeq.length} notas y escribilas en orden.`:readingStage==='play'?`2. Tocá las ${readingExpectedSeq.length} notas en el mismo orden, sin mirar etiquetas.`:'✓ Lectura y ejecución correctas.';
  const input=readingStage==='name'?(readingNamedSeq.length?readingNamedSeq.map(n=>READING_LABELS[n]).join(' · '):'Esperando tu lectura…'):(readingPlayedSeq.length?readingPlayedSeq.map(n=>pitchClassName(n)+Math.floor(n/12-1)).join(' · '):'Esperando ejecución…');
  return shell('🎼 Lectura musical','La app no muestra el nombre de las notas. Primero leés; después tocás.',`${staffSvg(readingExpectedSeq)}<div class="note-box"><b>${stageText}</b><div id="readingInput" class="target">${input}</div>${readingStage==='name'?`<div class="row-controls" style="margin-top:12px;flex-wrap:wrap">${choices}</div>`:''}<div class="row-controls"><button class="btn" onclick="readingUndo()">⌫ Borrar última</button><button class="btn" onclick="readingClear()">× Limpiar</button><button class="btn good" onclick="checkReading()">Comprobar</button><button class="btn primary" onclick="newReadingPhrase()">Nueva frase</button></div></div>${keyboard()}<div id="readingMsg" class="note-box muted">${readingStage==='play'?'Buscá cada nota en el teclado por su posición física.':'No hay etiquetas sobre el pentagrama.'}</div>`)
@@ -1667,14 +1667,14 @@ function checkReading(){
  if(readingStage==='name'){
    if(readingNamedSeq.length!==readingExpectedSeq.length){if(m)m.textContent='Completá toda la frase antes de comprobar.';return}
    if(readingNamedSeq.join('')===readingExpectedSeq.join('')){readingStage='play';readingPlayedSeq=[];renderReading();const mm=document.getElementById('readingMsg');if(mm)mm.textContent='✓ Lectura correcta. Ahora ejecutá la frase en el mismo orden.'}
-   else if(m)m.textContent='Todavía no. Volvé a observar las líneas y espacios y corregí tu lectura.';
+   else if(m){const wrongAt=readingNamedSeq.findIndex((n,i)=>n!==readingExpectedSeq[i]);const pos=wrongAt+1;m.textContent=`La nota ${pos} no coincide: elegiste ${READING_LABELS[readingNamedSeq[wrongAt]]}${readingNamedSeq[wrongAt].slice(-1)} y en el pentagrama aparece ${READING_LABELS[readingExpectedSeq[wrongAt]]}${readingExpectedSeq[wrongAt].slice(-1)}. Borrá desde esa posición y corregí.`}
    return;
  }
  if(readingStage==='play'){
    if(readingPlayedSeq.length!==readingExpectedSeq.length){if(m)m.textContent='Tocá todas las notas de la frase antes de comprobar.';return}
    const expected=readingExpectedSeq.map(n=>READING_MIDI[n]);
    if(readingPlayedSeq.join(',')===expected.join(',')){readingStage='done';const readingId=readingExpectedSeq.join('-');const credited=awardUniqueSkillEvidence('reading',readingId,{orientation:3,right:2});renderReading();const mm=document.getElementById('readingMsg');if(mm)mm.textContent=credited?'✓ Excelente: leíste y ejecutaste la frase completa.':'✓ Lectura correcta. Esta secuencia ya fue acreditada; generá una nueva para seguir avanzando.'}
-   else if(m)m.textContent='Hay una o más notas fuera de orden. Revisá la frase y corregí tu ejecución.';
+   else if(m){const wrongAt=readingPlayedSeq.findIndex((n,i)=>n!==expected[i]);m.textContent=`La nota ${wrongAt+1} está fuera de orden. Tocaste ${pitchClassName(readingPlayedSeq[wrongAt])}${Math.floor(readingPlayedSeq[wrongAt]/12-1)}; esperábamos ${READING_LABELS[readingExpectedSeq[wrongAt]]}${readingExpectedSeq[wrongAt].slice(-1)}. Corregí y volvé a comprobar.`}
  }
 }
 function handleReadingNote(n,name){if(readingStage!=='play'||readingPlayedSeq.length>=readingExpectedSeq.length)return;readingPlayedSeq.push(n);readingInput=readingPlayedSeq.slice();renderReading()}
