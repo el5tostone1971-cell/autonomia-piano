@@ -199,13 +199,18 @@ const assert = require('node:assert/strict');
       answerTheoryCourse(1);
       const wrongRejected = !state.lessons.l31;
       theoryCourseLesson(LESSONS.find(item => item.id === 'l31'));
-      answerTheoryCourse(0);
-      return { rendered, wrongRejected, correctAccepted: !!state.lessons.l31, topics: THEORY_COURSE.length };
+      answerTheoryCourse(THEORY_COURSE[0].a);
+      const theoryOnlyNotComplete = !state.lessons.l31;
+      theoryCoursePracticeExpected.forEach(note => registerTheoryCoursePracticeNote(note));
+      checkTheoryCoursePractice();
+      return { rendered, wrongRejected, theoryOnlyNotComplete, correctAccepted: !!state.lessons.l31, topics: THEORY_COURSE.length, practiceTopics: THEORY_COURSE_PRACTICE.length };
     });
     assert.equal(theoryCourseAudit.rendered, true, 'El nivel 3 no muestra teoría y teclado');
     assert.equal(theoryCourseAudit.wrongRejected, true, 'Una respuesta incorrecta aprobó teoría musical');
-    assert.equal(theoryCourseAudit.correctAccepted, true, 'Una respuesta correcta no completó teoría musical');
+    assert.equal(theoryCourseAudit.theoryOnlyNotComplete, true, 'Una respuesta teórica completó la lección sin práctica de teclado');
+    assert.equal(theoryCourseAudit.correctAccepted, true, 'La práctica correcta de teclado no completó la lección');
     assert.equal(theoryCourseAudit.topics, 15, 'El nivel 3 no contiene 15 conceptos');
+    assert.equal(theoryCourseAudit.practiceTopics, 15, 'El nivel 3 no contiene 15 prácticas de teclado');
 
     // La lectura musical exige comprender la regla, nombrar el pentagrama y tocar la frase.
     const staffCourseAudit = await page.evaluate(() => {
