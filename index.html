@@ -1978,10 +1978,10 @@ function insertCourseTeachingGuide(l){
    pattern:'Digitación inicial: numerá mentalmente los dedos de la mano derecha (1 pulgar, 2 índice, 3 medio, 4 anular, 5 meñique). Como la app no puede detectar qué dedo físico usás, esta lección enseña la posición recomendada y comprueba la secuencia de notas, no la digitación real. Tocá Do–Re–Mi–Fa–Sol y regresá con la mano relajada.',
    rhythm:'Ritmo: escuchá el pulso antes de empezar. Contá 1–2–3–4 en voz alta y tocá un ataque en cada número, manteniendo la misma distancia entre notas.',
    memory:'Memoria: agrupá la frase en partes pequeñas, cantala y escuchala una vez más. Ocultá la secuencia, recordá el orden y recién entonces tocá; no intentes adivinar.',
-   ear:'Oído: escuchá las tres notas completas. Cantá cada una, compará si sube o baja y buscá en el teclado la misma relación sonora antes de responder.',
+   ear:'Oído: escuchá las tres notas completas. Cantá cada una o imaginá su altura, compará si sube o baja y buscá en el teclado la misma relación sonora. La app evalúa la reproducción en el teclado; no puede comprobar si cantaste.',
    chords:'Primer acorde: un acorde es un conjunto de notas que suenan juntas. En Do mayor, Do es la raíz, Mi la tercera y Sol la quinta. Escuchá cada nota y luego el conjunto; recién después presioná las tres teclas.',
    left:'Mano izquierda: buscá primero el registro grave. C3, G2, A2 y F2 son notas con octavas distintas; la evaluación exige el número de octava exacto, no solo el nombre. Tocá una por vez y mantené la muñeca relajada.',
-   separate:'Manos separadas: todavía no las unas. Practicá primero la frase de la derecha (Do–Re–Mi–Sol); después, sin cambiar de ejercicio, tocá el patrón grave de la izquierda (Do–Sol–La–Fa). Comprobá cada parte por separado.',
+   separate:'Manos separadas: todavía no las unas. Practicá primero la frase aguda (Do–Re–Mi–Sol); después tocá el patrón grave (Do–Sol–La–Fa). La app distingue los registros por la altura MIDI, pero no puede saber qué mano física usaste: mantené la derecha en la zona aguda y la izquierda en la grave.',
    memory2:'Memoria en bloques cortos: la frase tiene siete notas y tres pistas visibles. Agrupá el recorrido en tres partes: inicio, punto medio y llegada. Reconstruí los cuatro espacios ocultos sin mirar la solución.',
    rhythm2:'Ritmo y melodía: primero resolvé la secuencia de notas sin preocuparte por el tiempo. La devolución identifica la primera nota equivocada. Cuando las siete notas estén bien, se evalúan los siete ataques por separado: si te adelantás, atrasás o variás el intervalo, recibirás ese diagnóstico.',
    chordseq:'Primer cambio: ya conocés Do mayor. Ahora prepará Sol mayor (Sol–Si–Re). Sol es una nota común que te ayuda a orientar el movimiento. La práctica exige tocar los dos acordes completos en el orden correcto; no evalúa todavía cambios a tempo.',
@@ -1998,10 +1998,10 @@ function insertCourseTeachingGuide(l){
    pattern:'Dedilhado inicial: numere mentalmente os dedos da mão direita (1 polegar, 2 indicador, 3 médio, 4 anelar, 5 mínimo). Como o aplicativo não consegue detectar qual dedo físico você usa, esta lição ensina a posição recomendada e confere a sequência de notas, não o dedilhado real. Toque Dó–Ré–Mi–Fá–Sol e volte com a mão relaxada.',
    rhythm:'Ritmo: escute a pulsação antes de começar. Conte 1–2–3–4 em voz alta e toque um ataque em cada número, mantendo a mesma distância entre as notas.',
    memory:'Memória: divida a frase em partes pequenas, cante e escute mais uma vez. Oculte a sequência, lembre a ordem e só então toque; não tente adivinhar.',
-   ear:'Percepção auditiva: escute as três notas até o fim. Cante cada uma, compare se sobe ou desce e procure no teclado a mesma relação sonora antes de responder.',
+   ear:'Percepção auditiva: escute as três notas até o fim. Cante cada uma ou imagine sua altura, compare se sobe ou desce e procure no teclado a mesma relação sonora. O aplicativo avalia a reprodução no teclado; não consegue verificar se você cantou.',
    chords:'Primeiro acorde: um acorde é um conjunto de notas que soam juntas. Em Dó maior, Dó é a fundamental, Mi a terça e Sol a quinta. Escute cada nota e depois o conjunto; só então pressione as três teclas.',
    left:'Mão esquerda: procure primeiro a região grave. Dó3, Sol2, Lá2 e Fá2 têm oitavas diferentes; a avaliação exige o número exato da oitava, não apenas o nome. Toque uma de cada vez e mantenha o pulso relaxado.',
-   separate:'Mãos separadas: ainda não junte as duas. Pratique primeiro a frase da direita (Dó–Ré–Mi–Sol); depois, sem mudar de exercício, toque o padrão grave da esquerda (Dó–Sol–Lá–Fá). Confira cada parte separadamente.',
+   separate:'Mãos separadas: ainda não junte as duas. Pratique primeiro a frase aguda (Dó–Ré–Mi–Sol); depois toque o padrão grave (Dó–Sol–Lá–Fá). O aplicativo distingue as regiões pela altura MIDI, mas não consegue saber qual mão física você usou: mantenha a direita na região aguda e a esquerda na grave.',
    memory2:'Memória em blocos curtos: a frase tem sete notas e três pistas visíveis. Agrupe o percurso em três partes: início, ponto intermediário e chegada. Reconstrua os quatro espaços ocultos sem olhar a solução.',
    rhythm2:'Ritmo e melodia: primeiro resolva a sequência de notas sem se preocupar com o tempo. O retorno identifica a primeira nota errada. Quando as sete notas estiverem corretas, os sete ataques serão avaliados separadamente: se você adiantar, atrasar ou variar o intervalo, receberá esse diagnóstico.',
    chordseq:'Primeira troca: você já conhece Dó maior. Agora prepare Sol maior (Sol–Si–Ré). Sol é uma nota em comum que ajuda a orientar o movimento. A prática exige tocar os dois acordes completos na ordem correta; ainda não avalia as trocas no tempo.',
@@ -2016,6 +2016,43 @@ function insertCourseTeachingGuide(l){
  };
  const g=(guides[pt?'pt':'es'][phase-1]||guides[pt?'pt':'es'][0]),a=kindAdvice[pt?'pt':'es'];
  const labels=pt?{before:'ANTES DE TOCAR',understand:'O que você precisa compreender',solve:'Como resolver este exercício',inLesson:'Nesta lição:',error:'Erro frequente:',pass:'Critério de aprovação:',criterion:'Conclua a tarefa sem pular notas nem etapas. Se não conseguir, reduza a velocidade, isole o trecho difícil e depois una tudo novamente.'}:{before:'ANTES DE TOCAR',understand:'Qué tenés que comprender',solve:'Cómo resolver este ejercicio',inLesson:'En esta lección:',error:'Error frecuente:',pass:'Criterio de aprobación:',criterion:'Completá la tarea sin saltarte notas ni pasos. Si no sale, bajá la velocidad, aislá el fragmento difícil y volvé a unirlo.'};
+ const criteria={
+  es:{
+   find:'Cuatro Do distintos, comprobados por número MIDI; repetir la misma tecla no cuenta.',
+   pattern:'Nueve notas en el orden correcto. La digitación sugerida es orientación: la app no detecta el dedo físico.',
+   rhythm:'Cuatro ataques; error medio máximo de 180 ms. Si te adelantás o atrasás, la devolución lo indica.',
+   memory:'Cinco notas exactas después de ocultar la ayuda. Un error no revela la solución.',
+   ear:'Tres alturas correctas en orden. La app comprueba el teclado, no el canto.',
+   chords:'La tríada Do–Mi–Sol reconocida dentro de la ventana de acorde.',
+   left:'Cuatro notas exactas: Do3, Sol2, La2 y Fa2; se comprueba el número MIDI y la octava.',
+   separate:'Cuatro notas en el registro agudo y cuatro en el grave, en orden. No detecta la mano física.',
+   memory2:'Siete posiciones reconstruidas correctamente; las tres pistas corresponden a la secuencia real.',
+   rhythm2:'Siete notas correctas y siete ataques con error medio máximo de 180 ms. Primero se informa el error de nota; después el de pulso.',
+   chordseq:'Dos acordes completos, Do mayor y Sol mayor, en ese orden. El pulso todavía no se evalúa.',
+   autonomy:'Cinco notas exactas después de tres segundos. Es memoria inmediata, no autonomía musical.',
+   orientationCourse:'Seis notas exactas: Do, Fa y Sol en las octavas 3 y 4.',
+   pulseCourse:'Ocho ataques; error medio máximo de 150 ms y ningún ataque a más de 260 ms del pulso.',
+   echoCourse:'Cuatro alturas reproducidas en orden; se señala la primera posición diferente.'
+  },
+  pt:{
+   find:'Quatro Dós diferentes, conferidos pelo número MIDI; repetir a mesma tecla não conta.',
+   pattern:'Nove notas na ordem correta. O dedilhado sugerido é uma orientação: o aplicativo não detecta o dedo físico.',
+   rhythm:'Quatro ataques; erro médio máximo de 180 ms. Se você adiantar ou atrasar, o retorno informa.',
+   memory:'Cinco notas exatas depois de ocultar a ajuda. Um erro não revela a solução.',
+   ear:'Três alturas corretas na ordem. O aplicativo confere o teclado, não o canto.',
+   chords:'A tríade Dó–Mi–Sol reconhecida dentro da janela do acorde.',
+   left:'Quatro notas exatas: Dó3, Sol2, Lá2 e Fá2; o número MIDI e a oitava são conferidos.',
+   separate:'Quatro notas na região aguda e quatro na grave, na ordem. Não detecta a mão física.',
+   memory2:'Sete posições reconstruídas corretamente; as três pistas correspondem à sequência real.',
+   rhythm2:'Sete notas corretas e sete ataques com erro médio máximo de 180 ms. Primeiro é informado o erro de nota; depois o de pulsação.',
+   chordseq:'Dois acordes completos, Dó maior e Sol maior, nessa ordem. A pulsação ainda não é avaliada.',
+   autonomy:'Cinco notas exatas depois de três segundos. É memória imediata, não autonomia musical.',
+   orientationCourse:'Seis notas exatas: Dó, Fá e Sol nas oitavas 3 e 4.',
+   pulseCourse:'Oito ataques; erro médio máximo de 150 ms e nenhum ataque a mais de 260 ms da pulsação.',
+   echoCourse:'Quatro alturas reproduzidas na ordem; a primeira posição diferente é indicada.'
+  }
+ };
+ const criterion=criteria[pt?'pt':'es'][l.kind]||labels.criterion;
  const html='<section class="note-box courseTeachingGuide" aria-label="'+(pt?'Guia para aprender esta lição':'Guía para aprender esta lección')+'"><div class="pill">'+labels.before+' · '+(pt?'NÍVEL ':'NIVEL ')+phase+' / 6 · '+g.name+'</div><h3>'+labels.understand+'</h3><p>'+g.why+'</p><h3>'+labels.solve+'</h3><ol>'+g.steps.map(x=>'<li>'+x+'</li>').join('')+'</ol><p><b>'+labels.inLesson+'</b> '+(a[l.kind]||g.steps[0])+'</p><p><b>'+labels.error+'</b> '+g.mistake+'</p><p class="muted"><b>'+labels.pass+'</b> '+labels.criterion+'</p></section>';
  const heading=main.querySelector('h1');if(heading)heading.insertAdjacentHTML('afterend',html);else main.insertAdjacentHTML('afterbegin',html);
 }
