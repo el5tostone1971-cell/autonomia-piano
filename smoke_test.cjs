@@ -58,7 +58,7 @@ const assert = require('node:assert/strict');
     assert.match(visibleNote, /Do \(C\).*octava 4/, 'No se muestra el nombre y la octava de la nota');
     const help = await page.locator('#repertoireCurrentNoteHelp').innerText();
     assert.match(help, /SONIDO ACTUAL|Señalamos/i, 'No se muestra la explicación de la nota actual');
-    const targetKey = await page.locator('.keys .key[data-midi="60"]').evaluate(el => ({
+    const targetKey = await page.locator('.keys.repertoireKeys .key[data-midi="60"]').evaluate(el => ({
       outline: getComputedStyle(el).outlineWidth,
       background: getComputedStyle(el).backgroundColor
     }));
