@@ -43,6 +43,43 @@ const assert = require('node:assert/strict');
     await page.evaluate(() => show('repertoire'));
     assert.ok(await page.locator('#main').isVisible(), 'El contenido principal no aparece en tablet');
 
+    // Emulación móvil real con pantalla táctil: navegación, toque de tecla y PWA offline.
+    const touchContext = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+    const touchPage = await touchContext.newPage();
+    const touchErrors = [];
+    touchPage.on('pageerror', error => touchErrors.push(error.message));
+    try {
+      await touchPage.goto(process.env.APP_URL || 'http://127.0.0.1:10000/', { waitUntil: 'domcontentloaded' });
+      await touchPage.waitForFunction(() => typeof window.selectLibraryPiece === 'function', null, { timeout: 20000 });
+      await touchPage.locator('#nav button[data-view="practice"]').tap();
+      assert.equal(await touchPage.locator('[data-free-exercise]').count(), 9, 'La navegación táctil no abre las nueve prácticas');
+      await touchPage.locator('#nav button[data-view="keyboard"]').tap();
+      await touchPage.locator('.keys .key[data-midi="60"]').tap();
+      assert.match(await touchPage.locator('#lastNote').innerText(), /Do4/, 'El toque táctil no ejecutó la nota en el teclado');
+      const touchWidth = await touchPage.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth }));
+      assert.ok(touchWidth.document <= touchWidth.viewport + 1, 'El modo táctil móvil desborda el ancho de pantalla: ' + JSON.stringify(touchWidth));
+      const pwa = await touchPage.evaluate(async () => {
+        const manifest = await fetch('./manifest.webmanifest').then(response => response.json());
+        const registration = await navigator.serviceWorker.register('./sw.js');
+        await navigator.serviceWorker.ready;
+        const cache = await caches.open('autonomia-piano-shell-v1');
+        return { display: manifest.display, shortName: manifest.short_name, active: !!registration.active, cachedIndex: !!(await cache.match('./index.html')), cachedManifest: !!(await cache.match('./manifest.webmanifest')) };
+      });
+      assert.equal(pwa.display, 'standalone', 'El manifiesto no declara modo instalable');
+      assert.equal(pwa.shortName, 'Autonomía Piano', 'El manifiesto no identifica la aplicación');
+      assert.equal(pwa.active, true, 'El Service Worker no quedó activo');
+      assert.equal(pwa.cachedIndex, true, 'La página principal no quedó en caché offline');
+      assert.equal(pwa.cachedManifest, true, 'El manifiesto no quedó en caché offline');
+      await touchContext.setOffline(true);
+      await touchPage.reload({ waitUntil: 'domcontentloaded' });
+      await touchPage.waitForFunction(() => typeof window.selectLibraryPiece === 'function', null, { timeout: 10000 });
+      assert.match(await touchPage.title(), /Autonomía Piano/i, 'La aplicación no pudo abrirse sin conexión después de instalar el caché');
+      await touchContext.setOffline(false);
+      assert.deepEqual(touchErrors, [], 'La emulación táctil generó errores JavaScript: ' + touchErrors.join(' | '));
+    } finally {
+      await touchContext.close();
+    }
+
     // Recorrer la pieza didáctica y comprobar que la nota que suena queda identificada.
     await page.evaluate(() => {
       const piece = repertoireLibrary.find(item => item.id === 'rp10');
@@ -169,7 +206,7 @@ const assert = require('node:assert/strict');
         }
         if (/Qué tenés|Cómo resolver|Error frecuente|Criterio de aprobación/.test(content)) throw new Error('A guia em português contém texto em espanhol');
       });
-      window._testMode = true;
+      window._testMode = false;
     });
 
     // Auditoría ampliada: los textos dinámicos de las pantallas también deben quedar en portugués.
@@ -220,7 +257,11 @@ const assert = require('node:assert/strict');
         const spanishPattern = /\b(?:Encontrá|Tocá|Completá|Escuchá|Memorizá|Recordá|Podés|Aprobás|Día \d+|Se evalúa|No alcanza|Volvé|Mirá|Ocultá|Técnica de hoy|sin detenerte|con pulso parejo)\b/i;
         const spanishMatch = text.match(spanishPattern)?.[0] || '';
         const spanishLeak = !!spanishMatch;
-        results.push({ id: lesson.id, kind: lesson.kind, engineMapped: typeof window[exerciseFunctionName(lesson.kind)] === 'function', rendered: !!main && html.length > 100, unimplemented: text.includes('Ejercicio no implementado'), interactive: !!main?.querySelector('button, .keys, input, [data-free-exercise]'), spanishLeak, spanishMatch, excerpt: spanishLeak ? text.slice(0, 240) : '' });
+        const guide = main?.querySelector('.courseTeachingGuide');
+        const guideText = guide?.innerText || '';
+        const guideValid = !!guide && ['O que você precisa compreender','Como resolver este exercício','Erro frequente:','Critério de aprovação:'].every(label => guideText.includes(label));
+        const guideSpanishLeak = /Qué tenés|Cómo resolver|Error frecuente|Criterio de aprobación/.test(guideText);
+        results.push({ id: lesson.id, kind: lesson.kind, engineMapped: typeof window[exerciseFunctionName(lesson.kind)] === 'function', rendered: !!main && html.length > 100, unimplemented: text.includes('Ejercicio no implementado'), interactive: !!main?.querySelector('button, .keys, input, [data-free-exercise]'), spanishLeak, spanishMatch, guideValid, guideSpanishLeak, excerpt: spanishLeak ? text.slice(0, 240) : '' });
       }
       return { count: ids.length, unique: unique.size, results };
     });
@@ -230,6 +271,7 @@ const assert = require('node:assert/strict');
     assert.deepEqual(lessonAudit.results.filter(x => !x.rendered || x.unimplemented || !x.interactive), [], 'Hay lecciones que no renderizan un ejercicio funcional: ' + JSON.stringify(lessonAudit.results.filter(x => !x.rendered || x.unimplemented || !x.interactive)));
     assert.deepEqual(lessonAudit.results.filter(x => !x.engineMapped), [], 'Hay motores de ejercicios sin mapear: ' + JSON.stringify(lessonAudit.results.filter(x => !x.engineMapped)));
     assert.deepEqual(lessonAudit.results.filter(x => x.spanishLeak), [], 'Hay instrucciones en español al recorrer lecciones en portugués: ' + JSON.stringify(lessonAudit.results.filter(x => x.spanishLeak)));
+    assert.deepEqual(lessonAudit.results.filter(x => !x.guideValid || x.guideSpanishLeak), [], 'Hay guías pedagógicas ausentes o incompletas en portugués: ' + JSON.stringify(lessonAudit.results.filter(x => !x.guideValid || x.guideSpanishLeak)));
 
     await page.evaluate(() => changePianoLanguage('es'));
 
