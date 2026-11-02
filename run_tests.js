@@ -16,7 +16,7 @@
       case 'l4': memoryExpectedSeq=['C','D','E','D','C'];hideMemory();playSeqTest(memoryExpectedSeq.map(x=>midi(x)));checkMemory();break;
       case 'l5': earRound=[60,62,64]; earInput=['C','D','E']; checkEar(); completeEarAndContinue(); break;
       case 'l6': [['C',[60,64,67]],['G',[55,59,62]],['Am',[57,60,64]],['F',[53,57,60]]].forEach(([_,ns])=>playSeqTest(ns)); checkChords('l6'); break;
-      case 'l7': playSeqTest(['C','G','A','F'].map(x=>midi(x,3))); checkPattern('l7',['C','G','A','F'],'left'); break;
+      case 'l7': playSeqTest([48,43,45,41]); checkPattern('l7',[48,43,45,41],'left'); break;
       case 'l8': playSeqTest(['C','D','E','G'].map(x=>midi(x,4))); playSeqTest(['C','G','A','F'].map(x=>midi(x,3))); checkSeparate('l8'); break;
       case 'l9': pattern=patternExpected.slice();checkPattern('l9',patternExpected,'memory2');break;
       case 'l10': playSeqTest(['C','D','E','G','E','D','C'].map(x=>midi(x))); rhythmTimes=[0,600,1200,1800,2400,3000,3600]; checkRhythm2('l10'); break;
