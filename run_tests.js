@@ -23,8 +23,26 @@
       case 'l11': chordSequence=['C','G','Am','F']; chordHits=new Set(['C','G','Am','F']); checkChords('l11'); break;
       case 'l12': autoInput=['C','D','E','G','E','D','C']; checkPattern('l12',patternExpected,'autonomy'); break;
       default:
-        if(l.kind==='chordgeneric'){chordSequence=l.targetChords.slice(); checkGenericChords(l.id);}
-        else {pattern=l.seq.slice(); checkGeneric(l.id);}
+        if(l.kind==='staffcourse'){
+          answerCourseStaffTheory(STAFF_THEORY[l.staffTheoryIndex].a);
+          courseStaffExpected.forEach(note=>nameCourseStaff(note));
+          checkCourseStaff();
+          courseStaffExpected.map(note=>READING_MIDI[note]).forEach(note=>registerCourseStaffNote(note));
+          checkCourseStaff();
+        }else if(l.kind==='theorycourse'){
+          answerTheoryCourse(THEORY_COURSE[l.theoryIndex].a);
+        }else if(l.kind==='chordgeneric'){
+          answerChordTheory(CHORD_THEORY[l.chordTheoryIndex].a);
+          chordSequence=l.targetChords.slice();checkGenericChords(l.id);
+        }else if(l.kind==='courseTwoHands'){
+          startCourseTwoHands();
+          courseTwoHandsEvents.forEach(event=>event.left.concat(event.right).forEach(note=>registerCourseTwoHandsNote(note)));
+          checkCourseTwoHands();
+        }else if(l.kind==='courseAuto'){
+          courseAutoCanAnswer=true;armCourseAuto();courseAutoPlayed=courseAutoExpected.slice();checkCourseAuto();
+        }else{
+          pattern=l.seq.slice();checkGeneric(l.id);
+        }
     }
     clearTimeout(window._nextTimer); await new Promise(r=>setTimeout(r,5));
     assert(!!state.lessons[l.id],`no quedó completada: ${l.id}`);
