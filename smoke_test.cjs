@@ -42,6 +42,8 @@ const assert = require('node:assert/strict');
     await page.setViewportSize({ width: 768, height: 1024 });
     await page.evaluate(() => show('repertoire'));
     assert.ok(await page.locator('#main').isVisible(), 'El contenido principal no aparece en tablet');
+    // Aislar las pruebas funcionales posteriores del viewport usado para la prueba de tablet.
+    await page.setViewportSize({ width: 1440, height: 900 });
 
     // Emulación móvil real con pantalla táctil: navegación, toque de tecla y PWA offline.
     const touchContext = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
