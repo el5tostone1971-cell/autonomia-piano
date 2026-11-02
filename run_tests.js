@@ -49,7 +49,11 @@
   };
   for(const l of LESSONS) await completeCourseLesson(l);
   assert(state.day===90,'Día final esperado 90, obtenido '+state.day);
-  pass('90/90 ejercicios del curso','progresión completa sin bloqueos');
+  const levels=Array.from({length:6},(_,i)=>LESSONS.filter(lesson=>Math.ceil(lesson.day/15)===i+1));
+  assert(levels.every(level=>level.length===15),'los seis niveles no contienen exactamente 15 lecciones cada uno');
+  assert(new Set(LESSONS.map(lesson=>lesson.id)).size===90,'hay identificadores duplicados');
+  assert(LESSONS.every(lesson=>lesson.title&&lesson.desc&&lesson.desc.length>=20&&exerciseFunctionName(lesson.kind)&&typeof window[exerciseFunctionName(lesson.kind)]==='function'),'hay lecciones sin explicación o motor asignado');
+  pass('90/90 ejercicios del curso','seis niveles de 15; cada lección aprobada con su motor real y metadatos completos');
  }catch(e){fail('90/90 ejercicios del curso',e)}
 
  // Public spaced repetition regression test.
