@@ -955,7 +955,9 @@ const assert = require('node:assert/strict');
       Buffer.from('MTrk'), Buffer.from([0,0,0,22]),
       Buffer.from([0,0x90,60,100,0x83,0x60,0x80,60,0,0,0x90,62,100,0x83,0x60,0x80,62,0,0,0xFF,0x2F,0])
     ]);
-    await page.evaluate(() => { showHTML(advancedSystemView()); openGodFeature('06'); });
+    await page.evaluate(() => show('settings'));
+    assert.ok(await page.locator('button[onclick="openAdvancedSystem()"]').count() > 0, 'El acceso a Sistema avanzado no aparece en Ajustes');
+    await page.evaluate(() => { openAdvancedSystem(); openGodFeature('06'); });
     await page.locator('#musicFile').setInputFiles({ name: 'smoke-melody.mid', mimeType: 'audio/midi', buffer: tinyMidi });
     await page.waitForFunction(() => document.body.innerText.includes('2 notas'), null, { timeout: 10000 });
     assert.ok(await page.locator('button[onclick*="startImportedSongPractice"]').count() > 0, 'El MIDI no aparece como canción practicable');
