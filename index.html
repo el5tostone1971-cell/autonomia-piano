@@ -116,7 +116,7 @@ const LESSONS=[
 {id:'l9',day:9,title:'Memoria en bloques cortos',desc:'Reconstruí una frase breve con algunas pistas visibles; aprendé a agrupar antes de memorizar más notas.',kind:'memory2',skill:'memory',xp:35,inc:8},
 {id:'l10',day:10,title:'Una melodía con pulso',desc:'Tocá una frase de siete notas. Primero comprobá el orden; después trabajá la regularidad de los siete ataques.',kind:'rhythm2',skill:'rhythm',xp:40,inc:8},
 {id:'l11',day:11,title:'Primer cambio de acorde',desc:'Do mayor → Sol mayor: prepará dos formas y reconocé la nota común antes de avanzar a más acordes.',kind:'chordseq',skill:'chords',xp:45,inc:12},
-{id:'l12',day:12,title:'Memoria sin pistas',desc:'Recordá una frase breve después de observarla. Esta prueba mide memoria inmediata, no autonomía musical completa.',kind:'autonomy',skill:'memory',xp:40,inc:5}
+{id:'l12',day:12,title:'Memoria sin pistas',desc:'Recordá una frase de siete notas después de observarla durante tres segundos. Esta prueba mide memoria inmediata, no autonomía musical completa.',kind:'autonomy',skill:'memory',xp:40,inc:5}
 ];
 const GENERIC_LESSONS=[];
 const SCALE=['C','D','E','F','G','A','B'];
@@ -2008,7 +2008,7 @@ function insertCourseTeachingGuide(l){
    memory2:'Memoria en bloques cortos: la frase tiene siete notas y tres pistas visibles. Agrupá el recorrido en tres partes: inicio, punto medio y llegada. Reconstruí los cuatro espacios ocultos sin mirar la solución.',
    rhythm2:'Ritmo y melodía: primero resolvé la secuencia de notas sin preocuparte por el tiempo. La devolución identifica la primera nota equivocada. Cuando las siete notas estén bien, se evalúan los siete ataques por separado: si te adelantás, atrasás o variás el intervalo, recibirás ese diagnóstico.',
    chordseq:'Primer cambio: ya conocés Do mayor. Ahora prepará Sol mayor (Sol–Si–Re). Sol es una nota común que te ayuda a orientar el movimiento. La práctica exige tocar los dos acordes completos en el orden correcto; no evalúa todavía cambios a tempo.',
-   autonomy:'Memoria inmediata: observá una frase de cinco notas durante tres segundos y reproducila cuando desaparezca. Esta actividad mide recuerdo inmediato, no autonomía musical; no certifica lectura, interpretación ni autocorrección.',
+   autonomy:'Memoria inmediata: observá una frase de siete notas durante tres segundos y reproducila cuando desaparezca. Esta actividad mide recuerdo inmediato, no autonomía musical; no certifica lectura, interpretación ni autocorrección.',
    staffcourse:'Lectura: resolvé la posición en el pentagrama y luego trasladala al teclado sin pistas.',
    theorycourse:'Concepto + aplicación: comprender la regla no alcanza; demostrá que podés usarla en el instrumento.',
    chordgeneric:'Armonía: escuchá cada tríada y comprobá raíz, calidad y orden de la progresión.',
@@ -2031,7 +2031,7 @@ function insertCourseTeachingGuide(l){
    memory2:'Memória em blocos curtos: a frase tem sete notas e três pistas visíveis. Agrupe o percurso em três partes: início, ponto intermediário e chegada. Reconstrua os quatro espaços ocultos sem olhar a solução.',
    rhythm2:'Ritmo e melodia: primeiro resolva a sequência de notas sem se preocupar com o tempo. O retorno identifica a primeira nota errada. Quando as sete notas estiverem corretas, os sete ataques serão avaliados separadamente: se você adiantar, atrasar ou variar o intervalo, receberá esse diagnóstico.',
    chordseq:'Primeira troca: você já conhece Dó maior. Agora prepare Sol maior (Sol–Si–Ré). Sol é uma nota em comum que ajuda a orientar o movimento. A prática exige tocar os dois acordes completos na ordem correta; ainda não avalia as trocas no tempo.',
-   autonomy:'Memória imediata: observe uma frase de cinco notas durante três segundos e reproduza quando ela desaparecer. Esta atividade mede lembrança imediata, não autonomia musical; não certifica leitura, interpretação nem autocorreção.',
+   autonomy:'Memória imediata: observe uma frase de sete notas durante três segundos e reproduza quando ela desaparecer. Esta atividade mede lembrança imediata, não autonomia musical; não certifica leitura, interpretação nem autocorreção.',
    staffcourse:'Leitura: encontre a posição na pauta e depois leve-a ao teclado sem pistas.',
    theorycourse:'Conceito + aplicação: compreender a regra não basta; demonstre que consegue usá-la no instrumento.',
    chordgeneric:'Harmonia: escute cada tríade e confira a fundamental, a qualidade e a ordem da progressão.',
@@ -2058,7 +2058,7 @@ function insertCourseTeachingGuide(l){
    memory2:'Siete posiciones reconstruidas correctamente; las tres pistas corresponden a la secuencia real.',
    rhythm2:'Siete notas correctas y siete ataques con error medio máximo de 180 ms. Primero se informa el error de nota; después el de pulso.',
    chordseq:'Dos acordes completos, Do mayor y Sol mayor, en ese orden. El pulso todavía no se evalúa.',
-   autonomy:'Cinco notas exactas después de tres segundos. Es memoria inmediata, no autonomía musical.',
+   autonomy:'Siete notas exactas después de tres segundos. Es memoria inmediata, no autonomía musical.',
    orientationCourse:'Seis notas exactas: Do, Fa y Sol en las octavas 3 y 4.',
    pulseCourse:'Ocho ataques; error medio máximo de 150 ms y ningún ataque a más de 260 ms del pulso.',
    echoCourse:'Cuatro alturas reproducidas en orden; se señala la primera posición diferente.'
@@ -2075,7 +2075,7 @@ function insertCourseTeachingGuide(l){
    memory2:'Sete posições reconstruídas corretamente; as três pistas correspondem à sequência real.',
    rhythm2:'Sete notas corretas e sete ataques com erro médio máximo de 180 ms. Primeiro é informado o erro de nota; depois o de pulsação.',
    chordseq:'Dois acordes completos, Dó maior e Sol maior, nessa ordem. A pulsação ainda não é avaliada.',
-   autonomy:'Cinco notas exatas depois de três segundos. É memória imediata, não autonomia musical.',
+   autonomy:'Sete notas exatas depois de três segundos. É memória imediata, não autonomia musical.',
    orientationCourse:'Seis notas exatas: Dó, Fá e Sol nas oitavas 3 e 4.',
    pulseCourse:'Oito ataques; erro médio máximo de 150 ms e nenhum ataque a mais de 260 ms da pulsação.',
    echoCourse:'Quatro alturas reproduzidas na ordem; a primeira posição diferente é indicada.'
@@ -2165,7 +2165,7 @@ function separateLesson(){resetExercise();sepRightInput=[];sepLeftInput=[];showH
 function memory2Lesson(){resetExercise();memoryAttemptScored=false;memoryExpectedSeq=makeMemorySequence(7);patternExpected=memoryExpectedSeq.slice();const clue=memoryExpectedSeq.map((n,i)=>[0,3,6].includes(i)?n:'?').join(' · ');showHTML(pianoTranslateHTML(shell('🧠 Memoria en bloques cortos','La frase tiene siete notas. Observá las tres pistas, agrupá mentalmente el recorrido y reconstruí los cuatro espacios ocultos. Primero reconocé el comienzo, después el punto de llegada y por último uní los bloques sin mirar la solución.',`<div class="memory">${clue}</div>${keyboard()}<div class="note-box"><div id="mem2Input" class="target" style="font-size:25px">—</div><p id="memory2Msg" class="muted" aria-live="polite">Completá las siete posiciones sin consultar la respuesta.</p><button class="btn good" onclick="checkPattern('l9',patternExpected,'memory2')">Comprobar memoria</button><button class="btn" onclick="memory2Lesson()">Nueva secuencia</button></div>`)))}
 function rhythm2Lesson(){resetExercise();patternExpected=['C','D','E','G','E','D','C'];rhythmExpected=[0,600,1200,1800,2400,3000,3600];showHTML(shell('🥁 Ritmo + melodía','Tocá C–D–E–G–E–D–C. Se evalúan orden y regularidad.',`${keyboard()}<div class="note-box"><div id="rhythm2Input" class="target" style="font-size:24px">—</div><div id="rhythm2Msg" class="muted">0 / 7</div><button class="btn primary" onclick="checkRhythm2('l10')">Evaluar</button></div>`))}
 function chordSeqLesson(){resetExercise();showHTML(pianoTranslateHTML(shell('🎼 Primer cambio: Do mayor → Sol mayor','Ya conocés la forma de Do mayor. Ahora aprendé a preparar Sol mayor antes de mover la mano. Tocá primero Do–Mi–Sol; soltá, prepará Sol–Si–Re y tocá el segundo acorde. Todavía no agregamos más cambios: buscamos que entiendas el movimiento entre dos formas.',`<div class="target">C → G</div><div class="note-box"><b>Antes de tocar</b><p>Do mayor: Do–Mi–Sol. Sol mayor: Sol–Si–Re. La nota común Sol puede servirte como referencia para mover la mano.</p><button class="btn small" onclick="playSeq([60,64,67,67,71,74])">▶ Escuchar los dos acordes</button><p class="muted">Podés usar otra inversión u octava; se evalúan las tres clases de altura y el orden de los dos acordes.</p></div>${keyboard()}<div class="note-box"><div id="seqChordCount">0 / 2</div><button class="btn primary" onclick="checkChords('l11')">Evaluar los dos cambios</button></div>`)))}
-function autonomyLesson(){resetExercise();clearTimeout(autoChallengeTimer);patternExpected=makeMemorySequence(5);autoInput=[];autoChallengeReady=false;autoChallengeReadyAt=Date.now()+3000;showHTML(pianoTranslateHTML(shell('🧠 Memoria sin pistas','Esta prueba comprueba memoria inmediata: observá una frase breve durante tres segundos y reproducila cuando desaparezca. No es todavía una prueba de autonomía musical.',`<div class="memory" id="autoHelp">${patternExpected.join(' · ')}</div><p id="autoChallengeMsg" class="muted">Observá la secuencia. La prueba se habilitará cuando desaparezca.</p>${keyboard()}<div class="note-box"><div id="autoInput" class="target" style="font-size:24px">—</div><button class="btn good" onclick="checkPattern('l12',patternExpected,'autonomy')">Comprobar autonomía</button><button class="btn" onclick="autonomyLesson()">Nueva prueba</button></div>`)));autoChallengeTimer=setTimeout(hideAutoHelp,3000)}
+function autonomyLesson(){resetExercise();clearTimeout(autoChallengeTimer);patternExpected=makeMemorySequence(7);autoInput=[];autoChallengeReady=false;autoChallengeReadyAt=Date.now()+3000;showHTML(pianoTranslateHTML(shell('🧠 Memoria sin pistas','Esta prueba comprueba memoria inmediata: observá una frase breve durante tres segundos y reproducila cuando desaparezca. No es todavía una prueba de autonomía musical.',`<div class="memory" id="autoHelp">${patternExpected.join(' · ')}</div><p id="autoChallengeMsg" class="muted">Observá la secuencia. La prueba se habilitará cuando desaparezca.</p>${keyboard()}<div class="note-box"><div id="autoInput" class="target" style="font-size:24px">—</div><button class="btn good" onclick="checkPattern('l12',patternExpected,'autonomy')">Comprobar autonomía</button><button class="btn" onclick="autonomyLesson()">Nueva prueba</button></div>`)));autoChallengeTimer=setTimeout(hideAutoHelp,3000)}
 let courseStaffExpected=[],courseStaffNamed=[],courseStaffPlayed=[],courseStaffStage='name';
 
 const STAFF_THEORY=[
