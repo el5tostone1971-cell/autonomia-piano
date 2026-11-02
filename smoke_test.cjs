@@ -106,7 +106,8 @@ const assert = require('node:assert/strict');
       classes: el.className,
       inlineStyle: el.getAttribute('style'),
       parentClass: el.parentElement?.className,
-      matchingTargets: document.querySelectorAll('.keys.repertoireKeys .key.target-note').length
+      matchingTargets: document.querySelectorAll('.keys.repertoireKeys .key.target-note').length,
+      matchingRules: [...document.styleSheets].flatMap(sheet => { try { return [...sheet.cssRules]; } catch { return []; } }).filter(rule => rule.selectorText && rule.selectorText.includes('target-note')).map(rule => ({ selector: rule.selectorText, matches: (() => { try { return el.matches(rule.selectorText); } catch { return false; } })(), background: rule.style.background, backgroundColor: rule.style.backgroundColor, priority: rule.style.getPropertyPriority('background-color') || rule.style.getPropertyPriority('background') }))
     }));
     assert.equal(targetKey.outline, '6px', 'La tecla objetivo no destaca lo suficiente');
     assert.match(targetKey.background, /rgba?\(253, 224, 71(?:, [0-9.]+)?\)/, 'La tecla objetivo no tiene el color de alto contraste: '+JSON.stringify(targetKey));
