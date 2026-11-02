@@ -58,6 +58,8 @@ const assert = require('node:assert/strict');
       await touchPage.locator('#nav button[data-view="keyboard"]').tap();
       await touchPage.locator('.keys .key[data-midi="60"]').tap();
       assert.match(await touchPage.locator('#lastNote').innerText(), /Do \(C4\)/, 'El toque táctil no ejecutó la nota en el teclado');
+      assert.equal(await touchPage.locator('.keys .key[data-midi="48"] span').innerText(), 'C3', 'El teclado no identifica visualmente la octava de Do3');
+      assert.equal(await touchPage.locator('.keys .key[data-midi="48"]').getAttribute('data-octave'), '3', 'El teclado no expone el número de octava de Do3');
       const touchWidth = await touchPage.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth }));
       assert.ok(touchWidth.document <= touchWidth.viewport + 1, 'El modo táctil móvil desborda el ancho de pantalla: ' + JSON.stringify(touchWidth));
       const pwa = await touchPage.evaluate(async () => {
