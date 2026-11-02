@@ -156,10 +156,10 @@
 
  // Course teaching guide: six levels must expose an explanation, method, common error and approval criterion.
  try{
-  const previousTestMode=window._testMode;window._testMode=false;
+  const previousTestMode=window._testMode,previousLanguage=pianoLanguage;window._testMode=false;pianoLanguage='es';
   const samples=[1,16,31,46,61,76].map(day=>LESSONS.find(x=>x.day===day));
   samples.forEach(l=>{insertCourseTeachingGuide(l);const guide=document.querySelector('.courseTeachingGuide');assert(guide,'no se insertó la guía para '+l.id);assert(guide.textContent.includes('Qué tenés que comprender')&&guide.textContent.includes('Cómo resolver este ejercicio')&&guide.textContent.includes('Error frecuente')&&guide.textContent.includes('Criterio de aprobación'),'guía incompleta en '+l.id);guide.remove()});
-  window._testMode=previousTestMode;pass('Guía pedagógica en seis niveles','cada nivel explica concepto, estrategia, error frecuente y criterio de aprobación');
+  window._testMode=previousTestMode;pianoLanguage=previousLanguage;pass('Guía pedagógica en seis niveles','cada nivel explica concepto, estrategia, error frecuente y criterio de aprobación');
  }catch(e){window._testMode=true;fail('Guía pedagógica en seis niveles',e)}
  // Motor 11: only valid, unique, bounded evidence can raise a competence.
  try{
