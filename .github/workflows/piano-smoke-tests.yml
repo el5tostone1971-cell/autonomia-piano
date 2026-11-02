@@ -34,3 +34,19 @@ jobs:
         run: node smoke_test.cjs
       - name: Run comprehensive course, Motor 11 and repertoire tests
         run: node run_tests_browser.cjs
+      - name: Verify Render deployment
+        run: |
+          ok=0
+          for i in $(seq 1 18); do
+            if curl -fsS --max-time 25 https://autonomia-piano.onrender.com/api/v1/health -o /tmp/render-health.json; then
+              ok=1
+              break
+            fi
+            sleep 10
+          done
+          test "$ok" -eq 1
+          grep -q '"ok":true' /tmp/render-health.json
+          curl -fsS --max-time 30 https://autonomia-piano.onrender.com/ -o /tmp/render-index.html
+          grep -q 'function insertCourseTeachingGuide' /tmp/render-index.html
+          grep -q '.top-actions{width:100%;flex-wrap:wrap;gap:6px}' /tmp/render-index.html
+          echo "Render health and latest Portuguese/mobile changes verified."
