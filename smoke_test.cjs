@@ -99,18 +99,9 @@ const assert = require('node:assert/strict');
     assert.match(visibleNote, /Do \(C\).*octava 4/, 'No se muestra el nombre y la octava de la nota');
     const help = await page.locator('#repertoireCurrentNoteHelp').innerText();
     assert.match(help, /SONIDO ACTUAL|Señalamos/i, 'No se muestra la explicación de la nota actual');
-    const targetKey = await page.locator('.keys.repertoireKeys .key[data-midi="60"]').evaluate(el => ({
-      outline: getComputedStyle(el).outlineWidth,
-      background: getComputedStyle(el).backgroundColor,
-      backgroundImage: getComputedStyle(el).backgroundImage,
-      classes: el.className,
-      inlineStyle: el.getAttribute('style'),
-      parentClass: el.parentElement?.className,
-      matchingTargets: document.querySelectorAll('.keys.repertoireKeys .key.target-note').length,
-      matchingRules: [...document.styleSheets].flatMap(sheet => { try { return [...sheet.cssRules]; } catch { return []; } }).filter(rule => rule.selectorText && rule.selectorText.includes('target-note')).map(rule => ({ selector: rule.selectorText, matches: (() => { try { return el.matches(rule.selectorText); } catch { return false; } })(), background: rule.style.background, backgroundColor: rule.style.backgroundColor, priority: rule.style.getPropertyPriority('background-color') || rule.style.getPropertyPriority('background') }))
-    }));
+    const targetKey = await page.locator('.keys.repertoireKeys .key[data-midi="60"]').evaluate(el => ({ outline: getComputedStyle(el).outlineWidth, background: getComputedStyle(el).backgroundColor }));
     assert.equal(targetKey.outline, '6px', 'La tecla objetivo no destaca lo suficiente');
-    assert.match(targetKey.background, /rgba?\(253, 224, 71(?:, [0-9.]+)?\)/, 'La tecla objetivo no tiene el color de alto contraste: '+JSON.stringify(targetKey));
+    assert.match(targetKey.background, /rgba?\(253, 224, 71(?:, [0-9.]+)?\)/, 'La tecla objetivo no tiene el color de alto contraste');
     await page.locator('#repertoireTempo').evaluate(el => { el.value = '72'; el.dispatchEvent(new Event('input', { bubbles: true })); });
     assert.equal(await page.locator('#repertoireTempoLabel').innerText(), '72 BPM', 'El control de tempo no actualiza el valor visible');
 
