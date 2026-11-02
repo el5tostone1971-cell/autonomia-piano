@@ -101,10 +101,15 @@ const assert = require('node:assert/strict');
     assert.match(help, /SONIDO ACTUAL|Señalamos/i, 'No se muestra la explicación de la nota actual');
     const targetKey = await page.locator('.keys.repertoireKeys .key[data-midi="60"]').evaluate(el => ({
       outline: getComputedStyle(el).outlineWidth,
-      background: getComputedStyle(el).backgroundColor
+      background: getComputedStyle(el).backgroundColor,
+      backgroundImage: getComputedStyle(el).backgroundImage,
+      classes: el.className,
+      inlineStyle: el.getAttribute('style'),
+      parentClass: el.parentElement?.className,
+      matchingTargets: document.querySelectorAll('.keys.repertoireKeys .key.target-note').length
     }));
     assert.equal(targetKey.outline, '6px', 'La tecla objetivo no destaca lo suficiente');
-    assert.match(targetKey.background, /rgba?\(253, 224, 71(?:, [0-9.]+)?\)/, 'La tecla objetivo no tiene el color de alto contraste');
+    assert.match(targetKey.background, /rgba?\(253, 224, 71(?:, [0-9.]+)?\)/, 'La tecla objetivo no tiene el color de alto contraste: '+JSON.stringify(targetKey));
     await page.locator('#repertoireTempo').evaluate(el => { el.value = '72'; el.dispatchEvent(new Event('input', { bubbles: true })); });
     assert.equal(await page.locator('#repertoireTempoLabel').innerText(), '72 BPM', 'El control de tempo no actualiza el valor visible');
 
