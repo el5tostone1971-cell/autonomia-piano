@@ -660,7 +660,7 @@ const assert = require('node:assert/strict');
     assert.match(rhythmAudit.extraAttackMessage, /Faltan o sobran ataques/i, 'La evaluación permitió tocar durante un silencio');
     assert.equal(rhythmAudit.patterns, 13, 'La lectura rítmica no contiene los trece patrones definidos');
     assert.deepEqual(rhythmAudit.meters.sort(), ['2/4','3/4','4/4','6/8'], 'La lectura rítmica no cubre los cuatro compases previstos');
-    assert.equal(rhythmAudit.rests, 3, 'No se enseñan silencios de negra, corchea y contratiempo');
+    assert.equal(rhythmAudit.rests, 4, 'No se enseñan los cuatro patrones que contienen silencios de negra, corchea y contratiempo');
     assert.match(rhythmAudit.symbols, /𝄽/, 'La notación no representa el silencio de negra');
 
     // La misma evidencia musical no puede volver a inflar las competencias al reiniciar el ejercicio.
