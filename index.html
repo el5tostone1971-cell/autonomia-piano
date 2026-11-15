@@ -2888,7 +2888,8 @@ let bandPracticeTimer=null,bandPracticeActive=false,bandPracticeResults=[];
 function startBandPractice(){
  if(!repertoirePiece)return;
  if(bandPracticeTimer){clearTimeout(bandPracticeTimer);bandPracticeTimer=null}
- repertoireInput=[];repertoireTimes=[];repertoireStarted=true;bandPracticeActive=true;bandPracticeResults=[];repertoireStart=performance.now();
+ repertoireInput=[];repertoireTimes=[];repertoirePlayedHistory=[];bandPracticeResults=[];repertoireStarted=true;bandPracticeActive=true;repertoireStart=performance.now();
+ const history=document.getElementById('repertoirePlayedNotes');if(history){history.textContent='Todavía no tocaste ninguna nota.';history.classList.remove('band-feedback-list')}
  const piece=repertoirePiece,tempo=getRepertoireTempo(),beats=piece.dur.reduce((sum,d)=>sum+(Number(d)||1),0);
  const count=document.getElementById('repertoireCount');if(count)count.textContent=pianoLanguage==='pt'?'0 / '+piece.notes.length+' corretas':'0 / '+piece.notes.length+' correctas';
  const msg=document.getElementById('repertoireMsg');if(msg)msg.textContent=pianoLanguage==='pt'?'Prática com banda: toque a música no seu teclado. A sessão dura duas passagens e, depois, todos os instrumentos param automaticamente.':'Práctica con banda: tocá la canción con tu teclado. La sesión dura dos pasadas y después se detienen automáticamente todos los instrumentos.';
