@@ -172,6 +172,18 @@
   samples.forEach(l=>{insertCourseTeachingGuide(l);const guide=document.querySelector('.courseTeachingGuide');assert(guide,'no se insertó la guía para '+l.id);assert(guide.textContent.includes('Qué tenés que comprender')&&guide.textContent.includes('Cómo resolver este ejercicio')&&guide.textContent.includes('Error frecuente')&&guide.textContent.includes('Criterio de aprobación'),'guía incompleta en '+l.id);guide.remove()});
   window._testMode=previousTestMode;pianoLanguage=previousLanguage;pass('Guía pedagógica en seis niveles','cada nivel explica concepto, estrategia, error frecuente y criterio de aprobación');
  }catch(e){window._testMode=true;fail('Guía pedagógica en seis niveles',e)}
+
+ // Portuguese teaching-guide audit: the six levels must expose fully localized explanations and criteria.
+ try{
+  const previousTestMode=window._testMode,previousLanguage=pianoLanguage;
+  try{
+   window._testMode=false;pianoLanguage='pt';
+   const samples=[1,16,31,46,61,76].map(day=>LESSONS.find(x=>x.day===day));
+   const spanishGuideImperatives=/(?:Localizá|Nombrá|Tocá|Escuchá|Mantené|Usá|Reconocé|Contá|Decí|Encontrá|Construí|Prepará|Uní|Combiná|Identificá|Leé|Explicá|Volvé|Bajá|Subí|Regresá)/i;
+   samples.forEach(l=>{const main=document.getElementById('main');main.innerHTML='<h1>Teste</h1>';insertCourseTeachingGuide(l);const guide=main.querySelector('.courseTeachingGuide');assert(guide,'não inseriu o guia para '+l.id);assert(guide.textContent.includes('O que você precisa compreender')&&guide.textContent.includes('Como resolver este exercício')&&guide.textContent.includes('Erro frequente')&&guide.textContent.includes('Critério de aprovação'),'guia em português incompleto no '+l.id);assert(!spanishGuideImperatives.test(guide.textContent),'guia em português conserva imperativo espanhol no '+l.id);guide.remove()});
+  }finally{window._testMode=previousTestMode;pianoLanguage=previousLanguage}
+  pass('Guias pedagógicas em português','seis níveis com explicação, método, erro frequente e critério localizados');
+ }catch(e){fail('Guias pedagógicas em português',e)}
  // Motor 11: only valid, unique, bounded evidence can raise a competence.
  try{
   state=clone(defaultState);state.skills=Object.fromEntries(MOTOR11_SKILLS.map(k=>[k,0]));
