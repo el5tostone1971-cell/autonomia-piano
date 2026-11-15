@@ -208,6 +208,12 @@ function mergeProgressStates(base,incoming){
  if(a.god||b.god){
   out.god.spaced=Object.assign({},a.god?.spaced||{},b.god?.spaced||{});const q=[...(a.god?.spaced?.queue||[]),...(b.god?.spaced?.queue||[])];out.god.spaced.queue=[...new Map(q.map(x=>[x.id||JSON.stringify(x),x])).values()];
   const union=(x,y)=>[...new Set([...(Array.isArray(x)?x:[]),...(Array.isArray(y)?y:[])])];
+  const mergeRecords=(x,y,keyOf,limit=500)=>{const map=new Map();for(const item of [...(Array.isArray(x)?x:[]),...(Array.isArray(y)?y:[])]){if(!item||typeof item!=='object')continue;const key=String(keyOf(item));const old=map.get(key);if(!old||String(item.updatedAt||item.at||item.importedAt||'')>=String(old.updatedAt||old.at||old.importedAt||''))map.set(key,item)}return [...map.values()].sort((u,v)=>String(u.at||u.updatedAt||u.importedAt||'').localeCompare(String(v.at||v.updatedAt||v.importedAt||''))).slice(-limit)};
+  out.god.skillEvidenceLog=mergeRecords(a.god?.skillEvidenceLog,b.god?.skillEvidenceLog,x=>String(x.category)+'|'+String(x.id),100);
+  out.god.performance={...(a.god?.performance||{}),...(b.god?.performance||{}),sessions:mergeRecords(a.god?.performance?.sessions,b.god?.performance?.sessions,x=>x.id||x.sessionId||JSON.stringify(x),200)};
+  out.god.imports=mergeRecords(a.god?.imports,b.god?.imports,x=>x.id||x.fileId||x.name||JSON.stringify(x),200);
+  out.god.library=mergeRecords(a.god?.library,b.god?.library,x=>x.id||x.fileId||x.name||JSON.stringify(x),300);
+  out.god.music={...(a.god?.music||{}),...(b.god?.music||{}),tracks:mergeRecords(a.god?.music?.tracks,b.god?.music?.tracks,x=>x.id||x.trackId||x.name||JSON.stringify(x),300)};
   const evidenceA=a.god?.skillEvidence||{},evidenceB=b.god?.skillEvidence||{},evidence={};
   for(const key of new Set([...Object.keys(evidenceA),...Object.keys(evidenceB)]))evidence[key]=union(evidenceA[key],evidenceB[key]);
   out.god.skillEvidence=evidence;
@@ -247,12 +253,12 @@ function normalizeState(s){const out=clone(defaultState);Object.assign(out,s);ou
  out.god.practice=Object.assign({tempo:72,section:0,loop:false,hand:'both',mode:'surgery',piece:'rp1',rounds:0,clean:0,errors:0,lastScore:0,lastMessage:''},out.god.practice||{});out.god.sight=Object.assign({score:0,attempts:0,history:[]},out.god.sight||{});out.god.sight.history=Array.isArray(out.god.sight.history)?out.god.sight.history.slice(-30):[];
  out.god.spaced=Object.assign({queue:[],lastReview:'',intervals:[1,2,4,7,14,30]},out.god.spaced||{});out.god.spaced.queue=Array.isArray(out.god.spaced.queue)?out.god.spaced.queue:[];
  out.god.imports=Array.isArray(out.god.imports)?out.god.imports.slice(-50):[];out.god.micro=Object.assign({seen:[],last:''},out.god.micro||{});out.god.micro.seen=Array.isArray(out.god.micro.seen)?out.god.micro.seen.slice(-50):[];out.god.performance=Object.assign({velocity:0,duration:0,timing:0,pedal:0,velocityConsistency:0,durationConsistency:0,timingConsistency:0,chordTightness:0,dynamicsRange:0,balance:50,score:0,sessions:[]},out.god.performance||{});out.god.performance.sessions=Array.isArray(out.god.performance.sessions)?out.god.performance.sessions.slice(-30):[];out.god.library=Array.isArray(out.god.library)?out.god.library.slice(-100):[];out.repertoireProgress=(s.repertoireProgress&&typeof s.repertoireProgress==='object')?s.repertoireProgress:{};out.repertoireMilestones=(s.repertoireMilestones&&typeof s.repertoireMilestones==='object')?s.repertoireMilestones:{};out.repertoireSessions=(s.repertoireSessions&&typeof s.repertoireSessions==='object')?s.repertoireSessions:{};out.theory=(s.theory&&typeof s.theory==='object')?s.theory:{completed:{},xp:0};out.theory.completed=(out.theory.completed&&typeof out.theory.completed==='object')?out.theory.completed:{};out.theory.xp=Math.max(0,Number(out.theory.xp)||0);return out}
-let storageWarningShown=false;
+let storageWarningShown=false,indexedDBWarningShown=false;
 function saveState(){
  let ok=false,snapshot='';
  try{snapshot=JSON.stringify(state);localStorage.setItem(KEY,snapshot);ok=localStorage.getItem(KEY)===snapshot;if(ok){try{localStorage.setItem('autonomia-piano-progress-backup',snapshot)}catch(e){}}}catch(e){ok=false}
  // Segundo almacenamiento independiente: permite recuperar el progreso si localStorage falla o queda desactualizado.
- try{writeProgressIndexedDB(snapshot)}catch(e){console.warn('[Autonomía Piano] Respaldo IndexedDB no disponible',e)}
+ try{window._progressBackupPromise=writeProgressIndexedDB(snapshot).then(saved=>{if(!saved&&!indexedDBWarningShown){indexedDBWarningShown=true;try{toast('⚠️ El avance quedó guardado en este navegador, pero falló el respaldo adicional. Exportá una copia desde Sistema y ajustes.')}catch(e){}}return saved})}catch(e){console.warn('[Autonomía Piano] Respaldo IndexedDB no disponible',e)}
  if(!ok&&!storageWarningShown){storageWarningShown=true;try{toast('⚠️ No se pudo verificar el guardado local. El progreso se intentará respaldar también.')}catch(e){}}
  renderSide();return ok
 }
