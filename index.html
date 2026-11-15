@@ -318,7 +318,7 @@ function completeCore(id){
  const l=LESSONS.find(x=>x.id===id); if(!l)return false;
  const first=!state.lessons[id];
  const isAdaptive=adaptiveRunActive&&adaptiveLessonId===id;
- if(first){state.lessons[id]=true;award(l.xp,l.skill,l.inc);adaptiveRunActive=false;adaptiveLessonId=null;if(!isAdaptive&&l.day>=state.day){state.day=Math.min(90,Math.max(state.day,l.day+1));}else state.diagnostics=state.diagnostics||{last:'',counts:{},history:[],adaptiveRuns:0,adaptiveLast:''};state.diagnostics.history=state.diagnostics.history||[];state.diagnostics.history.push({date:new Date().toLocaleDateString('es-AR'),label:l.title||id,ok:true,day:state.day,adaptive:!!isAdaptive});if(state.diagnostics.history.length>30)state.diagnostics.history.shift();saveState();}
+ if(first){state.lessons[id]=true;award(l.xp,null,0);if(l.inc>0&&l.skill)awardUniqueSkillEvidence('courseLesson',id,{[l.skill]:l.inc});adaptiveRunActive=false;adaptiveLessonId=null;if(!isAdaptive&&l.day>=state.day){state.day=Math.min(90,Math.max(state.day,l.day+1));}else state.diagnostics=state.diagnostics||{last:'',counts:{},history:[],adaptiveRuns:0,adaptiveLast:''};state.diagnostics.history=state.diagnostics.history||[];state.diagnostics.history.push({date:new Date().toLocaleDateString('es-AR'),label:l.title||id,ok:true,day:state.day,adaptive:!!isAdaptive});if(state.diagnostics.history.length>30)state.diagnostics.history.shift();saveState();}
  else {
    // Reparación defensiva: una lección ya completada nunca puede dejar el curso clavado en ese día.
    if(!isAdaptive&&l.day>=state.day){state.day=Math.min(90,l.day+1);saveState();}
