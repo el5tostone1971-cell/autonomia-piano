@@ -47,6 +47,10 @@ jobs:
           test "$ok" -eq 1
           grep -q '"ok":true' /tmp/render-health.json
           curl -fsS --max-time 30 https://autonomia-piano.onrender.com/ -o /tmp/render-index.html
+          curl -fsS --max-time 20 https://autonomia-piano.onrender.com/manifest.webmanifest -o /tmp/render-manifest.json
+          curl -fsS --max-time 20 https://autonomia-piano.onrender.com/sw.js -o /tmp/render-sw.js
+          grep -q '"display": "standalone"' /tmp/render-manifest.json
+          grep -q 'autonomia-piano-shell-v2' /tmp/render-sw.js
           grep -q 'function insertCourseTeachingGuide' /tmp/render-index.html
           grep -q '.top-actions{width:100%;flex-wrap:wrap;gap:6px}' /tmp/render-index.html
           grep -q 'pc===0?octave' /tmp/render-index.html
