@@ -358,6 +358,8 @@ function navActive(v){document.querySelectorAll('#nav button').forEach(b=>b.clas
 let pianoLanguage='es';
 try{pianoLanguage=localStorage.getItem('autonomia-piano-language')==='pt'?'pt':'es'}catch(e){}
 const pianoPT=[
+[" Ahora formá la progresión en el teclado."," Agora forme a progressão no teclado."],
+["Volvé a leer y elegí otra vez.","Leia novamente e escolha outra vez."],
 ["Una tríada se construye apilando terceras: fundamental, tercera y quinta.","Uma tríade é construída empilhando terças: fundamental, terça e quinta."],
 ["Tocá Mi y luego Fa: escuchá el semitono natural.","Toque Mi e depois Fá: ouça o semitom natural."],
 ["Tocá Do y Re: entre ambas notas hay un tono.","Toque Dó e Ré: entre essas notas há um tom."],
@@ -2528,8 +2530,8 @@ const CHORD_THEORY=[
 ];
 function answerChordTheory(choice){
  const l=LESSONS.find(x=>x.id===currentLessonId),t=l&&CHORD_THEORY[l.chordTheoryIndex],el=document.getElementById('chordTheoryFeedback');if(!t||!el)return;
- if(choice===t.a){window._chordTheoryPassed=true;el.textContent='✓ '+t.why+' Ahora formá la progresión en el teclado.'}
- else{window._chordTheoryPassed=false;el.textContent='Todavía no. '+t.why+' Volvé a leer y elegí otra vez.'}
+ if(choice===t.a){window._chordTheoryPassed=true;el.textContent=pianoTranslateText('✓ '+t.why+' Ahora formá la progresión en el teclado.')}
+ else{window._chordTheoryPassed=false;el.textContent=pianoTranslateText('Todavía no. '+t.why+' Volvé a leer y elegí otra vez.')}
 }
 
 function chordGenericLesson(l){resetExercise();window._chordTheoryPassed=false;window._expectedChords=l.targetChords.slice();const t=CHORD_THEORY[l.chordTheoryIndex];const opts=t.opts.map((v,i)=>'<button class="btn small" type="button" onclick="answerChordTheory('+i+')">'+String.fromCharCode(65+i)+'. '+v+'</button>').join('');showHTML(shell('🎼 '+l.title,l.desc,`<div class="note-box"><h3>${t.topic}</h3><p>${t.explain}</p><p><b>Ejemplo:</b> ${t.example}</p><h3>${t.q}</h3><div class="row-controls">${opts}</div><p id="chordTheoryFeedback" class="muted" aria-live="polite">Respondé la pregunta para habilitar la evaluación práctica.</p></div><div class="note-box"><b>Progresión práctica</b><div class="target">${l.targetChords.join(' → ')}</div><p class="muted">Tocá las tres notas de cada acorde, juntas y dentro de una ventana breve. Podés usar distintas octavas. Después comprobá el orden.</p></div>${keyboard()}<div class="note-box"><div id="genericChordCount">0 / ${l.targetChords.length} acordes detectados</div><div id="genericChordInput" class="muted">Aún no hay acordes.</div><button class="btn primary" onclick="checkGenericChords('${l.id}')">Comprobar progresión</button></div>`))}
