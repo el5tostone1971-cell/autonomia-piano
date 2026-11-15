@@ -608,7 +608,7 @@ const assert = require('node:assert/strict');
       earAdvancedState.question={...earAdvancedBank.find(q=>q.id==='ea1'),_answered:false};
       earAdvancedState.answer=[];earAdvancedState.started=false;
       const html=earAdvanced();showHTML(html);
-      Math.random=()=>0.99;tone=()=>{};
+      Math.random=()=>0.5;tone=()=>{};
       earAdvancedPlay();earAdvancedAnswer('Sobe');
       const result={labels:document.body.innerText,correct:state.earAdvanced.correct,total:state.earAdvanced.total};
       Math.random=oldRandom;tone=oldTone;pianoLanguage=oldLanguage;state=original;
