@@ -49,7 +49,13 @@ jobs:
           curl -fsS --max-time 30 https://autonomia-piano.onrender.com/ -o /tmp/render-index.html
           curl -fsS --max-time 20 https://autonomia-piano.onrender.com/manifest.webmanifest -o /tmp/render-manifest.json
           curl -fsS --max-time 20 https://autonomia-piano.onrender.com/sw.js -o /tmp/render-sw.js
+          curl -fsS --max-time 20 https://autonomia-piano.onrender.com/icons/icon-192.png -o /tmp/render-icon-192.png
+          curl -fsS --max-time 20 https://autonomia-piano.onrender.com/icons/icon-512.png -o /tmp/render-icon-512.png
+          test -s /tmp/render-icon-192.png
+          test -s /tmp/render-icon-512.png
           grep -q '"display": "standalone"' /tmp/render-manifest.json
+          grep -q '"sizes": "192x192"' /tmp/render-manifest.json
+          grep -q '"sizes": "512x512"' /tmp/render-manifest.json
           grep -q 'autonomia-piano-shell-v2' /tmp/render-sw.js
           grep -q 'function insertCourseTeachingGuide' /tmp/render-index.html
           grep -q '.top-actions{width:100%;flex-wrap:wrap;gap:6px}' /tmp/render-index.html
