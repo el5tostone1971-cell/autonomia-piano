@@ -2117,7 +2117,7 @@ function earAdvancedAnswer(ans){
  const q=earAdvancedState.question;if(!q||!earAdvancedState.started)return toast('Primero escuchá el ejercicio.');
  const expectedEs=q.type==='direction'?(q.playNotes[1]===q.playNotes[0]?'Igual':q.playNotes[1]>q.playNotes[0]?'Sube':'Baja'):q.type==='interval'?(Math.abs(q.playNotes[1]-q.playNotes[0])<5?'Más cerca':'Más lejos'):q.type==='quality'?(q.playNotes[1]-q.playNotes[0]===3?'Menor':'Mayor'):q.type==='chord'||q.type==='progression'?q.expectedAnswer:'';
  const expected=pianoLanguage==='pt'?({'Sube':'Sobe','Baja':'Desce','Más cerca':'Mais perto','Más lejos':'Mais longe','Mayor':'Maior','Menor':'Menor','Tónica':'Tônica','Relativa menor':'Relativa menor'}[expectedEs]||expectedEs):expectedEs;
- const ok=ans===expected||ans.replaceAll('-','–')===expected;
+ const normalizeAnswer=value=>String(value).replace(/[–—−]/g,'-').replace(/\s+/g,'').toLowerCase();const ok=normalizeAnswer(ans)===normalizeAnswer(expected);
  if(!recordEarAdvancedResult(q,ok))return toast(courseLocal('Este sonido ya fue evaluado. Generá una nueva pregunta para medir otro estímulo.','Este som já foi avaliado. Gere uma nova pergunta para medir outro estímulo.'));
  const r=document.getElementById('earAdvResult');
  if(ok){toast(courseLocal('¡Muy bien!','Muito bem!'));if(r)r.innerHTML='<strong>'+courseLocal('Correcto.','Correto.')+'</strong> '+courseLocal('Reconociste la relación musical.','Você reconheceu a relação musical.');}
