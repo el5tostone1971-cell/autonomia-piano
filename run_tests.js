@@ -67,6 +67,14 @@
   pass('Português · 90 lições','títulos y descripciones sin imperativos rioplatenses');
  }catch(e){fail('Português · 90 lições',e)}
 
+ // Render every course card in Portuguese and verify labels, translated title/description and action text.
+ try{
+  const oldLanguage=pianoLanguage,labels={orientation:'Orientação',right:'Mão direita',left:'Mão esquerda',rhythm:'Ritmo',memory:'Memória',ear:'Ouvido',chords:'Acordes',autonomy:'Autonomia'},issues=[];
+  try{pianoLanguage='pt';for(const lesson of LESSONS){showHTML(lessonCard(lesson));const text=document.querySelector('#main').innerText||'',expectedTitle=pianoTranslateText(lesson.title),expectedDesc=pianoTranslateText(lesson.desc),skill=labels[lesson.skill]||lesson.skill;if(!text.includes('Dia '+lesson.day))issues.push({id:lesson.id,issue:'day label'});if(!text.includes('· '+skill))issues.push({id:lesson.id,issue:'skill label',skill});if(!text.includes(expectedTitle)||!text.includes(expectedDesc))issues.push({id:lesson.id,issue:'title/description not rendered in Portuguese'});if(!text.includes('Treinar')&&!text.includes('Revisar'))issues.push({id:lesson.id,issue:'action label'})}}finally{pianoLanguage=oldLanguage}
+  assert(issues.length===0,'Há cartões de lição incompletos em português: '+JSON.stringify(issues.slice(0,10)));
+  pass('Cartões das 90 lições em português','dia, competência, título, descrição e ação localizados');
+ }catch(e){fail('Cartões das 90 lições em português',e)}
+
  // Public spaced repetition regression test.
  try{
   state=clone(defaultState); state.day=3; state.lessons={l1:true,l2:true,l3:true}; state.god.spaced.queue=[]; saveState();
