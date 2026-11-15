@@ -358,6 +358,29 @@ function navActive(v){document.querySelectorAll('#nav button').forEach(b=>b.clas
 let pianoLanguage='es';
 try{pianoLanguage=localStorage.getItem('autonomia-piano-language')==='pt'?'pt':'es'}catch(e){}
 const pianoPT=[
+["Tocá Mi y luego Fa: escuchá el semitono natural.","Toque Mi e depois Fá: ouça o semitom natural."],
+["Tocá Do y Re: entre ambas notas hay un tono.","Toque Dó e Ré: entre essas notas há um tom."],
+["Tocá Do y Mi: comprobá la tercera mayor.","Toque Dó e Mi: confira a terça maior."],
+["Tocá la escala de Do mayor ascendente y volvé a Do.","Toque a escala de Dó maior em movimento ascendente e volte a Dó."],
+["Tocá Sol mayor: recordá que Fa se convierte en Fa sostenido.","Toque Sol maior: lembre-se de que Fá se transforma em Fá sustenido."],
+["Tocá La menor natural ascendente.","Toque Lá menor natural em movimento ascendente."],
+["Tocá Do, Do sostenido y Re: subí un semitono cada vez.","Toque Dó, Dó sustenido e Ré: suba um semitom a cada vez."],
+["Tocá Fa sostenido y luego Fa natural: el becuadro cancela la alteración.","Toque Fá sustenido e depois Fá natural: o bequadro cancela a alteração."],
+["Tocá Do sostenido y Re bemol: son la misma altura en el piano.","Toque Dó sustenido e Ré bemol: têm a mesma altura no piano."],
+["Tocá Do y Re: escuchá el intervalo de segunda.","Toque Dó e Ré: ouça o intervalo de segunda."],
+["Tocá Do y Mi bemol: formá una tercera menor.","Toque Dó e Mi bemol: forme uma terça menor."],
+["Tocá Do y Sol: formá una quinta justa.","Toque Dó e Sol: forme uma quinta justa."],
+["Tocá Do, Mi y Sol: identificá la tónica y la dominante.","Toque Dó, Mi e Sol: identifique a tônica e a dominante."],
+["Tocá Sol y después Do: resolvé de dominante a tónica.","Toque Sol e depois Dó: resolva da dominante para a tônica."],
+["Tocá Re mayor ascendente: Fa y Do deben ser sostenidos.","Toque Ré maior em movimento ascendente: Fá e Dó devem ser sustenidos."],
+[" Concepto comprendido. Ahora aplicalo tocando la secuencia indicada."," Conceito compreendido. Agora demonstre tocando a sequência indicada."],
+["El bemol baja la nota un semitono.","O bemol abaixa a nota em um semitom."],
+["Intento borrado. Volvé a tocar la secuencia.","Tentativa apagada. Toque a sequência novamente."],
+["Faltan notas: ","Faltam notas: "],
+["La nota ","A nota "],
+[" no coincide. Se esperaba "," não corresponde. Esperava-se "],
+[". Corregí la secuencia y volvé a comprobar.",". Corrija a sequência e confira novamente."],
+["✓ Concepto comprendido y aplicado en el teclado. Lección completada.","✓ Conceito compreendido e aplicado no teclado. Lição concluída."],
 ["Lectura por grados","Leitura por graus"],
 ["Ritmo y lectura","Ritmo e leitura"],
 ["Reconocimiento de patrones","Reconhecimento de padrões"],
@@ -2478,12 +2501,12 @@ function theoryCourseLesson(l){
 function answerTheoryCourse(choice){
  if(window._theoryCourseAnswered)return;
  const l=LESSONS.find(x=>x.id===currentLessonId),t=l&&THEORY_COURSE[l.theoryIndex],el=document.getElementById('theoryCourseFeedback');if(!t||!el)return;
- if(choice===t.a){window._theoryCourseAnswered=true;theoryCoursePracticeActive=true;const panel=document.getElementById('theoryCoursePractice');if(panel)panel.style.display='block';el.textContent='✓ '+t.why+' Concepto comprendido. Ahora aplicalo tocando la secuencia indicada.';}
- else{el.textContent='Todavía no. '+t.why+' Volvé a leer la explicación y reintentá.';const retry=document.getElementById('theoryCourseRetry');if(retry)retry.style.display='inline-block';}
+ if(choice===t.a){window._theoryCourseAnswered=true;theoryCoursePracticeActive=true;const panel=document.getElementById('theoryCoursePractice');if(panel)panel.style.display='block';el.textContent=pianoTranslateText('✓ '+t.why+' Concepto comprendido. Ahora aplicalo tocando la secuencia indicada.');}
+ else{el.textContent=pianoTranslateText('Todavía no. '+t.why+' Volvé a leer la explicación y reintentá.');const retry=document.getElementById('theoryCourseRetry');if(retry)retry.style.display='inline-block';}
 }
 function registerTheoryCoursePracticeNote(note){if(!theoryCoursePracticeActive||theoryCoursePracticePlayed.length>=theoryCoursePracticeExpected.length)return;theoryCoursePracticePlayed.push(note);const el=document.getElementById('theoryCoursePracticeInput');if(el)el.textContent=theoryCoursePracticePlayed.map(n=>localizedPianoNoteName(n)+(Math.floor(n/12)-1)).join(' · ');}
-function clearTheoryCoursePractice(){theoryCoursePracticePlayed=[];const el=document.getElementById('theoryCoursePracticeInput');if(el)el.textContent='—';const msg=document.getElementById('theoryCoursePracticeFeedback');if(msg)msg.textContent='Intento borrado. Volvé a tocar la secuencia.';}
-function checkTheoryCoursePractice(){if(!theoryCoursePracticeActive)return;const msg=document.getElementById('theoryCoursePracticeFeedback');if(theoryCoursePracticePlayed.length!==theoryCoursePracticeExpected.length){if(msg)msg.textContent='Faltan notas: '+theoryCoursePracticePlayed.length+' / '+theoryCoursePracticeExpected.length+'.';return}const wrong=theoryCoursePracticePlayed.findIndex((n,i)=>n!==theoryCoursePracticeExpected[i]);if(wrong>=0){const expected=theoryCoursePracticeExpected[wrong];if(msg)msg.textContent='La nota '+(wrong+1)+' no coincide. Se esperaba '+localizedPianoNoteName(expected)+(Math.floor(expected/12)-1)+'. Corregí la secuencia y volvé a comprobar.';return}theoryCoursePracticeActive=false;complete(currentLessonId);if(msg)msg.textContent='✓ Concepto comprendido y aplicado en el teclado. Lección completada.';}
+function clearTheoryCoursePractice(){theoryCoursePracticePlayed=[];const el=document.getElementById('theoryCoursePracticeInput');if(el)el.textContent='—';const msg=document.getElementById('theoryCoursePracticeFeedback');if(msg)msg.textContent=pianoTranslateText('Intento borrado. Volvé a tocar la secuencia.');}
+function checkTheoryCoursePractice(){if(!theoryCoursePracticeActive)return;const msg=document.getElementById('theoryCoursePracticeFeedback');if(theoryCoursePracticePlayed.length!==theoryCoursePracticeExpected.length){if(msg)msg.textContent=pianoTranslateText('Faltan notas: '+theoryCoursePracticePlayed.length+' / '+theoryCoursePracticeExpected.length+'.');return}const wrong=theoryCoursePracticePlayed.findIndex((n,i)=>n!==theoryCoursePracticeExpected[i]);if(wrong>=0){const expected=theoryCoursePracticeExpected[wrong];if(msg)msg.textContent=pianoTranslateText('La nota '+(wrong+1)+' no coincide. Se esperaba '+localizedPianoNoteName(expected)+(Math.floor(expected/12)-1)+'. Corregí la secuencia y volvé a comprobar.');return}theoryCoursePracticeActive=false;complete(currentLessonId);if(msg)msg.textContent=pianoTranslateText('✓ Concepto comprendido y aplicado en el teclado. Lección completada.');}
 
 const CHORD_THEORY=[
 {topic:'Qué es una tríada',explain:'Una tríada es un acorde de tres notas distintas organizadas por terceras: fundamental, tercera y quinta. Se puede tocar en distintas octavas y seguir siendo el mismo acorde.',example:'Do–Mi–Sol: fundamental Do, tercera Mi y quinta Sol.',q:'¿Qué notas forman la estructura básica de una tríada?',opts:['Fundamental, tercera y quinta','Fundamental, cuarta y sexta','Tres notas consecutivas'],a:0,why:'Una tríada se construye apilando terceras: fundamental, tercera y quinta.'},
