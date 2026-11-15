@@ -838,7 +838,7 @@ const assert = require('node:assert/strict');
       techniqueExercise={hand:'Derecha',tempo:80,title:'Prueba de digitación',focus:'Prueba',notes:[60,62],fingers:[1,2]};
       techniqueStep=0;techniqueStarted=false;pianoLanguage='es';
       const spanish=techniqueView();
-      pianoLanguage='pt';const portuguese=techniqueView();showHTML(portuguese);startTechnique();const startPrompt=document.getElementById('techniqueMsg')?.textContent||'';
+      pianoLanguage='pt';const portugueseHtml=techniqueView();showHTML(portugueseHtml);const portuguese=document.getElementById('main')?.innerText||'';startTechnique();const startPrompt=document.getElementById('techniqueMsg')?.textContent||'';
       pianoLanguage=oldLanguage;techniqueExercise=oldExercise;techniqueStep=oldStep;techniqueStarted=oldStarted;techniqueTimes=oldTimes;techniqueAwarded=oldAwarded;
       return {spanish,portuguese,startPrompt};
     });
