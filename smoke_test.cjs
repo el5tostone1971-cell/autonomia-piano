@@ -145,6 +145,24 @@ const assert = require('node:assert/strict');
     assert.match(practiceResult.summary, /esperaba/i, 'El resumen final no identifica la nota esperada en el error');
     assert.equal(practiceResult.backing, null, 'El acompañamiento no se detuvo al completar la canción');
 
+    // La banda también debe detenerse al completar exactamente dos pasadas, aunque el alumno no termine todas las notas.
+    const bandAutoStopAudit = await page.evaluate(() => {
+      const piece=repertoireLibrary.find(item=>item.id==='rp10');
+      piece.notes=[60,62,64,65,67,69,71,72];piece.dur=Array(8).fill(1);
+      selectLibraryPiece('rp10');setRepertoireTempo(100);
+      repertoirePlayedHistory=[{name:'Re',oct:4,correct:false}];
+      const history=document.getElementById('repertoirePlayedNotes');if(history)history.textContent='Re4 ✗';
+      const oldSetTimeout=window.setTimeout;let finish=null,delay=null,fakeId=null;
+      window.setTimeout=(fn,ms,...args)=>{if(ms===9600){delay=ms;fakeId=oldSetTimeout(()=>{},60000);clearTimeout(fakeId);finish=()=>fn(...args);return fakeId}return oldSetTimeout(fn,ms,...args)};
+      try{startBandPractice()}finally{window.setTimeout=oldSetTimeout}
+      const started=bandPracticeActive&&!!backingTrackTimer&&bandPracticeTimer===fakeId;
+      const historyReset=!(document.getElementById('repertoirePlayedNotes')?.textContent||'').includes('Re4');
+      if(finish)finish();
+      return {delay,started,historyReset,stopped:!bandPracticeActive&&!repertoireStarted&&backingTrackTimer===null&&bandPracticeTimer===null,status:document.getElementById('backingTrackStatus')?.textContent||''};
+    });
+    assert.deepEqual({delay:bandAutoStopAudit.delay,started:bandAutoStopAudit.started,historyReset:bandAutoStopAudit.historyReset,stopped:bandAutoStopAudit.stopped},{delay:9600,started:true,historyReset:true,stopped:true},'La práctica con banda no completó dos pasadas, mezcló historial o dejó audio activo');
+    assert.match(bandAutoStopAudit.status,/audio detenido/i,'El cierre de dos pasadas no informó que se detuvo el audio');
+
     await page.evaluate(() => {
       show('keyboard');
       if (!document.querySelector('.keys .key')) throw new Error('El mapa del teclado no renderizó teclas');
