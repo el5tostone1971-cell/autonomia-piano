@@ -1214,7 +1214,7 @@ const pianoPT=[
 ];
 function pianoApplyDictionary(value){
  const entries=pianoPT.filter(pair=>Array.isArray(pair)&&pair.length>=2&&String(pair[0]).length>0);
- const dictionary=new Map(entries.map(pair=>[String(pair[0]),String(pair[1])]));
+ const dictionary=new Map();for(const pair of entries){const key=String(pair[0]);if(!dictionary.has(key))dictionary.set(key,String(pair[1]));}
  const keys=[...dictionary.keys()].sort((a,b)=>b.length-a.length);
  if(!keys.length)return String(value);
  const special=[".", "*", "+", "?", "^", "$", "{", "}", "(", ")", "|", "[", "]", "\\"];
