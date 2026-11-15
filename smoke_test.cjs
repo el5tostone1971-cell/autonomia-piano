@@ -713,8 +713,8 @@ const assert = require('node:assert/strict');
       const result = {
         chordAnswers:chordAnswers.map(x=>x.answer),
         progressionAnswers:progressionAnswers.map(x=>x.answer),
-        chordsHaveThreeNotes:chordAnswers.every(x=>x.chords.length===1&&x.chords[0].length===3),
-        progressionsHaveFourChords:progressionAnswers.every(x=>x.chords.length===4&&x.chords.every(c=>c.length===3)),
+        chordsHaveThreeNotes:chordAnswers.every(x=>x.chords.length===2&&x.chords.every(c=>c.length===3)),
+        progressionsHaveFourChords:progressionAnswers.every(x=>x.chords.length===5&&x.chords.slice(1).length===4&&x.chords.every(c=>c.length===3)),
         first,duplicate,newStimulus,
         scored:state.earAdvanced.total
       };
@@ -725,7 +725,7 @@ const assert = require('node:assert/strict');
     assert.deepEqual(earVariationAudit.chordAnswers, ['Tónica','Dominante','Relativa menor'], 'El oído avanzado no genera las tres calidades de acorde');
     assert.deepEqual(earVariationAudit.progressionAnswers, ['I-V-vi-IV','I-vi-IV-V','vi-IV-I-V'], 'El oído avanzado no genera las tres progresiones');
     assert.equal(earVariationAudit.chordsHaveThreeNotes, true, 'Un acorde auditivo no contiene tres notas');
-    assert.equal(earVariationAudit.progressionsHaveFourChords, true, 'Una progresión auditiva no contiene cuatro acordes');
+    assert.equal(earVariationAudit.progressionsHaveFourChords, true, 'La progresión no contiene cuatro acordes precedidos por la tónica de referencia');
     assert.deepEqual({first:earVariationAudit.first,duplicate:earVariationAudit.duplicate,newStimulus:earVariationAudit.newStimulus,scored:earVariationAudit.scored}, {first:true,duplicate:false,newStimulus:true,scored:2}, 'Se pudo puntuar dos veces el mismo estímulo auditivo');
 
     // Memoria y autonomía deben generar frases nuevas, y las pistas parciales deben corresponder a la frase real.
