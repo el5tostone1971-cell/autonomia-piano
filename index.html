@@ -357,7 +357,20 @@ function shell(title,sub,body){return `<div class="card"><div class="pill">Méto
 function navActive(v){document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v))}
 let pianoLanguage='es';
 try{pianoLanguage=localStorage.getItem('autonomia-piano-language')==='pt'?'pt':'es'}catch(e){}
-const pianoPT=[["Esta prueba comprueba memoria inmediata: observá una frase de siete notas durante tres segundos y reproducila cuando desaparezca. No es todavía una prueba de autonomía musical.","Este teste verifica a memória imediata: observe uma frase de sete notas durante três segundos e reproduza quando ela desaparecer. Ainda não é um teste de autonomia musical."],
+const pianoPT=[
+["Escuchá el motivo, cantalo y reproducilo sin acelerar.","Ouça o motivo, cante-o e reproduza-o sem acelerar."],
+["Reconocé el salto y mantené la mano relajada.","Reconheça o salto e mantenha a mão relaxada."],
+["Tocá el contorno ascendente y regresá con continuidad.","Toque o contorno ascendente e retorne com continuidade."],
+["Memorizá el bloque, ocultá la ayuda y tocá la frase completa.","Memorize o bloco, oculte a ajuda e toque a frase completa."],
+["Trasladá el patrón a otra nota natural sin cambiar su forma.","Transponha o padrão para outra nota natural sem mudar sua forma."],
+["Uní las notas sin detenerte entre grupos.","Una as notas sem parar entre os grupos."],
+["Mantené los dedos cerca de las teclas y evitá tensar la muñeca.","Mantenha os dedos próximos às teclas e evite tensionar o pulso."],
+["Identificá dónde vuelve la melodía y cerrá con precisión.","Identifique onde a melodia retorna e conclua com precisão."],
+["Leé los nombres de las notas sin barras descendentes.","Leia os nomes das notas sem barras descendentes."],
+["Detectá el error, borrá el intento y corregí desde el comienzo.","Detecte o erro, apague a tentativa e corrija desde o início."],
+["Bloque de memoria","Bloco de memória"],
+["Lectura de patrón","Leitura de padrão"]
+["Esta prueba comprueba memoria inmediata: observá una frase de siete notas durante tres segundos y reproducila cuando desaparezca. No es todavía una prueba de autonomía musical.","Este teste verifica a memória imediata: observe uma frase de sete notas durante três segundos e reproduza quando ela desaparecer. Ainda não é um teste de autonomia musical."],
 ["Memoria sin pistas","Memória sem dicas"],["Desafío de autonomía","Desafio de autonomia"],["Comprobar autonomía","Verificar autonomia"],["Memorizá esta frase nueva durante tres segundos. La ayuda se ocultará automáticamente; después tendrás que reproducirla sin ver la respuesta.","Memorize esta nova frase durante três segundos. A ajuda será ocultada automaticamente; depois reproduza-a sem ver a resposta."],["Tocá una frase de siete notas. Primero comprobá el orden; después trabajá la regularidad de los siete ataques.","Toque uma frase de sete notas. Primeiro confira a ordem; depois trabalhe a regularidade dos sete ataques."],["🧠 Memoria en bloques cortos","🧠 Memória em blocos curtos"],["Memoria en bloques cortos","Memória em blocos curtos"],["La frase tiene siete notas. Observá las tres pistas, agrupá mentalmente el recorrido y reconstruí los cuatro espacios ocultos. Primero reconocé el comienzo, después el punto de llegada y por último uní los bloques sin mirar la solución.","A frase tem sete notas. Observe as três pistas, agrupe mentalmente o percurso e reconstrua os quatro espaços ocultos. Primeiro reconheça o começo, depois o ponto de chegada e, por fim, una os blocos sem olhar a solução."],["Completá las siete posiciones sin consultar la respuesta.","Complete as sete posições sem consultar a resposta."],["Primer cambio de acorde","Primeira troca de acorde"],
 ["Do mayor → Sol mayor: prepará dos formas y reconocé la nota común antes de avanzar a más acordes.","Dó maior → Sol maior: prepare duas posições e reconheça a nota em comum antes de avançar para mais acordes."],
 ["Primer cambio: Do mayor → Sol mayor","Primeira troca: Dó maior → Sol maior"],
