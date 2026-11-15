@@ -493,8 +493,8 @@ const assert = require('node:assert/strict');
     });
     assert.equal(twoHandsMotorAudit.guideForBeginner, true, 'El principiante no ve la referencia de coordinación');
     assert.equal(twoHandsMotorAudit.guideForAdvanced, true, 'El motor no retira la guía al alumno competente');
-    assert.deepEqual(twoHandsMotorAudit.scored, { left: 11, right: 11, chords: 11, memory: 7, autonomy: 8 }, 'La coordinación no acreditó ambas manos y acordes de forma independiente');
-    assert.deepEqual(twoHandsMotorAudit.repeated, { left: 11, right: 11, chords: 11 }, 'Repetir la misma lección infló las competencias de dos manos');
+    assert.deepEqual(twoHandsMotorAudit.scored, { left: 11, right: 11, chords: 10, memory: 7, autonomy: 8 }, 'La coordinación acreditó notas de ambas manos sin atribuir acordes simultáneos no medidos');
+    assert.deepEqual(twoHandsMotorAudit.repeated, { left: 11, right: 11, chords: 10 }, 'Repetir la misma lección infló las competencias de dos manos');
 
     // La memoria se acredita por rondas evaluadas, con umbral de precisión y bloqueo de doble contabilización.
     const memorySkillAudit = await page.evaluate(() => {
@@ -824,7 +824,7 @@ const assert = require('node:assert/strict');
       state=original;complete=oldComplete;courseTwoHandsLessonData=oldData;courseTwoHandsEvents=oldEvents;courseTwoHandsStep=oldStep;courseTwoHandsStarted=oldStarted;saveState();
       return {first,duplicate,different};
     });
-    assert.deepEqual(twoHandsEvidenceAudit,{first:{left:1,right:1,chords:1},duplicate:{left:1,right:1,chords:1},different:{left:2,right:2,chords:2}},'La misma frase de dos manos volvió a acreditar competencias en otra lección');
+    assert.deepEqual(twoHandsEvidenceAudit,{first:{left:1,right:1,chords:0},duplicate:{left:1,right:1,chords:0},different:{left:2,right:2,chords:0}},'La demostración secuencial de dos manos acreditó indebidamente acordes simultáneos');
 
     // La guía de digitación no debe afirmar que detecta el dedo físico: solo puede verificar notas y pulso.
     const techniqueHonestyAudit = await page.evaluate(() => {
