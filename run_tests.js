@@ -63,7 +63,7 @@
  try{
   const oldLanguage=pianoLanguage,spanishImperatives=/\b(?:Encontrá|Tocá|Escuchá|Usá|Leé|Explicá|Estudiá|Observá|Resolvé|Prepará|Uní|Mantené|Anticipá|Detectá|Corregí|Combiná|Memorizá|Ocultá|Regresá|Trasladá|Cantalo|Reproducilo|Evitá|Cerrá|Borrá|Volvé|Repetí|Practicá|Construí|Formá|Contá|Ubicá|Nombrá|Marcá|Compará|Dejá|Apoyá|Soltá|Seguí|Aprendé|Comprendé|Elegí|Trabajá|Reconocé|Identificá|Subí|Bajá)\b/i,leftovers=[];
   try{pianoLanguage='pt';for(const lesson of LESSONS){for(const [field,raw] of [['title',lesson.title],['desc',lesson.desc]]){const translated=pianoTranslateText(raw),match=translated.match(spanishImperatives);if(match)leftovers.push({id:lesson.id,field,word:match[0],text:translated})}}}finally{pianoLanguage=oldLanguage}
-  assert.equal(leftovers.length,0,'Hay textos de lecciones en portugués que conservan imperativos españoles: '+JSON.stringify(leftovers.slice(0,8)));
+  assert(leftovers.length===0,'Hay textos de lecciones en portugués que conservan imperativos españoles: '+JSON.stringify(leftovers.slice(0,8)));
   pass('Português · 90 lições','títulos y descripciones sin imperativos rioplatenses');
  }catch(e){fail('Português · 90 lições',e)}
 
