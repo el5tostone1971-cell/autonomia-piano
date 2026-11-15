@@ -973,6 +973,20 @@ const assert = require('node:assert/strict');
     assert.match(await page.locator('.card').last().innerText(), /2 \/ 2|Canción completada/, 'La canción MIDI no se completó tras la segunda nota');
     await page.evaluate(() => stopImportedSongPlayback());
 
+    // Motor 06: la reproducción corrida debe iluminar notas y contar desde la primera, sin quedar sonando al terminar.
+    await page.evaluate(() => { restartImportedSongPractice(); setImportedSongTempo(0.5); playImportedSongPractice(); });
+    await page.waitForFunction(() => document.getElementById('songProgressText')?.textContent === '1 / 2', null, { timeout: 5000 });
+    const firstPlaybackNote = await page.evaluate(() => ({
+      highlighted: !!document.querySelector('.imported-song-keys .key[data-midi="60"].target-note'),
+      playing: importedSongPractice.playing,
+      progress: document.getElementById('songProgressText')?.textContent
+    }));
+    assert.deepEqual(firstPlaybackNote,{highlighted:true,playing:true,progress:'1 / 2'},'La reproducción corrida no iluminó/contó la primera nota correctamente');
+    await page.waitForFunction(() => document.getElementById('songProgressText')?.textContent === '2 / 2', null, { timeout: 5000 });
+    await page.waitForFunction(() => !importedSongPractice.playing, null, { timeout: 5000 });
+    assert.equal(await page.locator('#songProgressText').innerText(),'2 / 2','La reproducción corrida no llegó al final del MIDI');
+    assert.equal(await page.evaluate(() => importedSongPractice.playing),false,'La reproducción MIDI siguió activa después de terminar');
+
     assert.deepEqual(pageErrors, [], 'La aplicación produjo errores JavaScript: ' + pageErrors.join(' | '));
 
     console.log('PASS: carga inicial');
