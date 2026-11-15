@@ -2021,8 +2021,8 @@ const earAdvancedBank=[
  {id:'ea3',level:2,title:'Eco de 3 notas',type:'memory',desc:'Escuchá una frase y repetila en el teclado.',xp:30},
  {id:'ea4',level:2,title:'Encontrá la tónica',type:'tonic',desc:'Escuchá una frase y buscá su nota de reposo.',xp:30},
  {id:'ea5',level:3,title:'Mayor o menor',type:'quality',desc:'Diferenciá el carácter mayor y menor.',xp:35},
- {id:'ea6',level:3,title:'Reconocé el acorde',type:'chord',desc:'Escuchá un acorde y elegí su función.',xp:35},
- {id:'ea7',level:4,title:'Progresión I–V–vi–IV',type:'progression',desc:'Reconocé una progresión pop de cuatro acordes.',xp:45},
+ {id:'ea6',level:3,title:'Reconocé el acorde',type:'chord',desc:'Escuchá primero la tónica de referencia y después el acorde objetivo. Identificá su función.',xp:35},
+ {id:'ea7',level:4,title:'Progresión I–V–vi–IV',type:'progression',desc:'Escuchá la tónica de referencia y después reconocé la progresión pop de cuatro acordes.',xp:45},
  {id:'ea8',level:4,title:'Sacá la melodía',type:'transcribe',desc:'Escuchá una frase y encontrá sus notas.',xp:50}
 ];
 let earAdvancedState={piece:0,question:null,answer:[],score:0,rounds:0,started:false};
@@ -2087,12 +2087,12 @@ function earAdvancedPlay(){
  earAdvancedState.started=true;
  const root=48+Math.floor(Math.random()*13);
  let notes=[],chords=[];
- if(q.type==='direction')notes=Math.random()>.5?[root,root+Math.ceil(Math.random()*5)]:[root+Math.ceil(Math.random()*5),root];
+ if(q.type==='direction'){const movement=Math.floor(Math.random()*3),distance=1+Math.floor(Math.random()*5);notes=movement===0?[root,root]:movement===1?[root,root+distance]:[root+distance,root];}
  else if(q.type==='interval'){const d=Math.random()>.5?2:7;notes=[root,root+d]}
  else if(q.type==='quality')notes=Math.random()>.5?[root,root+4,root+7]:[root,root+3,root+7];
  else if(q.type==='chord'){
   const choices=[{name:'Tónica',notes:[root,root+4,root+7]},{name:'Dominante',notes:[root+7,root+11,root+14]},{name:'Relativa menor',notes:[root+9,root+12,root+16]}];
-  const choice=choices[Math.floor(Math.random()*choices.length)];q.expectedAnswer=choice.name;chords=[choice.notes];notes=choice.notes.slice();
+  const choice=choices[Math.floor(Math.random()*choices.length)];q.expectedAnswer=choice.name;chords=[[root,root+4,root+7],choice.notes];notes=choice.notes.slice();
  }else if(q.type==='progression'){
   const choices=[
    {name:'I-V-vi-IV',degrees:[0,7,9,5]},
@@ -2100,21 +2100,21 @@ function earAdvancedPlay(){
    {name:'vi-IV-I-V',degrees:[9,5,0,7]}
   ];
   const choice=choices[Math.floor(Math.random()*choices.length)];q.expectedAnswer=choice.name;
-  chords=choice.degrees.map((d,i)=>{const minor=i===2&&choice.name==='I-V-vi-IV'||d===9;const r=root+d;return minor?[r,r+3,r+7]:[r,r+4,r+7]});
+  chords=[[root,root+4,root+7],...choice.degrees.map(d=>{const minor=d===9;const r=root+d;return minor?[r,r+3,r+7]:[r,r+4,r+7]})];
   notes=choice.degrees.map(d=>root+d);
  }else if(q.type==='memory')notes=Array.from({length:4},()=>root+Math.floor(Math.random()*8));
  else if(q.type==='tonic')notes=[root,root+4,root+7,root+4,root];
  else if(q.type==='transcribe')notes=Array.from({length:5},()=>root+Math.floor(Math.random()*8));
  else notes=[root,root+2,root+4,root+2];
  q.playNotes=notes;q.playChords=chords;
- if(q.type==='chord')chords[0].forEach(n=>tone(n,0.65));
- else if(q.type==='progression')chords.forEach((chord,i)=>chord.forEach(n=>setTimeout(()=>tone(n,0.52),i*620)));
+ if(q.type==='chord')chords.forEach((chord,i)=>chord.forEach(n=>setTimeout(()=>tone(n,0.55),i===0?0:900)));
+ else if(q.type==='progression')chords.forEach((chord,i)=>chord.forEach(n=>setTimeout(()=>tone(n,0.52),i===0?0:900+(i-1)*620)));
  else notes.forEach((n,i)=>setTimeout(()=>tone(n,0.32),i*420));
 }
 
 function earAdvancedAnswer(ans){
  const q=earAdvancedState.question;if(!q||!earAdvancedState.started)return toast('Primero escuchá el ejercicio.');
- const expectedEs=q.type==='direction'?(q.playNotes[1]>q.playNotes[0]?'Sube':'Baja'):q.type==='interval'?(Math.abs(q.playNotes[1]-q.playNotes[0])<5?'Más cerca':'Más lejos'):q.type==='quality'?(q.playNotes[1]-q.playNotes[0]===3?'Menor':'Mayor'):q.type==='chord'||q.type==='progression'?q.expectedAnswer:'';
+ const expectedEs=q.type==='direction'?(q.playNotes[1]===q.playNotes[0]?'Igual':q.playNotes[1]>q.playNotes[0]?'Sube':'Baja'):q.type==='interval'?(Math.abs(q.playNotes[1]-q.playNotes[0])<5?'Más cerca':'Más lejos'):q.type==='quality'?(q.playNotes[1]-q.playNotes[0]===3?'Menor':'Mayor'):q.type==='chord'||q.type==='progression'?q.expectedAnswer:'';
  const expected=pianoLanguage==='pt'?({'Sube':'Sobe','Baja':'Desce','Más cerca':'Mais perto','Más lejos':'Mais longe','Mayor':'Maior','Menor':'Menor','Tónica':'Tônica','Relativa menor':'Relativa menor'}[expectedEs]||expectedEs):expectedEs;
  const ok=ans===expected||ans.replaceAll('-','–')===expected;
  if(!recordEarAdvancedResult(q,ok))return toast(courseLocal('Este sonido ya fue evaluado. Generá una nueva pregunta para medir otro estímulo.','Este som já foi avaliado. Gere uma nova pergunta para medir outro estímulo.'));
