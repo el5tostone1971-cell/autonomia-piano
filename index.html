@@ -2423,7 +2423,7 @@ function courseTwoHandsLesson(l){
  showHTML(pianoTranslateHTML(shell('🎹 '+l.title,courseLocal('La izquierda forma el acorde grave; la derecha toca la melodía aguda. Cada bloque contiene las cuatro notas que tenés que reunir.','A mão esquerda forma o acorde grave; a direita toca a melodia aguda. Cada bloco contém as quatro notas que você deve reunir.'),body)));
 }
 function toggleCourseTwoHandsGuide(){const guide=document.getElementById('courseTwoHandsGuide');if(guide)guide.classList.toggle('hidden');}
-function renderCourseTwoHandsCount(){const c=document.getElementById('courseTwoHandsCount');if(c)c.textContent=courseTwoHandsStep+' / '+courseTwoHandsEvents.length+' bloques'}
+function renderCourseTwoHandsCount(){const c=document.getElementById('courseTwoHandsCount');if(c)c.textContent=courseTwoHandsStep+' / '+courseTwoHandsEvents.length+' '+courseLocal('bloques','blocos')}
 function startCourseTwoHands(){courseTwoHandsStep=0;courseTwoHandsWindow=[];courseTwoHandsStarted=true;renderCourseTwoHandsCount();const m=document.getElementById('courseTwoHandsMsg');if(m)m.textContent=courseLocal('▶ Bloque 1: acorde grave con la izquierda + melodía aguda con la derecha.','▶ Bloco 1: acorde grave com a mão esquerda + melodia aguda com a mão direita.')}
 function clearCourseTwoHands(){courseTwoHandsStep=0;courseTwoHandsWindow=[];courseTwoHandsStarted=false;renderCourseTwoHandsCount();const m=document.getElementById('courseTwoHandsMsg');if(m)m.textContent=courseLocal('Intento reiniciado. Cuando estés listo, empezá de nuevo.','Tentativa reiniciada. Quando estiver pronto, comece novamente.')}
 function registerCourseTwoHandsNote(n){
