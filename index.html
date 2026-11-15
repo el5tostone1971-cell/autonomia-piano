@@ -1289,6 +1289,26 @@ function pianoTranslateText(text){
  ["Re mayor tiene dos sostenidos: Fa♯ y Do♯.","Ré maior tem dois sustenidos: Fá♯ e Dó♯."]
  ];
  fixed.unshift(...theoryPhrases);
+ const practicePhrases=[
+ ["Tocá Mi y luego Fa: escuchá el semitono natural.","Toque Mi e depois Fá: ouça o semitom natural."],
+ ["Tocá Do y Re: entre ambas notas hay un tono.","Toque Dó e Ré: entre as duas notas há um tom."],
+ ["Tocá Do y Mi: comprobá la tercera mayor.","Toque Dó e Mi: confira a terça maior."],
+ ["Tocá la escala de Do mayor ascendente y volvé a Do.","Toque a escala de Dó maior em movimento ascendente e volte a Dó."],
+ ["Tocá Sol mayor: recordá que Fa se convierte en Fa sostenido.","Toque Sol maior: lembre-se de que Fá se transforma em Fá sustenido."],
+ ["Tocá La menor natural ascendente.","Toque Lá menor natural em movimento ascendente."],
+ ["Tocá Do, Do sostenido y Re: subí un semitono cada vez.","Toque Dó, Dó sustenido e Ré: suba um semitom de cada vez."],
+ ["Tocá Fa sostenido y luego Fa natural: el becuadro cancela la alteración.","Toque Fá sustenido e depois Fá natural: o bequadro cancela a alteração."],
+ ["Tocá Do sostenido y Re bemol: son la misma altura en el piano.","Toque Dó sustenido e Ré bemol: têm a mesma altura no piano."],
+ ["Tocá Do y Re: escuchá el intervalo de segunda.","Toque Dó e Ré: ouça o intervalo de segunda."],
+ ["Tocá Do y Mi bemol: formá una tercera menor.","Toque Dó e Mi bemol: forme uma terça menor."],
+ ["Tocá Do y Sol: formá una quinta justa.","Toque Dó e Sol: forme uma quinta justa."],
+ ["Tocá Do, Mi y Sol: identificá la tónica y la dominante.","Toque Dó, Mi e Sol: identifique a tônica e a dominante."],
+ ["Tocá Sol y después Do: resolvé de dominante a tónica.","Toque Sol e depois Dó: resolva da dominante para a tônica."],
+ ["Tocá Re mayor ascendente: Fa y Do deben ser sostenidos.","Toque Ré maior em movimento ascendente: Fá e Dó devem ser sustenidos."]
+ ];
+ fixed.unshift(...practicePhrases);
+ const topicPhrases=[["El semitono","O semitom"],["El tono","O tom"],["Reconocer distancias","Reconhecer distâncias"],["Escala mayor","Escala maior"],["Construir una escala mayor","Construir uma escala maior"],["Escala menor natural","Escala menor natural"],["Sostenido y bemol","Sustenido e bemol"],["Becuadro","Bequadro"],["Enarmonía","Enarmonia"],["Intervalo: segunda","Intervalo: segunda"],["Intervalo: tercera","Intervalo: terça"],["Intervalo: quinta justa","Intervalo: quinta justa"],["Grados de la escala","Graus da escala"],["Tónica y dominante","Tônica e dominante"],["Aplicación: leer una escala","Aplicação: ler uma escala"]];
+ fixed.unshift(...topicPhrases);
  for(let i=0;i<fixed.length;i++)if(out.includes(fixed[i][0]))out=out.split(fixed[i][0]).join("__PT_FIXED_"+i+"__");
  for(const pair of pianoPT){if(!Array.isArray(pair)||pair.length<2)continue;const es=String(pair[0]),pt=String(pair[1]);out=out.split(es).join(pt)}
  // "La" pode ser artigo ou nome de nota: protegemos a nota em sequências musicais e com indicação de oitava.
