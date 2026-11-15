@@ -53,6 +53,10 @@ jobs:
           curl -fsS --max-time 20 https://autonomia-piano.onrender.com/icons/icon-512.png -o /tmp/render-icon-512.png
           test -s /tmp/render-icon-192.png
           test -s /tmp/render-icon-512.png
+          file /tmp/render-icon-192.png | grep -q 'PNG image data'
+          file /tmp/render-icon-512.png | grep -q 'PNG image data'
+          curl -fsSI --max-time 20 https://autonomia-piano.onrender.com/icons/icon-192.png | grep -qi 'content-type: image/png'
+          curl -fsSI --max-time 20 https://autonomia-piano.onrender.com/icons/icon-512.png | grep -qi 'content-type: image/png'
           grep -q '"display": "standalone"' /tmp/render-manifest.json
           grep -q '"sizes": "192x192"' /tmp/render-manifest.json
           grep -q '"sizes": "512x512"' /tmp/render-manifest.json
