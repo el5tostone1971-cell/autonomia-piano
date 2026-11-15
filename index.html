@@ -1959,7 +1959,7 @@ function earAdvancedCheckKeyboard(){
 function earAdvancedQuestion(q){
  const sets={direction:['Sube','Baja','Igual'],interval:['Más cerca','Más lejos'],quality:['Mayor','Menor'],chord:['Tónica','Dominante','Relativa menor'],progression:['I–V–vi–IV','I–vi–IV–V','vi–IV–I–V']};
  const ptSets={direction:['Sobe','Desce','Igual'],interval:['Mais perto','Mais longe'],quality:['Maior','Menor'],chord:['Tônica','Dominante','Relativa menor'],progression:['I–V–vi–IV','I–vi–IV–V','vi–IV–I–V']};
- if(q.type==='memory'||q.type==='tonic'||q.type==='transcribe') return `<div class="earAdvHint">${q.type==='memory'?'Repetí la frase en el teclado.':q.type==='tonic'?'Buscá la nota donde la frase parece descansar.':'Encontrá la frase nota por nota.'}</div>`;
+ if(q.type==='memory'||q.type==='tonic'||q.type==='transcribe'){const hints=pianoLanguage==='pt'?{memory:'Repita a frase no teclado.',tonic:'Encontre a nota em que a frase parece repousar.',transcribe:'Encontre a frase nota por nota.'}:{memory:'Repetí la frase en el teclado.',tonic:'Buscá la nota donde la frase parece descansar.',transcribe:'Encontrá la frase nota por nota.'};return `<div class="earAdvHint">${hints[q.type]}</div>`;}
  const choices=pianoLanguage==='pt'?ptSets:sets;return `<div class="choiceGrid">${(choices[q.type]||[]).map(x=>`<button onclick="earAdvancedAnswer('${x.replaceAll('–','-')}')">${x}</button>`).join('')}</div>`;
 }
 function earAdvancedPlay(){
