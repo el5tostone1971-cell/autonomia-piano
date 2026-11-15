@@ -658,7 +658,7 @@ const assert = require('node:assert/strict');
     assert.equal(rhythmAudit.firstPass.mastered.length, 1, 'No se guardó el patrón rítmico dominado');
     assert.match(rhythmAudit.lateEntryMessage, /antes del pulso|tarde|entrada/i, 'La evaluación no detectó una entrada fuera del primer pulso');
     assert.match(rhythmAudit.extraAttackMessage, /Faltan o sobran ataques/i, 'La evaluación permitió tocar durante un silencio');
-    assert.equal(rhythmAudit.patterns, 11, 'La lectura rítmica no contiene once patrones');
+    assert.equal(rhythmAudit.patterns, 13, 'La lectura rítmica no contiene los trece patrones definidos');
     assert.deepEqual(rhythmAudit.meters.sort(), ['2/4','3/4','4/4','6/8'], 'La lectura rítmica no cubre los cuatro compases previstos');
     assert.equal(rhythmAudit.rests, 3, 'No se enseñan silencios de negra, corchea y contratiempo');
     assert.match(rhythmAudit.symbols, /𝄽/, 'La notación no representa el silencio de negra');
