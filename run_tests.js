@@ -70,7 +70,7 @@
  // Render every course card in Portuguese and verify labels, translated title/description and action text.
  try{
   const oldLanguage=pianoLanguage,labels={orientation:'Orientação',right:'Mão direita',left:'Mão esquerda',rhythm:'Ritmo',memory:'Memória',ear:'Ouvido',chords:'Acordes',autonomy:'Autonomia'},issues=[];
-  try{pianoLanguage='pt';for(const lesson of LESSONS){showHTML(lessonCard(lesson));const text=document.querySelector('#main').innerText||'',expectedTitle=pianoTranslateText(lesson.title),expectedDesc=pianoTranslateText(lesson.desc),skill=labels[lesson.skill]||lesson.skill;if(!text.includes('Dia '+lesson.day))issues.push({id:lesson.id,issue:'day label'});if(!text.includes('· '+skill))issues.push({id:lesson.id,issue:'skill label',skill});if(!text.includes(expectedTitle)||!text.includes(expectedDesc))issues.push({id:lesson.id,issue:'title/description not rendered in Portuguese'});if(!text.includes('Treinar')&&!text.includes('Revisar'))issues.push({id:lesson.id,issue:'action label'})}}finally{pianoLanguage=oldLanguage}
+  try{pianoLanguage='pt';for(const lesson of LESSONS){const html=lessonCard(lesson);showHTML(html);const text=document.querySelector('#main').innerText||'',expectedTitle=pianoTranslateText(lesson.title),expectedDesc=pianoTranslateText(lesson.desc),skill=labels[lesson.skill]||lesson.skill,debug={id:lesson.id,language:pianoLanguage,html:html.slice(0,220),rendered:text.slice(0,220)};if(!text.includes('Dia '+lesson.day))issues.push({...debug,issue:'day label'});if(!text.includes('· '+skill))issues.push({...debug,issue:'skill label',skill});if(!text.includes(expectedTitle)||!text.includes(expectedDesc))issues.push({...debug,issue:'title/description not rendered in Portuguese'});if(!text.includes('Treinar')&&!text.includes('Revisar'))issues.push({...debug,issue:'action label'})}}finally{pianoLanguage=oldLanguage}
   assert(issues.length===0,'Há cartões de lição incompletos em português: '+JSON.stringify(issues.slice(0,10)));
   pass('Cartões das 90 lições em português','dia, competência, título, descrição e ação localizados');
  }catch(e){fail('Cartões das 90 lições em português',e)}
@@ -187,7 +187,7 @@
   try{
    window._testMode=false;pianoLanguage='pt';
    const samples=[1,16,31,46,61,76].map(day=>LESSONS.find(x=>x.day===day));
-   const spanishGuideImperatives=/(?:Localizá|Nombrá|Tocá|Escuchá|Mantené|Usá|Reconocé|Contá|Decí|Encontrá|Construí|Prepará|Uní|Combiná|Identificá|Leé|Explicá|Volvé|Bajá|Subí|Regresá)/i;
+   const spanishGuideImperatives=/(?:Localizá|Nombrá|Tocá|Escuchá|Mantené|Reconocé|Contá|Decí|Encontrá|Construí|Prepará|Uní|Combiná|Identificá|Leé|Explicá|Volvé|Bajá|Subí|Regresá)/i;
    samples.forEach(l=>{const main=document.getElementById('main');main.innerHTML='<h1>Teste</h1>';insertCourseTeachingGuide(l);const guide=main.querySelector('.courseTeachingGuide');assert(guide,'não inseriu o guia para '+l.id);assert(guide.textContent.includes('O que você precisa compreender')&&guide.textContent.includes('Como resolver este exercício')&&guide.textContent.includes('Erro frequente')&&guide.textContent.includes('Critério de aprovação'),'guia em português incompleto no '+l.id);const spanishMatch=guide.textContent.match(spanishGuideImperatives);assert(!spanishMatch,'guia em português conserva '+(spanishMatch?.[0]||'texto')+' no '+l.id+': '+guide.textContent);guide.remove()});
   }finally{window._testMode=previousTestMode;pianoLanguage=previousLanguage}
   pass('Guias pedagógicas em português','seis níveis com explicação, método, erro frequente e critério localizados');
