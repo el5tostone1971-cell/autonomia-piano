@@ -123,6 +123,19 @@ const assert = require('node:assert/strict');
     assert.equal(stopped.backing, null, 'El acompañamiento siguió sonando al terminar la canción');
     assert.equal(stopped.guide, null, 'El temporizador de la melodía no se limpió al terminar');
 
+    // La práctica de interpretación también debe registrar el error, avanzar y guardar el porcentaje sin exigir repetir infinitamente una nota.
+    const normalRepertoireAudit = await page.evaluate(() => {
+      const piece=repertoireLibrary.find(item=>item.id==='rp13');piece.notes=[60,62,64];piece.dur=[1,1,1];selectLibraryPiece('rp13');startRepertoire();
+      pressKey(60,'midi');pressKey(64,'midi');pressKey(64,'midi');
+      const saved=(state.repertoireAttempts?.rp13||[]).slice(-1)[0];
+      return {input:repertoireInput.slice(),results:repertoirePlayResults.slice(),saved:saved?.accuracy,mode:state.repertoireSessions?.rp13?.mode,message:document.getElementById('repertoireMsg')?.textContent||''};
+    });
+    assert.equal(normalRepertoireAudit.input.length,3,'La práctica normal quedó bloqueada después de una nota incorrecta');
+    assert.equal(normalRepertoireAudit.results.filter(x=>x.correct).length,2,'La práctica normal no distinguió los aciertos');
+    assert.equal(normalRepertoireAudit.saved,67,'El porcentaje del intento no quedó guardado');
+    assert.equal(normalRepertoireAudit.mode,'play-complete','La sesión finalizada quedó marcada como pendiente y se repite indefinidamente');
+    assert.match(normalRepertoireAudit.message,/67%/,'No se mostró el porcentaje final de la práctica');
+
     await page.evaluate(() => {
       const piece = repertoireLibrary.find(item => item.id === 'rp10');
       piece.notes = [60, 62, 64];
