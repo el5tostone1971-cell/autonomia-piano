@@ -98,7 +98,7 @@ let adaptiveRunActive=false;
 let adaptiveLessonId=null;
 const NOTE_NAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const WHITE_PCS=new Set([0,2,4,5,7,9,11]);
-const defaultState={day:1,xp:0,streak:0,lastPractice:'',midi:false,mic:false,lessons:{},skills:{orientation:0,rhythm:0,right:0,left:0,chords:0,ear:0,memory:0,autonomy:0},diagnostics:{last:'',counts:{early:0,late:0,rhythm:0,note:0,technique:0,memory:0},history:[],adaptiveRuns:0,adaptiveLast:''},teacher:{history:[],lastTopic:''},theory:{completed:{},xp:0},god:{diagnostic:null,practice:{tempo:72,section:0,loop:false,hand:'both',mode:'surgery',piece:'rp1',rounds:0,clean:0,errors:0,lastScore:0,lastMessage:''},sight:{score:0,attempts:0,history:[]},spaced:{queue:[],lastReview:'',intervals:[1,2,4,7,14,30]},imports:[],micro:{seen:[],last:''},performance:{velocity:0,duration:0,timing:0,pedal:0,velocityConsistency:0,durationConsistency:0,timingConsistency:0,chordTightness:0,dynamicsRange:0,balance:50,score:0,sessions:[]},library:[],installable:false}};
+const defaultState={day:1,xp:0,streak:0,lastPractice:'',midi:false,mic:false,lessons:{},skills:{orientation:0,rhythm:0,right:0,left:0,chords:0,ear:0,memory:0,autonomy:0},diagnostics:{last:'',counts:{early:0,late:0,rhythm:0,note:0,technique:0,memory:0},history:[],adaptiveRuns:0,adaptiveLast:''},teacher:{history:[],lastTopic:''},theory:{completed:{},practice:{},xp:0},god:{diagnostic:null,practice:{tempo:72,section:0,loop:false,hand:'both',mode:'surgery',piece:'rp1',rounds:0,clean:0,errors:0,lastScore:0,lastMessage:''},sight:{score:0,attempts:0,history:[]},spaced:{queue:[],lastReview:'',intervals:[1,2,4,7,14,30]},imports:[],micro:{seen:[],last:''},performance:{velocity:0,duration:0,timing:0,pedal:0,velocityConsistency:0,durationConsistency:0,timingConsistency:0,chordTightness:0,dynamicsRange:0,balance:50,score:0,sessions:[]},library:[],installable:false}};
 let state=loadState();
 theoryBootstrap();
 let mem=[],memoryAttemptScored=false,memoryHelpHidden=false,memoryExpectedSeq=[],pattern=[],earRound=[],earInput=[],doFound=new Set(),leftInput=[],chordHits=new Set(),rhythmTimes=[],rhythmExpected=[],autoInput=[],autoChallengeReady=false,autoChallengeReadyAt=0,autoChallengeTimer=null;
@@ -1817,7 +1817,78 @@ const THEORY_LEVEL_GUIDES_ES={
 };
 function theoryDeepNote(l){return THEORY_DEEP_ES[l.id]||THEORY_LEVEL_GUIDES_ES[l.level]||''}
 function theoryApplication(l){return THEORY_PRACTICE_ES[l.id]||"Aplicá el concepto al instrumento: identificá primero la referencia, nombrá las notas, tocá lentamente y verificá el resultado. Repetí sin mirar la explicación y explicá qué hiciste."}
-function openTheory(id){const l=THEORY_LESSONS.find(x=>x.id===id);if(!l)return;showHTML(shell(`🎓 Nivel ${l.level} · ${l.id} · ${l.title}`,'Comprendé la idea, observá el ejemplo, practicá y comprobá lo aprendido.',`<div class="note-box"><h3>1. Explicación del concepto</h3><p>${l.text}</p><div class="note-box"><b>Regla para recordar</b><p>${l.rule}</p></div><h3>Comprensión en profundidad</h3><p>${theoryDeepNote(l)}</p><p class="muted small">No memorices solamente la respuesta: explicá con tus palabras qué significa, cómo lo reconocés y cuándo lo usarías al tocar.</p></div>${theoryIllustration(l)}<div class="note-box"><h3>2. Práctica guiada en el piano</h3><p>${theoryApplication(l)}</p><div class="note-box"><b>Cómo estudiar este ejercicio</b><ol><li>Primera vuelta: hacelo muy despacio y nombrá cada nota o pulso.</li><li>Segunda vuelta: repetilo manteniendo un pulso regular, sin detenerte.</li><li>Tercera vuelta: ocultá la explicación e intentá resolverlo sin ayuda.</li><li>Al terminar, explicá en voz alta qué regla aplicaste y cómo comprobaste que era correcta.</li></ol></div></div><div class="note-box"><h3>3. Comprobación de comprensión</h3><p>${l.question}</p><div class="chips">${l.options.map((o,i)=>`<button class="btn" type="button" onclick="answerTheory('${l.id}',${i})">${o}</button>`).join('')}</div><div id="theoryFeedback" class="feedback" style="margin-top:12px"></div></div><button class="btn" onclick="show('theory')">← Volver al temario</button>`))}
+function theoryPracticeSpec(l){
+ const title=(l.title+' '+l.text).toLowerCase();
+ if(/ritm|pulso|comp[aá]s|subdiv|corchea|negra|silencio|s[ií]ncopa|contratiempo|tresillo|tempo|duraci[oó]n/.test(title))return {kind:'rhythm',notes:[60,60,60,60],prompt:'Tocá Do central cuatro veces, manteniendo intervalos regulares. La prueba mide tanto los ataques como la estabilidad del pulso.'};
+ if(/acorde|tr[ií]ada|armon[ií]|t[oó]nica|dominante|subdominante|inversi[oó]n|cifrado|funci[oó]n/.test(title)){
+  const notes=/disminuid/.test(title)?[60,63,66]:/menor/.test(title)?[60,63,67]:[60,64,67];
+  return {kind:'chord',notes,prompt:'Construí el acorde indicado tocando sus notas en orden desde Do central. Escuchá la combinación y comprobá la distancia entre sus notas.'};
+ }
+ if(/escala|crom[aá]tic|tonalidad/.test(title)){
+  const notes=/menor/.test(title)?[60,62,63,65,67,68,70,72]:[60,62,64,65,67,69,71,72];
+  return {kind:'scale',notes,prompt:'Tocá la escala completa desde Do central hasta el Do de la octava siguiente. Mantené el orden y no saltees ninguna nota.'};
+ }
+ if(/semitono|enarmon|alteraci[oó]n|sostenido|bemol|interval|tercera|quinta|octava|grado/.test(title)){
+  const notes=/quinta/.test(title)?[60,67]:/octava/.test(title)?[60,72]:/menor/.test(title)?[60,63]:/semitono/.test(title)?[60,61]:/tono/.test(title)?[60,62]:[60,64];
+  return {kind:'interval',notes,prompt:'Tocá primero Do central y después la nota objetivo. La distancia entre ambas debe coincidir con el intervalo explicado en esta lección.'};
+ }
+ if(/lectura|pentagrama|clave|nota|l[ií]nea|espacio|frase|partitura|registro|movimiento/.test(title))return {kind:'reading',notes:[60,62,64,65,67],prompt:'Leé y tocá esta pequeña secuencia ascendente desde Do central. Respetá el orden y escuchá cómo cada nota ocupa el siguiente grado.'};
+ return {kind:'application',notes:[60,62,64],prompt:'Aplicá el concepto tocando esta secuencia breve desde Do central. Identificá cada nota y explicá qué relación musical estás comprobando.'};
+}
+let theoryAcademyPracticeExpected=[],theoryAcademyPracticePlayed=[],theoryAcademyPracticeTimes=[],theoryAcademyPracticeActive=false,theoryAcademyPracticeLessonId='';
+function startTheoryAcademyPractice(id){
+ const l=THEORY_LESSONS.find(x=>x.id===id);if(!l)return;
+ const spec=theoryPracticeSpec(l);theoryAcademyPracticeExpected=spec.notes.slice();theoryAcademyPracticePlayed=[];theoryAcademyPracticeTimes=[];theoryAcademyPracticeActive=true;theoryAcademyPracticeLessonId=id;
+ const input=document.getElementById('theoryAcademyPracticeInput'),msg=document.getElementById('theoryAcademyPracticeFeedback');
+ if(input)input.textContent='—';if(msg)msg.textContent='Prueba iniciada. Tocá las notas en orden.';
+}
+function registerTheoryAcademyPracticeNote(note){
+ if(!theoryAcademyPracticeActive||theoryAcademyPracticePlayed.length>=theoryAcademyPracticeExpected.length)return;
+ theoryAcademyPracticePlayed.push(Number(note));theoryAcademyPracticeTimes.push(performance.now());
+ const input=document.getElementById('theoryAcademyPracticeInput');
+ if(input)input.textContent=theoryAcademyPracticePlayed.map(n=>localizedPianoNoteName(n)+(Math.floor(n/12)-1)).join(' · ');
+}
+function clearTheoryAcademyPractice(){
+ theoryAcademyPracticePlayed=[];theoryAcademyPracticeTimes=[];
+ const input=document.getElementById('theoryAcademyPracticeInput');if(input)input.textContent='—';
+ const msg=document.getElementById('theoryAcademyPracticeFeedback');if(msg)msg.textContent='Intento borrado. Volvé a tocar la secuencia.';
+}
+function checkTheoryAcademyPractice(){
+ const id=theoryAcademyPracticeLessonId,l=THEORY_LESSONS.find(x=>x.id===id),msg=document.getElementById('theoryAcademyPracticeFeedback');
+ if(!l||!theoryAcademyPracticeActive){if(msg)msg.textContent='Primero iniciá la prueba práctica.';return false}
+ if(theoryAcademyPracticePlayed.length!==theoryAcademyPracticeExpected.length){if(msg)msg.textContent='Faltan notas: '+theoryAcademyPracticePlayed.length+' / '+theoryAcademyPracticeExpected.length+'.';return false}
+ const wrong=theoryAcademyPracticePlayed.findIndex((n,i)=>n!==theoryAcademyPracticeExpected[i]);
+ if(wrong>=0){if(msg)msg.textContent='La nota '+(wrong+1)+' no coincide. Se esperaba '+localizedPianoNoteName(theoryAcademyPracticeExpected[wrong])+(Math.floor(theoryAcademyPracticeExpected[wrong]/12)-1)+'. Corregí el intento.';return false}
+ const spec=theoryPracticeSpec(l);
+ if(spec.kind==='rhythm'){
+  const gaps=theoryAcademyPracticeTimes.slice(1).map((t,i)=>t-theoryAcademyPracticeTimes[i]);
+  if(!gaps.every(ms=>ms>=250&&ms<=1400)){if(msg)msg.textContent='Las notas están bien, pero el pulso debe ser regular. Repetí con intervalos parejos, entre 250 ms y 1,4 s.';return false}
+ }
+ state.theory.practice=state.theory.practice||{};state.theory.practice[id]={passed:true,at:new Date().toISOString(),kind:spec.kind,notes:theoryAcademyPracticePlayed.slice()};
+ saveState();theoryAcademyPracticeActive=false;
+ if(msg)msg.textContent='✓ Práctica demostrada en el teclado. Ahora respondé la pregunta de comprensión.';
+ const feedback=document.getElementById('theoryFeedback');if(feedback)feedback.textContent='La prueba práctica está aprobada. Ya podés responder la pregunta.';
+ return true;
+}
+function openTheory(id){
+ const l=THEORY_LESSONS.find(x=>x.id===id);if(!l)return;theoryBootstrap();
+ const spec=theoryPracticeSpec(l),passed=!!state.theory.practice?.[id]?.passed;
+ theoryAcademyPracticeActive=false;theoryAcademyPracticeLessonId=id;
+ showHTML(shell(`🎓 Nivel ${l.level} · ${l.id} · ${l.title}`,'Comprendé la idea, observá el ejemplo, demostrá la práctica y comprobá lo aprendido.',
+ `<div class="note-box"><h3>1. Explicación del concepto</h3><p>${l.text}</p><div class="note-box"><b>Regla para recordar</b><p>${l.rule}</p></div><h3>Comprensión en profundidad</h3><p>${theoryDeepNote(l)}</p><p class="muted small">No memorices solamente la respuesta: explicá con tus palabras qué significa, cómo lo reconocés y cuándo lo usarías al tocar.</p></div>${theoryIllustration(l)}
+ <div class="note-box"><h3>2. Demostración práctica en el piano</h3><p>${theoryApplication(l)}</p><p><b>${spec.prompt}</b></p><div id="theoryAcademyPracticeInput" class="target">${passed?'✓ Práctica aprobada':'—'}</div><div class="row-controls"><button class="btn primary" type="button" onclick="startTheoryAcademyPractice('${l.id}')">▶ ${passed?'Repetir práctica':'Iniciar prueba práctica'}</button><button class="btn" type="button" onclick="clearTheoryAcademyPractice()">× Borrar intento</button><button class="btn good" type="button" onclick="checkTheoryAcademyPractice()">Comprobar práctica</button></div><p id="theoryAcademyPracticeFeedback" class="feedback" aria-live="polite">${passed?'Práctica ya demostrada. Podés continuar con la pregunta.':'La lección se aprueba después de tocar correctamente esta secuencia.'}</p></div>
+ <div class="note-box"><h3>3. Comprobación de comprensión</h3><p>${l.question}</p><div class="chips">${l.options.map((o,i)=>`<button class="btn" type="button" onclick="answerTheory('${l.id}',${i})">${o}</button>`).join('')}</div><div id="theoryFeedback" class="feedback" style="margin-top:12px">${passed?'Respondé para completar la lección.':'Primero aprobá la demostración práctica.'}</div></div>${keyboard()}<button class="btn" onclick="show('theory')">← Volver al temario</button>`));
+}
+function answerTheory(id,i){
+ const l=THEORY_LESSONS.find(x=>x.id===id);const f=document.getElementById('theoryFeedback');if(!l||!f)return;
+ if(!state.theory?.practice?.[id]?.passed){f.textContent='Primero tenés que demostrar la práctica tocando las notas en el teclado.';f.className='feedback bad';return}
+ if(i!==l.correct){f.textContent='Todavía no. Volvé a mirar la explicación y probá de nuevo.';f.className='feedback bad';return}
+ const first=!theoryDone(id);state.theory.completed[id]=true;
+ if(first){state.theory.xp=(state.theory.xp||0)+10;state.xp+=10}
+ saveState();f.textContent=first?'✓ Práctica y comprensión aprobadas · +10 XP':'✓ Práctica y comprensión ya incorporadas.';f.className='feedback good';
+ setTimeout(()=>show('theory'),500);
+}
+function theoryBootstrap(){if(!state.theory||typeof state.theory!=='object')state.theory={completed:{},practice:{},xp:0};if(!state.theory.completed)state.theory.completed={};if(!state.theory.practice)state.theory.practice={}}
 
 function answerTheory(id,i){const l=THEORY_LESSONS.find(x=>x.id===id);const f=document.getElementById('theoryFeedback');if(!l||!f)return;if(i!==l.correct){f.textContent='Todavía no. Volvé a mirar la explicación y probá de nuevo.';f.className='feedback bad';return}const first=!theoryDone(id);state.theory.completed[id]=true;if(first){state.theory.xp=(state.theory.xp||0)+10;state.xp+=10}saveState();f.textContent=first?'✓ Correcto. Concepto incorporado · +10 XP':'✓ Correcto. Concepto ya incorporado.';f.className='feedback good';setTimeout(()=>show('theory'),500)}
 function theoryBootstrap(){if(!state.theory||typeof state.theory!=='object')state.theory={completed:{},xp:0};if(!state.theory.completed)state.theory.completed={}}
@@ -3051,7 +3122,7 @@ function registerRepertoireNote(n){
  }
 }
 function checkRepertoire(){if(repertoireAwarded||!repertoirePiece)return;if(repertoireInput.length!==repertoirePiece.notes.length){toast(`Faltan notas: ${repertoireInput.length} / ${repertoirePiece.notes.length}.`);return}const unit=60000/getRepertoireTempo();const errors=repertoireTimes.slice(1).map((t,i)=>(t-repertoireTimes[i])-repertoirePiece.dur[i]*unit);const tolerance=220;const ok=errors.every(e=>Math.abs(e)<=tolerance);if(!ok){const avg=errors.reduce((a,e)=>a+Math.abs(e),0)/Math.max(1,errors.length);const drift=errors.reduce((a,e)=>a+e,0)/Math.max(1,errors.length);diagnose(Math.abs(drift)>100?(drift>0?'late':'early'):'rhythm',drift>100?'Te quedás atrás del pulso en el repertorio.':drift< -100?'Te adelantás en el repertorio.':'El repertorio está correcto en notas, pero el pulso necesita estabilidad.','rhythm');const m=document.getElementById('repertoireMsg');if(m)m.textContent=state.diagnostics.last;return}const alreadyMastered=!!state.repertoireMilestones?.[repertoirePiece.id]?.play;repertoireAwarded=true;repertoireStarted=false;stopRepertoirePulse();markRepertoireMilestone('play');if(!alreadyMastered){state.skills.right=Math.min(100,state.skills.right+2);state.skills.rhythm=Math.min(100,state.skills.rhythm+1);}saveState();const status=document.getElementById('repertoireSavedStatus');if(status)status.textContent='✓ Progreso guardado automáticamente · '+(state.repertoireProgress?.[repertoirePiece.id]||0)+'% de esta pieza';const m=document.getElementById('repertoireMsg');if(m)m.textContent='✓ Pieza demostrada. La ayuda se retiró correctamente: nota + pulso + memoria. Tu avance quedó guardado.'}
-function pressKey(n,source='virtual'){if(typeof resetBackingIdleTimer==='function')resetBackingIdleTimer();if(source==='virtual')tone(n);if(entryDiagActive){entryDiagRecord(n)}if(surgeryActive)registerSurgeryNote(n);if(prsActive)registerPRSNote(n);const name=pitchClassName(n);const oct=Math.floor(n/12)-1;const noteLabel=localizedPianoNoteName(n),octaveLabel=pianoLanguage==='pt'?'oitava ':'octava ';const last=document.getElementById('lastNote');if(last)last.textContent=noteLabel+' ('+name+oct+')';const repName=document.getElementById('repertoireCurrentNoteName');const repHelp=document.getElementById('repertoireCurrentNoteHelp');if(repName)repName.textContent=noteLabel+' ('+name+') · '+octaveLabel+oct;if(repHelp)repHelp.textContent=pianoLanguage==='pt'?'Esta é a tecla que você acabou de tocar.':'Esta es la tecla que acabás de tocar.';document.querySelectorAll('.key.active').forEach(k=>k.classList.remove('active'));const key=document.querySelector(`.key[data-midi="${n}"]`);if(key){key.classList.add('active');setTimeout(()=>key.classList.remove('active'),120)}handleExerciseNote(n,name)}
+function pressKey(n,source='virtual'){if(typeof resetBackingIdleTimer==='function')resetBackingIdleTimer();if(source==='virtual')tone(n);if(typeof registerTheoryAcademyPracticeNote==='function')registerTheoryAcademyPracticeNote(n);if(entryDiagActive){entryDiagRecord(n)}if(surgeryActive)registerSurgeryNote(n);if(prsActive)registerPRSNote(n);const name=pitchClassName(n);const oct=Math.floor(n/12)-1;const noteLabel=localizedPianoNoteName(n),octaveLabel=pianoLanguage==='pt'?'oitava ':'octava ';const last=document.getElementById('lastNote');if(last)last.textContent=noteLabel+' ('+name+oct+')';const repName=document.getElementById('repertoireCurrentNoteName');const repHelp=document.getElementById('repertoireCurrentNoteHelp');if(repName)repName.textContent=noteLabel+' ('+name+') · '+octaveLabel+oct;if(repHelp)repHelp.textContent=pianoLanguage==='pt'?'Esta é a tecla que você acabou de tocar.':'Esta es la tecla que acabás de tocar.';document.querySelectorAll('.key.active').forEach(k=>k.classList.remove('active'));const key=document.querySelector(`.key[data-midi="${n}"]`);if(key){key.classList.add('active');setTimeout(()=>key.classList.remove('active'),120)}handleExerciseNote(n,name)}
 function handleExerciseNote(n,name){if(typeof registerImportedSongPractice==='function'&&registerImportedSongPractice(n))return;if(typeof registerFreePracticeNote==='function')registerFreePracticeNote(n);if(typeof earAdvancedRecordNote==='function')earAdvancedRecordNote(n);if(typeof twoHandsStarted!=='undefined'&&twoHandsStarted)registerTwoHandsNote(n);if(typeof phraseStarted!=='undefined'&&phraseStarted)registerPhraseNote(n);if(typeof repertoireStarted!=='undefined'&&repertoireStarted)registerRepertoireNote(n);if(typeof repertoireLearnActive!=='undefined'&&repertoireLearnActive)registerRepertoireLearnNote(n);if(typeof repertoireReadActive!=='undefined'&&repertoireReadActive)registerRepertoireReadNote(n);if(typeof techniqueStarted!=='undefined'&&techniqueStarted)registerTechniqueNote(n);if(typeof rhythmReadingArmed!=='undefined'&&rhythmReadingArmed)registerRhythmReadingTap();const pc=name;
  if(document.getElementById('readingInput')) handleReadingNote(n,name);
  if(document.getElementById('orientationCourseTarget'))registerOrientationCourseNote(n);
