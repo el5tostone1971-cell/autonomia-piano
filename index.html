@@ -204,6 +204,8 @@ function mergeProgressStates(base,incoming){
  for(const id of new Set([...Object.keys(a.repertoireMilestones||{}),...Object.keys(b.repertoireMilestones||{})]))out.repertoireMilestones[id]=Object.assign({},a.repertoireMilestones?.[id]||{},b.repertoireMilestones?.[id]||{});
  out.repertoireSessions=Object.assign({},a.repertoireSessions||{},b.repertoireSessions||{});
  for(const id of new Set([...Object.keys(a.repertoireSessions||{}),...Object.keys(b.repertoireSessions||{})])){const sa=a.repertoireSessions?.[id]||{},sb=b.repertoireSessions?.[id]||{};out.repertoireSessions[id]=String(sa.updatedAt||'')>String(sb.updatedAt||'')?sa:sb;}
+ out.freePracticeHistory={...(a.freePracticeHistory||{}),...(b.freePracticeHistory||{})};for(const id of new Set([...Object.keys(a.freePracticeHistory||{}),...Object.keys(b.freePracticeHistory||{})])){const rows=[...(a.freePracticeHistory?.[id]||[]),...(b.freePracticeHistory?.[id]||[])];out.freePracticeHistory[id]=[...new Map(rows.map(x=>[x.at||JSON.stringify(x),x])).values()].sort((x,y)=>String(x.at||'').localeCompare(String(y.at||''))).slice(-30)}
+ out.repertoireAttempts={...(a.repertoireAttempts||{}),...(b.repertoireAttempts||{})};for(const id of new Set([...Object.keys(a.repertoireAttempts||{}),...Object.keys(b.repertoireAttempts||{})])){const rows=[...(a.repertoireAttempts?.[id]||[]),...(b.repertoireAttempts?.[id]||[])];out.repertoireAttempts[id]=[...new Map(rows.map(x=>[x.at||JSON.stringify(x),x])).values()].sort((x,y)=>String(x.at||'').localeCompare(String(y.at||''))).slice(-20)}
  out.skills=Object.assign({},a.skills||{},b.skills||{});for(const k of Object.keys(out.skills))out.skills[k]=Math.max(Number(a.skills?.[k])||0,Number(b.skills?.[k])||0);
  out.xp=Math.max(Number(a.xp)||0,Number(b.xp)||0);out.day=Math.max(Number(a.day)||1,Number(b.day)||1);
  out.streak=Math.max(Number(a.streak)||0,Number(b.streak)||0);out.lastPractice=[a.lastPractice,b.lastPractice].filter(Boolean).sort().pop()||'';
@@ -216,7 +218,7 @@ function mergeProgressStates(base,incoming){
   out.god.performance={...(a.god?.performance||{}),...(b.god?.performance||{}),sessions:mergeRecords(a.god?.performance?.sessions,b.god?.performance?.sessions,x=>x.id||x.sessionId||JSON.stringify(x),200)};
   out.god.imports=mergeRecords(a.god?.imports,b.god?.imports,x=>x.id||x.fileId||x.name||JSON.stringify(x),200);
   out.god.library=mergeRecords(a.god?.library,b.god?.library,x=>x.id||x.fileId||x.name||JSON.stringify(x),300);
-  out.god.music={...(a.god?.music||{}),...(b.god?.music||{}),tracks:mergeRecords(a.god?.music?.tracks,b.god?.music?.tracks,x=>x.id||x.trackId||x.name||JSON.stringify(x),300)};
+  out.god.music={...(a.god?.music||{}),...(b.god?.music||{}),tracks:mergeRecords(a.god?.music?.tracks,b.god?.music?.tracks,x=>x.id||x.trackId||x.name||JSON.stringify(x),300)};const songA=a.god?.music?.songPractice||{},songB=b.god?.music?.songPractice||{};out.god.music.songPractice={...songA,...songB};for(const id of new Set([...Object.keys(songA),...Object.keys(songB)])){const x=songA[id]||{},y=songB[id]||{},newest=String(x.updatedAt||'')>String(y.updatedAt||'')?x:y;out.god.music.songPractice[id]={...x,...y,...newest,history:mergeRecords(x.history,y.history,n=>String(n.at)+'|'+String(n.note)+'|'+String(n.expected)+'|'+String(n.correct),100)}};
   const evidenceA=a.god?.skillEvidence||{},evidenceB=b.god?.skillEvidence||{},evidence={};
   for(const key of new Set([...Object.keys(evidenceA),...Object.keys(evidenceB)]))evidence[key]=union(evidenceA[key],evidenceB[key]);
   out.god.skillEvidence=evidence;
