@@ -242,6 +242,26 @@
   assert(state.god.skillEvidenceLog.length===1,'el registro de evidencias no coincide');
   pass('Motor 11 · evidencia única y acotada','sin duplicados, competencias desconocidas ni incrementos excesivos');
  }catch(e){fail('Motor 11 · evidencia única y acotada',e)}
+ // Motor 11 coverage: all eight competencies must be connected to course evidence and the weakest skill controls assistance.
+ try{
+  state=clone(defaultState);state.skills=Object.fromEntries(MOTOR11_SKILLS.map(skill=>[skill,0]));
+  const missing=MOTOR11_SKILLS.filter(skill=>!LESSONS.some(lesson=>lesson.skill===skill));
+  assert(missing.length===0,'competencias sin lecciones asignadas: '+missing.join(', '));
+  for(const skill of MOTOR11_SKILLS){
+   const lesson=LESSONS.find(item=>item.skill===skill);
+   assert(awardUniqueSkillEvidence('motor11-coverage',lesson.id,{[skill]:4})===true,'no se acreditó '+skill);
+   assert(state.skills[skill]===4,'puntaje incorrecto para '+skill);
+  }
+  assert(state.god.skillEvidenceLog.length===MOTOR11_SKILLS.length,'faltan evidencias en el registro');
+  assert(autonomyScore()===4&&autonomyFloorScore()===4,'promedio o competencia más débil mal calculados');
+  state.skills=Object.fromEntries(MOTOR11_SKILLS.map(skill=>[skill,60]));state.skills.left=34;
+  assert(autonomyFloorScore()===34&&autonomyMode()==='guide','una competencia débil no mantuvo la guía completa');
+  state.skills.left=35;assert(autonomyMode()==='reduced','no redujo la ayuda al alcanzar 35%');
+  state.skills.left=55;assert(autonomyMode()==='memory','no activó memoria al alcanzar 55%');
+  state.skills.left=75;assert(autonomyMode()==='autonomous','no activó autonomía al alcanzar 75%');
+  pass('Motor 11 · cobertura de ocho competencias','cada competencia tiene evidencia en el curso; la más débil gobierna la retirada de ayudas');
+ }catch(e){fail('Motor 11 · cobertura de ocho competencias',e)}
+
  // Repertoire resume: all three stages recover their own index and the played notes.
  try{
   state=normalizeState(clone(defaultState));state.repertoireMilestones={};state.repertoireSessions={
