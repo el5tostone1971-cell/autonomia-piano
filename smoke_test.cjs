@@ -1014,21 +1014,21 @@ const assert = require('node:assert/strict');
     // Motor 06: subir un MIDI fixture, reproducirlo y practicar las notas en orden.
     const tinyMidi = Buffer.concat([
       Buffer.from('MThd'), Buffer.from([0,0,0,6,0,0,0,1,1,0xE0]),
-      Buffer.from('MTrk'), Buffer.from([0,0,0,22]),
-      Buffer.from([0,0x90,60,100,0x83,0x60,0x80,60,0,0,0x90,62,100,0x83,0x60,0x80,62,0,0,0xFF,0x2F,0])
+      Buffer.from('MTrk'), Buffer.from([0,0,0,31]),
+      Buffer.from([0,0x90,60,100,0x83,0x60,0x80,60,0,0,0x90,62,100,0x83,0x60,0x80,62,0,0,0x90,64,100,0x83,0x60,0x80,64,0,0,0xFF,0x2F,0])
     ]);
     await page.evaluate(() => show('settings'));
     assert.ok(await page.locator('button[onclick="openAdvancedSystem()"]').count() > 0, 'El acceso a Sistema avanzado no aparece en Ajustes');
     await page.evaluate(() => { openAdvancedSystem(); openGodFeature('06'); });
     await page.locator('#musicFile').setInputFiles({ name: 'smoke-melody.mid', mimeType: 'audio/midi', buffer: tinyMidi });
-    await page.waitForFunction(() => document.body.innerText.includes('2 notas'), null, { timeout: 10000 });
+    await page.waitForFunction(() => document.body.innerText.includes('3 notas'), null, { timeout: 10000 });
     assert.ok(await page.locator('button[onclick*="startImportedSongPractice"]').count() > 0, 'El MIDI no aparece como canción practicable');
     const importedTestSongId = await page.evaluate(() => state.god.library.find(item => item.title === 'smoke-melody.mid')?.id);
     assert.ok(importedTestSongId, 'No se guardó el MIDI importado en la biblioteca');
     await page.evaluate(id => startImportedSongPractice(id), importedTestSongId);
     assert.match(await page.locator('.card').last().innerText(), /C4|Do \(C\)/, 'La primera nota MIDI importada no se presenta como Do4');
     await page.evaluate(() => pressKey(60));
-    assert.match(await page.locator('.card').last().innerText(), /1 \/ 2/, 'La práctica no avanzó tras tocar la primera nota');
+    assert.match(await page.locator('.card').last().innerText(), /1 \/ 3/, 'La práctica no avanzó tras tocar la primera nota');
     assert.ok(await page.evaluate(id => (state.god.music?.songPractice?.[id]?.history||[]).length===1, importedTestSongId), 'La nota tocada no quedó guardada en el historial de la canción');
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => typeof window.startImportedSongPractice === 'function', null, { timeout: 20000 });
@@ -1041,22 +1041,22 @@ const assert = require('node:assert/strict');
     assert.match(await page.locator('#songAccuracyText').innerText(), /50%/, 'El porcentaje de acierto de la canción no se actualizó tras el error');
     await page.evaluate(() => skipImportedSongNote());
     assert.match(await page.locator('#songAccuracyText').innerText(), /33%/, 'El porcentaje de la canción no incluyó la nota omitida');
-    assert.match(await page.locator('.card').last().innerText(), /2 \/ 2|Canción completa|canción completa/, 'La canción MIDI no se completó al omitir la nota pendiente');
+    assert.match(await page.locator('.card').last().innerText(), /3 \/ 3|Canción completa|canción completa/, 'La canción MIDI no se completó al omitir la nota pendiente');
     assert.ok(await page.evaluate(id => (state.god.music?.songPractice?.[id]?.history||[]).some(x=>x.skipped), importedTestSongId), 'La nota omitida no quedó registrada en el historial');
     await page.evaluate(() => stopImportedSongPlayback());
 
     // Motor 06: la reproducción corrida debe iluminar notas y contar desde la primera, sin quedar sonando al terminar.
     await page.evaluate(() => { restartImportedSongPractice(); setImportedSongTempo(0.5); playImportedSongPractice(); });
-    await page.waitForFunction(() => document.getElementById('songProgressText')?.textContent === '1 / 2', null, { timeout: 5000 });
+    await page.waitForFunction(() => document.getElementById('songProgressText')?.textContent === '1 / 3', null, { timeout: 5000 });
     const firstPlaybackNote = await page.evaluate(() => ({
       highlighted: !!document.querySelector('.imported-song-keys .key[data-midi="60"].target-note'),
       playing: importedSongPractice.playing,
       progress: document.getElementById('songProgressText')?.textContent
     }));
-    assert.deepEqual(firstPlaybackNote,{highlighted:true,playing:true,progress:'1 / 2'},'La reproducción corrida no iluminó/contó la primera nota correctamente');
-    await page.waitForFunction(() => document.getElementById('songProgressText')?.textContent === '2 / 2', null, { timeout: 5000 });
+    assert.deepEqual(firstPlaybackNote,{highlighted:true,playing:true,progress:'1 / 3'},'La reproducción corrida no iluminó/contó la primera nota correctamente');
+    await page.waitForFunction(() => document.getElementById('songProgressText')?.textContent === '3 / 3', null, { timeout: 5000 });
     await page.waitForFunction(() => !importedSongPractice.playing, null, { timeout: 5000 });
-    assert.equal(await page.locator('#songProgressText').innerText(),'2 / 2','La reproducción corrida no llegó al final del MIDI');
+    assert.equal(await page.locator('#songProgressText').innerText(),'3 / 3','La reproducción corrida no llegó al final del MIDI');
     assert.equal(await page.evaluate(() => importedSongPractice.playing),false,'La reproducción MIDI siguió activa después de terminar');
 
     assert.deepEqual(pageErrors, [], 'La aplicación produjo errores JavaScript: ' + pageErrors.join(' | '));
