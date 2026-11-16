@@ -137,11 +137,12 @@ const assert = require('node:assert/strict');
     assert.match(await page.locator('#repertoireCount').innerText(), /1 \/ 3/, 'Un error no quedó registrado en el conteo de la práctica');
     assert.match(await page.locator('#repertoireMsg').innerText(), /registró el error/i, 'La aplicación no explicó la nota incorrecta');
     await page.evaluate(() => pressKey(64, 'midi'));
+    await page.evaluate(() => { pressKey(60, 'midi'); pressKey(62, 'midi'); pressKey(64, 'midi'); });
     await page.waitForFunction(() => /Práctica terminada/.test(document.getElementById('backingTrackStatus')?.textContent || ''));
     const practiceResult = await page.evaluate(() => ({ count: repertoireInput.length, backing: backingTrackTimer, correct: bandPracticeResults.filter(x => x.correct).length, results: bandPracticeResults.length, summary: document.getElementById('repertoirePlayedNotes')?.textContent || '' }));
-    assert.equal(practiceResult.count, 3, 'La práctica con banda no registró todas las notas tocadas');
-    assert.equal(practiceResult.results, 3, 'La práctica no guardó el detalle de cada nota');
-    assert.equal(practiceResult.correct, 2, 'El resultado de aciertos no distingue la nota incorrecta');
+    assert.equal(practiceResult.count, 6, 'La práctica con banda no registró las dos pasadas');
+    assert.equal(practiceResult.results, 6, 'La práctica no guardó el detalle de cada nota en ambas pasadas');
+    assert.equal(practiceResult.correct, 5, 'El resultado de aciertos no distingue la nota incorrecta');
     assert.match(practiceResult.summary, /esperaba/i, 'El resumen final no identifica la nota esperada en el error');
     assert.equal(practiceResult.backing, null, 'El acompañamiento no se detuvo al completar la canción');
 
