@@ -104,6 +104,7 @@
   assert(!theoryDone('T01')&&state.theory.xp===0,'una respuesta incorrecta completó teoría o sumó XP');
   answerTheory('T01',THEORY_LESSONS[0].correct);
   assert(theoryDone('T01')&&state.theory.xp===10,'la práctica + respuesta correcta no completó la lección');
+  const theoryReload=loadState();assert(theoryReload.theory.practice.T01?.passed&&theoryReload.theory.completed.T01,'la práctica aprobada no sobrevivió a la recarga');
   pass('Academia de teoría · 90 lecciones','90 desafíos prácticos, ejecución en teclado obligatoria, pregunta de comprensión y progreso condicionado a ambas pruebas');
  }catch(e){fail('Academia de teoría · 90 lecciones',e)}
 
