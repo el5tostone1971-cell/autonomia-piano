@@ -1023,8 +1023,9 @@ const assert = require('node:assert/strict');
     await page.evaluate(() => pressKey(60));
     assert.match(await page.locator('#importedSongFeedback').innerText(), /Buscá|Busca|D4|Re/, 'No se informó la nota equivocada');
     assert.ok(await page.evaluate(id => (state.god.music?.songPractice?.[id]?.history||[]).some(x=>x.correct===false), importedTestSongId), 'El error de la canción no quedó guardado');
-    await page.evaluate(() => pressKey(62));
-    assert.match(await page.locator('.card').last().innerText(), /2 \/ 2|Canción completada/, 'La canción MIDI no se completó tras la segunda nota');
+    await page.evaluate(() => skipImportedSongNote());
+    assert.match(await page.locator('.card').last().innerText(), /2 \/ 2|Canción completa|canción completa/, 'La canción MIDI no se completó al omitir la nota pendiente');
+    assert.ok(await page.evaluate(id => (state.god.music?.songPractice?.[id]?.history||[]).some(x=>x.skipped), importedTestSongId), 'La nota omitida no quedó registrada en el historial');
     await page.evaluate(() => stopImportedSongPlayback());
 
     // Motor 06: la reproducción corrida debe iluminar notas y contar desde la primera, sin quedar sonando al terminar.
