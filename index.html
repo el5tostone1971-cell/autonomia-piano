@@ -2998,7 +2998,8 @@ function registerRepertoireNote(n){
   bandPracticeResults.push({played:n,expected,correct,name,oct});repertoireInput.push(n);
   const hits=bandPracticeResults.filter(x=>x.correct).length,total=repertoirePiece.notes.length,target=total*2,pct=Math.round(hits/Math.max(1,bandPracticeResults.length)*100);
   const count=document.getElementById('repertoireCount');
-  if(count)count.textContent=hits+' / '+bandPracticeResults.length+' acertos · '+pct+'%';
+  const passHits=bandPracticeResults.slice(-total).filter(x=>x.correct).length;
+  if(count)count.textContent=passHits+' / '+total+' correctas · '+pct+'% global';
   const expectedName=localizedPianoNoteName(expected),expectedOct=Math.floor(expected/12)-1;
   const msg=document.getElementById('repertoireMsg');
   if(msg)msg.textContent=correct
