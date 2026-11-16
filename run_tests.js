@@ -75,6 +75,33 @@
   pass('Cartões das 90 lições em português','dia, competência, título, descrição e ação localizados');
  }catch(e){fail('Cartões das 90 lições em português',e)}
 
+ // Theory academy: audit every lesson's content, concrete piano application, illustration, quiz and level assignment.
+ try{
+  const expectedIds=Array.from({length:90},(_,i)=>'T'+String(i+1).padStart(2,'0'));
+  assert(THEORY_LESSONS.length===90,'la academia no contiene 90 lecciones');
+  assert(new Set(THEORY_LESSONS.map(x=>x.id)).size===90,'hay identificadores teóricos duplicados');
+  assert(THEORY_LESSONS.map(x=>x.id).every((id,i)=>id===expectedIds[i]),'la numeración de teoría no es continua T01–T90');
+  assert(THEORY_LEVELS.length===6&&THEORY_LEVELS.every(level=>level.lessons.length===15),'la teoría no está distribuida en seis niveles de quince');
+  const issues=[];
+  for(const lesson of THEORY_LESSONS){
+   if(!lesson.title||!lesson.text||lesson.text.length<45||!lesson.rule||lesson.rule.length<12)issues.push(lesson.id+': explicación/regla incompleta');
+   if(!lesson.question||!Array.isArray(lesson.options)||lesson.options.length<3||!Number.isInteger(lesson.correct)||lesson.correct<0||lesson.correct>=lesson.options.length)issues.push(lesson.id+': pregunta u opciones inválidas');
+   if(!THEORY_PRACTICE_ES[lesson.id]||THEORY_PRACTICE_ES[lesson.id].length<45)issues.push(lesson.id+': falta práctica específica de piano');
+   if(!THEORY_DEEP_ES[lesson.id]||THEORY_DEEP_ES[lesson.id].length<35)issues.push(lesson.id+': falta explicación profunda específica');
+   openTheory(lesson.id);
+   const rendered=document.getElementById('main')?.innerText||'';
+   if(!rendered.includes(lesson.title)||!rendered.includes(THEORY_PRACTICE_ES[lesson.id]||'__missing__')||!rendered.includes(lesson.question))issues.push(lesson.id+': contenido no renderizado');
+   if(!rendered.includes('Práctica guiada en el piano')||!rendered.includes('Comprobación de comprensión'))issues.push(lesson.id+': faltan secciones pedagógicas');
+  }
+  assert(issues.length===0,'auditoría de teoría encontró problemas: '+issues.slice(0,12).join(' | '));
+  state.theory={completed:{},xp:0};state.xp=0;openTheory('T01');
+  answerTheory('T01',1-THEORY_LESSONS[0].correct);
+  assert(!theoryDone('T01')&&state.theory.xp===0,'una respuesta incorrecta completó teoría o sumó XP');
+  answerTheory('T01',THEORY_LESSONS[0].correct);
+  assert(theoryDone('T01')&&state.theory.xp===10,'la respuesta correcta no guardó el concepto y los XP');
+  pass('Academia de teoría · 90 lecciones','seis niveles, explicación profunda, práctica específica de piano, ejemplo, pregunta y evaluación de respuesta');
+ }catch(e){fail('Academia de teoría · 90 lecciones',e)}
+
  // Public spaced repetition regression test.
  try{
   state=clone(defaultState); state.day=3; state.lessons={l1:true,l2:true,l3:true}; state.god.spaced.queue=[]; saveState();
