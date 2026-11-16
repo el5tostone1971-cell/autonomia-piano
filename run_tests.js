@@ -152,6 +152,19 @@
  // Deep structural diagnostics.
  try{state=clone(defaultState);state.day=1;saveState();showHTML(settings());const d=runDeepDiag();const bad=d.filter(x=>!x.o&&x.d!=='opcional según navegador');assert(!bad.length,'fallos: '+bad.map(x=>x.n||JSON.stringify(x)).join(', '));pass('Autodiagnóstico profundo','sin fallos estructurales')}catch(e){fail('Autodiagnóstico profundo',e)}
 
+ // Imported MIDI regression: an incorrect note is recorded and the phrase advances instead of waiting forever.
+ try{
+  state=clone(defaultState);state.god.library=[{id:'midi-regression',source:'midi',data:{sequence:[{midi:60,startMs:0,track:0},{midi:62,startMs:500,track:0}]}}];
+  importedSongPractice={songId:'midi-regression',index:0,correct:0,errors:0,history:[],active:true,tempoScale:.75,message:'',playToken:0,playing:false,paused:false,offsetMs:0,currentNotes:[],mode:'wait',waiting:true,waitGroup:[{midi:60,startMs:0,track:0}],waitGroupStart:0,waitGroupEnd:1,phraseStart:0,phraseEnd:2,waitRemaining:new Set([0]),trackFilter:null,handFilter:'both'};
+  registerImportedSongPractice(61);
+  assert(importedSongPractice.errors===1,'no registró el error de la nota MIDI');
+  assert(importedSongPractice.history.length===1&&importedSongPractice.history[0].correct===false,'no conservó el detalle de la nota equivocada');
+  assert(importedSongPractice.index===1,'la canción MIDI no avanzó después del error');
+  assert(importedSongPractice.waitGroup[0]?.midi===62,'no mostró la siguiente nota después del error');
+  assert(importedSongPractice.waiting===true,'la práctica no continuó esperando la siguiente posición');
+  pass('Canciones MIDI · avance tras error','registra la nota equivocada, conserva el historial y continúa con la siguiente posición');
+ }catch(e){fail('Canciones MIDI · avance tras error',e)}
+
  // Persistence regression: simulate closing/reopening the app using the same browser storage.
  try{
   localStorage.clear();
