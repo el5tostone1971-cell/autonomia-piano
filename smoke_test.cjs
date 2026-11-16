@@ -968,6 +968,7 @@ const assert = require('node:assert/strict');
     assert.match(resumedLearn.note, /octava/i, 'La nota de reanudación no se mostró');
     await page.evaluate(() => {
       const piece = repertoireLibrary.find(item => item.id === 'rp9');
+      selectLibraryPiece('rp9');
       repertoireInput = piece.notes.slice(0, 2);
       saveRepertoireSession('play', 2);
     });
