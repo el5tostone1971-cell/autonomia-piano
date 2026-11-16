@@ -337,11 +337,11 @@
  try{
   const previousOutput=midiOutput,sent=[];
   midiOutput={send:(message,when)=>sent.push({message:Array.from(message),when})};
-  tone(60,.25);
+  const midiTestStartedAt=performance.now();tone(60,.25);
   assert(sent.length===2,'la reproducción no envió note-on y note-off al piano MIDI');
   assert(sent[0].message.join(',')==='144,60,90','el piano no recibió Do central con note-on');
   assert(sent[1].message.join(',')==='128,60,0','el piano no recibió note-off para liberar la tecla');
-  assert(sent[1].when>=sent[0].when,'el note-off no quedó programado después del ataque');
+  assert(Number.isFinite(sent[1].when)&&sent[1].when>=midiTestStartedAt+200,'el note-off no quedó programado después del ataque');
   midiOutput=previousOutput;
   pass('MIDI · salida al piano físico','la reproducción envía note-on/note-off al dispositivo elegido en vez de sonar solo en la notebook');
  }catch(e){fail('MIDI · salida al piano físico',e);midiOutput=null}
