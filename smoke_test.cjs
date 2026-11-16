@@ -144,6 +144,7 @@ const assert = require('node:assert/strict');
     assert.equal(practiceResult.results, 6, 'La práctica no guardó el detalle de cada nota en ambas pasadas');
     assert.equal(practiceResult.correct, 5, 'El resultado de aciertos no distingue la nota incorrecta');
     assert.match(practiceResult.summary, /esperaba/i, 'El resumen final no identifica la nota esperada en el error');
+    assert.ok(await page.evaluate(() => (state.repertoireAttempts?.rp10||[]).some(x=>x.mode==='band-two-pass'&&x.correct===5)), 'El resultado de las dos pasadas no quedó guardado en el progreso');
     assert.equal(practiceResult.backing, null, 'El acompañamiento no se detuvo al completar la canción');
 
     // La banda también debe detenerse al completar exactamente dos pasadas, aunque el alumno no termine todas las notas.
@@ -206,6 +207,8 @@ const assert = require('node:assert/strict');
     assert.deepEqual(freePracticeAudit.results.filter(x => !x.targetCount || !x.recorded), [], 'Hay una actividad sin secuencia evaluable');
     assert.match(freePracticeAudit.score, /4\/5 corretas/, 'La práctica libre no calcula correctamente los errores');
     assert.match(freePracticeAudit.detail, /esperado Dó4/i, 'La práctica libre no identifica la nota esperada en portugués');
+    assert.ok(await page.evaluate(() => (state.freePracticeHistory?.technique||[]).length>0), 'La práctica libre no guardó el resultado');
+    assert.match(await page.locator('#freePracticeSavedStatus').innerText(), /Intento guardado/i, 'La práctica libre no informó que guardó el intento');
     const portugueseNav = await page.locator('#nav').innerText();
     assert.doesNotMatch(portugueseNav, /Lecciones|Práctica|Mapa del teclado|Teoría musical|Lectura musical|Tocar con dos manos|Frases musicales|Entrenamiento auditivo|Acompañamiento|Mi progreso|Repaso inteligente|Sistema y ajustes/, 'El menú conserva etiquetas principales en español');
 
@@ -992,8 +995,10 @@ const assert = require('node:assert/strict');
     assert.match(await page.locator('.card').last().innerText(), /C4|Do \(C\)/, 'La primera nota MIDI importada no se presenta como Do4');
     await page.evaluate(() => pressKey(60));
     assert.match(await page.locator('.card').last().innerText(), /1 \/ 2/, 'La práctica no avanzó tras tocar la primera nota');
+    assert.ok(await page.evaluate(id => (state.god.music?.songPractice?.[id]?.history||[]).length===1, importedTestSongId), 'La nota tocada no quedó guardada en el historial de la canción');
     await page.evaluate(() => pressKey(60));
     assert.match(await page.locator('#importedSongFeedback').innerText(), /Buscá|Busca|D4|Re/, 'No se informó la nota equivocada');
+    assert.ok(await page.evaluate(id => (state.god.music?.songPractice?.[id]?.history||[]).some(x=>x.correct===false), importedTestSongId), 'El error de la canción no quedó guardado');
     await page.evaluate(() => pressKey(62));
     assert.match(await page.locator('.card').last().innerText(), /2 \/ 2|Canción completada/, 'La canción MIDI no se completó tras la segunda nota');
     await page.evaluate(() => stopImportedSongPlayback());
