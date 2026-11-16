@@ -226,6 +226,21 @@ const assert = require('node:assert/strict');
     assert.match(freePracticeAudit.detail, /esperado Dó4/i, 'La práctica libre no identifica la nota esperada en portugués');
     assert.ok(await page.evaluate(() => (state.freePracticeHistory?.technique||[]).length>0), 'La práctica libre no guardó el resultado');
     assert.match(await page.locator('#freePracticeSavedStatus').innerText(), /Intento guardado|Tentativa salva/i, 'La práctica libre no informó que guardó el intento');
+    const freePracticeBeforeReload = await page.evaluate(() => {
+      const rows = state.freePracticeHistory?.technique || [];
+      return { count: rows.length, accuracy: rows[rows.length - 1]?.accuracy, at: rows[rows.length - 1]?.at };
+    });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => typeof window.setFreePracticeExercise === 'function', null, { timeout: 20000 });
+    await page.evaluate(() => { show('practice'); setFreePracticeExercise('technique'); });
+    const freePracticeAfterReload = await page.evaluate(() => {
+      const rows = state.freePracticeHistory?.technique || [];
+      return { count: rows.length, accuracy: rows[rows.length - 1]?.accuracy, at: rows[rows.length - 1]?.at, status: document.getElementById('freePracticeSavedStatus')?.textContent || '' };
+    });
+    assert.deepEqual(freePracticeAfterReload.count, freePracticeBeforeReload.count, 'La práctica libre perdió intentos al recargar la aplicación');
+    assert.equal(freePracticeAfterReload.accuracy, freePracticeBeforeReload.accuracy, 'La práctica libre perdió el porcentaje del último intento al recargar');
+    assert.equal(freePracticeAfterReload.at, freePracticeBeforeReload.at, 'La práctica libre no recuperó la fecha del último intento');
+    assert.match(freePracticeAfterReload.status, /Último resultado guardado|Último resultado salvo/i, 'La práctica libre no mostró el último resultado recuperado');
     const portugueseNav = await page.locator('#nav').innerText();
     assert.doesNotMatch(portugueseNav, /Lecciones|Práctica|Mapa del teclado|Teoría musical|Lectura musical|Tocar con dos manos|Frases musicales|Entrenamiento auditivo|Acompañamiento|Mi progreso|Repaso inteligente|Sistema y ajustes/, 'El menú conserva etiquetas principales en español');
 
