@@ -208,7 +208,7 @@ const assert = require('node:assert/strict');
     assert.match(freePracticeAudit.score, /4\/5 corretas/, 'La práctica libre no calcula correctamente los errores');
     assert.match(freePracticeAudit.detail, /esperado Dó4/i, 'La práctica libre no identifica la nota esperada en portugués');
     assert.ok(await page.evaluate(() => (state.freePracticeHistory?.technique||[]).length>0), 'La práctica libre no guardó el resultado');
-    assert.match(await page.locator('#freePracticeSavedStatus').innerText(), /Intento guardado/i, 'La práctica libre no informó que guardó el intento');
+    assert.match(await page.locator('#freePracticeSavedStatus').innerText(), /Intento guardado|Tentativa salva/i, 'La práctica libre no informó que guardó el intento');
     const portugueseNav = await page.locator('#nav').innerText();
     assert.doesNotMatch(portugueseNav, /Lecciones|Práctica|Mapa del teclado|Teoría musical|Lectura musical|Tocar con dos manos|Frases musicales|Entrenamiento auditivo|Acompañamiento|Mi progreso|Repaso inteligente|Sistema y ajustes/, 'El menú conserva etiquetas principales en español');
 
