@@ -1818,6 +1818,17 @@ const THEORY_LEVEL_GUIDES_ES={
 function theoryDeepNote(l){return THEORY_DEEP_ES[l.id]||THEORY_LEVEL_GUIDES_ES[l.level]||''}
 function theoryApplication(l){return THEORY_PRACTICE_ES[l.id]||"Aplicá el concepto al instrumento: identificá primero la referencia, nombrá las notas, tocá lentamente y verificá el resultado. Repetí sin mirar la explicación y explicá qué hiciste."}
 function theoryPracticeSpec(l){
+ const specific={
+  T01:{kind:'reading',notes:[59,60],prompt:'Tocá Si3 y después Do4. Comprobá que después de Si el ciclo de nombres vuelve a Do, ahora una octava más arriba.'},
+  T02:{kind:'reading',notes:[64,67,71,74,77],prompt:'Tocá las notas que ocupan las cinco líneas de la clave de Sol, de abajo hacia arriba: Mi, Sol, Si, Re y Fa.'},
+  T03:{kind:'reading',notes:[67,69],prompt:'Encontrá Sol4 como referencia y tocá La4, que está inmediatamente por encima.'},
+  T04:{kind:'reading',notes:[64,65,67,69,71],prompt:'Tocá cinco notas que suben por posiciones consecutivas desde Mi4. Escuchá cómo asciende la altura.'},
+  T05:{kind:'reading',notes:[60,67,64],prompt:'Usá Do central y Sol4 como notas guía. Tocá ambas y después encontrá Mi4 entre ellas.'},
+  T06:{kind:'reading',notes:[60,62,64,62,60],prompt:'Tocá Do–Re–Mi y luego volvé por Re–Do: primero subí en altura y después bajá.'},
+  T07:{kind:'interval',notes:[60,62,64,67],prompt:'Tocá Do–Re–Mi como pasos y después saltá de Do a Sol. Compará el movimiento conjunto con el disjunto.'},
+  T08:{kind:'reading',notes:[60,64,62,67],prompt:'Leé y tocá la frase Do–Mi–Re–Sol. Anticipá la dirección y los saltos antes de cada nota.'}
+ };
+ if(specific[l.id])return specific[l.id];
  const title=(l.title+' '+l.text).toLowerCase();
  if(/ritm|pulso|comp[aá]s|subdiv|corchea|negra|silencio|s[ií]ncopa|contratiempo|tresillo|tempo|duraci[oó]n/.test(title))return {kind:'rhythm',notes:[60,60,60,60],prompt:'Tocá Do central cuatro veces, manteniendo intervalos regulares. La prueba mide tanto los ataques como la estabilidad del pulso.'};
  if(/acorde|tr[ií]ada|armon[ií]|t[oó]nica|dominante|subdominante|inversi[oó]n|cifrado|funci[oó]n/.test(title)){
