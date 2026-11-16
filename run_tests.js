@@ -315,6 +315,7 @@
   accomp.running=true;accomp.timer=setTimeout(()=>{},60000);
   show('home');
   assert(!accomp.running&&accomp.timer===null,'el audio siguió activo al salir de Acompañamiento');
+  state.theory=state.theory||{completed:{},practice:{},xp:0};state.theory.completed=state.theory.completed||{};['T29','T30','T31','T32','T33','T34'].forEach(id=>state.theory.completed[id]=true);
   setAccStyle('Rock');assert(accomp.style==='Rock'&&accomp.bpm===112,'el estilo Rock no aplicó su tempo');
   setAccProgression(3);assert(accomp.progression.join('-')==='Am-Dm-G-C','la progresión seleccionada no se aplicó');
   show('accompaniment');assert((document.getElementById('main')?.innerText||'').includes('Am–Dm–G–C'),'la cuarta progresión no aparece disponible en la interfaz');
