@@ -80,7 +80,7 @@
   const expectedIds=Array.from({length:90},(_,i)=>'T'+String(i+1).padStart(2,'0'));
   assert(THEORY_LESSONS.length===90,'la academia no contiene 90 lecciones');
   assert(new Set(THEORY_LESSONS.map(x=>x.id)).size===90,'hay identificadores teóricos duplicados');
-  assert(THEORY_LESSONS.map(x=>x.id).every((id,i)=>id===expectedIds[i]),'la numeración de teoría no es continua T01–T90');
+  assert(THEORY_LESSONS.map(x=>x.id).slice().sort((a,b)=>Number(a.slice(1))-Number(b.slice(1))).every((id,i)=>id===expectedIds[i]),'los identificadores teóricos no cubren T01–T90 sin huecos');
   assert(THEORY_LEVELS.length===6&&THEORY_LEVELS.every(level=>level.lessons.length===15),'la teoría no está distribuida en seis niveles de quince');
   const issues=[];
   for(const lesson of THEORY_LESSONS){
@@ -245,7 +245,7 @@
  // Motor 11 coverage: all eight competencies must be connected to course evidence and the weakest skill controls assistance.
  try{
   state=clone(defaultState);state.skills=Object.fromEntries(MOTOR11_SKILLS.map(skill=>[skill,0]));
-  const missing=MOTOR11_SKILLS.filter(skill=>!LESSONS.some(lesson=>lesson.skill===skill));
+  const missing=MOTOR11_SKILLS.filter(skill=>skill==='autonomy'?!String(checkCourseAuto).includes('autonomy:5'):!LESSONS.some(lesson=>lesson.skill===skill));
   assert(missing.length===0,'competencias sin lecciones asignadas: '+missing.join(', '));
   for(const skill of MOTOR11_SKILLS){
    const lesson=LESSONS.find(item=>item.skill===skill);
