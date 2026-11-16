@@ -322,6 +322,16 @@
   pass('Acompañamiento · control de reproducción','inicia, detiene, cambia estilos/progresiones y corta el audio al navegar fuera');
  }catch(e){fail('Acompañamiento · control de reproducción',e);if(accomp.timer)clearTimeout(accomp.timer);accomp.running=false;accomp.timer=null}
  
+ // Point 3: every original repertoire piece must be playable, duration-aligned and fit the 61-key range.
+ try{
+  assert(repertoireLibrary.length>=19,'faltan piezas originales en la biblioteca');
+  const invalid=repertoireLibrary.filter(piece=>!piece.id||!piece.title||!Number.isFinite(piece.tempo)||piece.tempo<40||piece.tempo>180||!Array.isArray(piece.notes)||piece.notes.length<24||!Array.isArray(piece.dur)||piece.dur.length!==piece.notes.length||piece.dur.some(d=>!Number.isFinite(d)||d<=0)||piece.notes.some(n=>!Number.isInteger(n)||n<36||n>96));
+  assert(invalid.length===0,'hay piezas no reproducibles o con notas/duraciones inválidas: '+invalid.map(x=>x.id).join(','));
+  const originals=repertoireLibrary.filter(piece=>(piece.tags||[]).includes('Original'));
+  assert(originals.length>=10,'la biblioteca perdió el repertorio original de estilos brasileños, pop y rock');
+  pass('Repertorio original · biblioteca validada',repertoireLibrary.length+' piezas con notas y duraciones alineadas, tempo válido y extensión compatible con el teclado de 61 teclas');
+ }catch(e){fail('Repertorio original · biblioteca validada',e)}
+
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
