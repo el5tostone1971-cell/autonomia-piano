@@ -287,6 +287,21 @@
   pass('Repertorio · recuperación de las tres etapas','aprendizaje, lectura e interpretación retoman índice/notas y guardan 25/50/100%');
  }catch(e){fail('Repertorio · recuperación de las tres etapas',e);stopRepertoirePractice()}
 
+ // Point 3: band practice records errors, advances, completes two passes and stops the backing.
+ try{
+  state=clone(defaultState);state.repertoireAttempts={};state.repertoireSessions={};state.repertoireMilestones={};
+  repertoirePiece={id:'band-test',title:'Prueba de banda',notes:[60,62],dur:[1,1],tempo:72};
+  repertoireStage=0;repertoireInput=[];repertoireTimes=[];repertoirePlayedHistory=[];bandPracticeResults=[];bandPracticeActive=true;repertoireStarted=true;bandPracticeTimer=null;
+  registerRepertoireNote(61);
+  assert(bandPracticeResults.length===1&&!bandPracticeResults[0].correct&&bandPracticeResults[0].expected===60,'un error bloqueó o no registró la primera posición');
+  registerRepertoireNote(62);registerRepertoireNote(60);registerRepertoireNote(62);
+  assert(!bandPracticeActive&&!repertoireStarted,'la banda no se detuvo al completar dos pasadas');
+  const attempt=state.repertoireAttempts['band-test']?.[0];
+  assert(attempt&&attempt.results.length===4&&attempt.correct===3&&attempt.total===4,'no guardó los cuatro ataques y el porcentaje de dos pasadas');
+  assert(attempt.results[0].correct===false&&attempt.results[0].expected===60&&attempt.results[1].correct===true,'el historial no distingue nota incorrecta y correcta');
+  pass('Práctica con banda · dos pasadas','registra errores sin bloquear, avanza a la nota siguiente, guarda el detalle y detiene el audio al completar dos vueltas');
+ }catch(e){fail('Práctica con banda · dos pasadas',e);bandPracticeActive=false;repertoireStarted=false;stopBackingTrack()}
+
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
