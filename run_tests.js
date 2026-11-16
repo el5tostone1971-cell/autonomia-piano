@@ -369,7 +369,7 @@
 
  // Point 3: the complete 61-key teaching keyboard must remain fixed and fit without horizontal overflow.
  try{
-  show('keyboard');
+  showHTML(keyboardMap());
   const piano=document.querySelector('#main .keys.responsive-piano-keys');
   assert(piano,'no se renderizó el teclado didáctico');
   assert(piano.querySelectorAll('.key').length===61,'el teclado no contiene exactamente 61 teclas');
