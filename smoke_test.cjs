@@ -969,6 +969,7 @@ const assert = require('node:assert/strict');
     await page.evaluate(() => {
       const piece = repertoireLibrary.find(item => item.id === 'rp10');
       repertoireInput = piece.notes.slice(0, 2);
+      state.repertoireMilestones = state.repertoireMilestones || {};state.repertoireMilestones.rp10 = state.repertoireMilestones.rp10 || {};delete state.repertoireMilestones.rp10.play;
       saveRepertoireSession('play', 2);
     });
     await page.reload({ waitUntil: 'domcontentloaded' });
