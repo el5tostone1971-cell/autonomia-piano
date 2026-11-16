@@ -943,7 +943,7 @@ const assert = require('node:assert/strict');
     await page.evaluate(() => {
       state.lessons = { ...(state.lessons || {}), l1: true };
       selectLibraryPiece('rp10');
-      state.repertoireProgress = { ...(state.repertoireProgress || {}), rp10: 35 };
+      state.repertoireProgress = { ...(state.repertoireProgress || {}), rp10: 50 };
       saveRepertoireSession('learn', 3);
       saveState();
     });
@@ -955,7 +955,7 @@ const assert = require('node:assert/strict');
       session: state.repertoireSessions.rp10
     }));
     assert.equal(restored.lesson, true, 'La lección no sobrevivió a la recarga');
-    assert.equal(restored.progress, 35, 'El porcentaje de repertorio no sobrevivió a la recarga');
+    assert.equal(restored.progress, 50, 'El porcentaje de repertorio no sobrevivió a la recarga ni se conservó el mejor progreso');
     assert.equal(restored.session.mode, 'learn', 'No se restauró el modo de la sesión');
     assert.equal(restored.session.index, 3, 'No se restauró el índice de la sesión');
     await page.evaluate(() => { selectLibraryPiece('rp10'); startRepertoireLearn(); });
