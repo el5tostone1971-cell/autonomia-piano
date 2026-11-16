@@ -263,7 +263,7 @@
   assert(autonomyFloorScore()===34&&autonomyMode()==='guide','una competencia débil no mantuvo la guía completa');
   state.skills.left=35;assert(autonomyMode()==='reduced','no redujo la ayuda al alcanzar 35%');
   state.skills.left=55;assert(autonomyMode()==='memory','no activó memoria al alcanzar 55%');
-  state.skills.left=75;assert(autonomyMode()==='autonomous','no activó autonomía al alcanzar 75%');
+  state.skills=Object.fromEntries(MOTOR11_SKILLS.map(skill=>[skill,75]));assert(autonomyFloorScore()===75&&autonomyMode()==='autonomous','no activó autonomía cuando las ocho competencias alcanzaron 75%');
   pass('Motor 11 · cobertura de ocho competencias','cada competencia tiene evidencia en el curso; la más débil gobierna la retirada de ayudas');
  }catch(e){fail('Motor 11 · cobertura de ocho competencias',e)}
 
