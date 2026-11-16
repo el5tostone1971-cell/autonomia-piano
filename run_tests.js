@@ -353,8 +353,10 @@
   midiOutput={send:(message,when)=>sent.push({message:Array.from(message),when})};
   playSeq([60,62,64],100,.1);
   assert(sequencePlaybackActive&&sequencePlaybackTimers.size>=3,'la secuencia no registró sus temporizadores');
+  assert(document.getElementById('sequenceStopControl')?.style.display==='block','no apareció el control visible para detener audio');
   stopSequencePlayback();
   assert(!sequencePlaybackActive&&sequencePlaybackTimers.size===0,'Detener no canceló todos los temporizadores');
+  assert(document.getElementById('sequenceStopControl')?.style.display==='none','el control de detener no se ocultó al parar');
   await new Promise(resolve=>setTimeout(resolve,260));
   assert(!sent.some(item=>item.message[0]===0x90),'se envió una nota después de detener la secuencia');
   playSeq([60,62,64],100,.1);
