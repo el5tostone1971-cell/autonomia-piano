@@ -3014,6 +3014,7 @@ function registerRepertoireNote(n){
    bandPracticeActive=false;repertoireStarted=false;
    if(bandPracticeTimer){clearTimeout(bandPracticeTimer);bandPracticeTimer=null}
    stopBackingTrack();
+   state.repertoireAttempts=state.repertoireAttempts||{};state.repertoireAttempts[repertoirePiece.id]=Array.isArray(state.repertoireAttempts[repertoirePiece.id])?state.repertoireAttempts[repertoirePiece.id]:[];state.repertoireAttempts[repertoirePiece.id].push({accuracy:pct,correct:hits,total:bandPracticeResults.length,mode:'band-two-pass',at:new Date().toISOString(),results:bandPracticeResults.slice(-128)});state.repertoireAttempts[repertoirePiece.id]=state.repertoireAttempts[repertoirePiece.id].slice(-20);state.repertoireSessions=state.repertoireSessions||{};state.repertoireSessions[repertoirePiece.id]={mode:'band-complete',index:repertoirePiece.notes.length,updatedAt:new Date().toISOString()};if(pct>=80&&!state.repertoireMilestones?.[repertoirePiece.id]?.play)markRepertoireMilestone('play');saveState();
    const st=document.getElementById('backingTrackStatus');
    if(st)st.textContent=pianoLanguage==='pt'?'✓ Prática concluída · áudio interrompido':'✓ Práctica terminada · audio detenido';
    if(msg)msg.textContent=pianoLanguage==='pt'?'Resultado das duas passagens: '+hits+'/'+bandPracticeResults.length+' acertos ('+pct+'%). ✓ acerto · ✗ erro. Revise a lista completa.':'Resultado de las dos pasadas: '+hits+'/'+bandPracticeResults.length+' aciertos ('+pct+'%). ✓ acierto · ✗ error. Revisá el registro completo.';
