@@ -317,6 +317,7 @@
   assert(!accomp.running&&accomp.timer===null,'el audio siguió activo al salir de Acompañamiento');
   setAccStyle('Rock');assert(accomp.style==='Rock'&&accomp.bpm===112,'el estilo Rock no aplicó su tempo');
   setAccProgression(3);assert(accomp.progression.join('-')==='Am-Dm-G-C','la progresión seleccionada no se aplicó');
+  show('accompaniment');assert((document.getElementById('main')?.innerText||'').includes('Am–Dm–G–C'),'la cuarta progresión no aparece disponible en la interfaz');
   accomp=savedAccomp;accTick=savedTick;
   pass('Acompañamiento · control de reproducción','inicia, detiene, cambia estilos/progresiones y corta el audio al navegar fuera');
  }catch(e){fail('Acompañamiento · control de reproducción',e);if(accomp.timer)clearTimeout(accomp.timer);accomp.running=false;accomp.timer=null}
