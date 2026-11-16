@@ -302,6 +302,25 @@
   pass('Práctica con banda · dos pasadas','registra errores sin bloquear, avanza a la nota siguiente, guarda el detalle y detiene el audio al completar dos vueltas');
  }catch(e){fail('Práctica con banda · dos pasadas',e);bandPracticeActive=false;repertoireStarted=false;stopBackingTrack()}
 
+ // Point 3: the accompaniment control must start, stop and stop automatically when leaving its screen.
+ try{
+  const savedAccomp={...accomp},savedTick=accTick;
+  let ticks=0;
+  accTick=()=>{ticks++};
+  accomp={...savedAccomp,running:false,timer:null,beat:0,step:0};
+  toggleAccompaniment();
+  assert(accomp.running&&ticks===1,'el botón no inició la base musical');
+  toggleAccompaniment();
+  assert(!accomp.running&&accomp.timer===null,'el botón no detuvo la base musical');
+  accomp.running=true;accomp.timer=setTimeout(()=>{},60000);
+  show('home');
+  assert(!accomp.running&&accomp.timer===null,'el audio siguió activo al salir de Acompañamiento');
+  setAccStyle('Rock');assert(accomp.style==='Rock'&&accomp.bpm===112,'el estilo Rock no aplicó su tempo');
+  setAccProgression(3);assert(accomp.progression.join('-')==='Am-Dm-G-C','la progresión seleccionada no se aplicó');
+  accomp=savedAccomp;accTick=savedTick;
+  pass('Acompañamiento · control de reproducción','inicia, detiene, cambia estilos/progresiones y corta el audio al navegar fuera');
+ }catch(e){fail('Acompañamiento · control de reproducción',e);if(accomp.timer)clearTimeout(accomp.timer);accomp.running=false;accomp.timer=null}
+ 
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
