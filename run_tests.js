@@ -333,6 +333,19 @@
   pass('Repertorio original · biblioteca validada',repertoireLibrary.length+' piezas con notas y duraciones alineadas, tempo válido y extensión compatible con el teclado de 61 teclas');
  }catch(e){fail('Repertorio original · biblioteca validada',e)}
 
+ // Point 3: when an external MIDI output is selected, app playback must sound through the piano.
+ try{
+  const previousOutput=midiOutput,sent=[];
+  midiOutput={send:(message,when)=>sent.push({message:Array.from(message),when})};
+  tone(60,.25);
+  assert(sent.length===2,'la reproducción no envió note-on y note-off al piano MIDI');
+  assert(sent[0].message.join(',')==='144,60,90','el piano no recibió Do central con note-on');
+  assert(sent[1].message.join(',')==='128,60,0','el piano no recibió note-off para liberar la tecla');
+  assert(sent[1].when>=sent[0].when,'el note-off no quedó programado después del ataque');
+  midiOutput=previousOutput;
+  pass('MIDI · salida al piano físico','la reproducción envía note-on/note-off al dispositivo elegido en vez de sonar solo en la notebook');
+ }catch(e){fail('MIDI · salida al piano físico',e);midiOutput=null}
+
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
