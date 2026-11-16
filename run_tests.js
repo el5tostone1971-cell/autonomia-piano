@@ -346,6 +346,24 @@
   pass('MIDI · salida al piano físico','la reproducción envía note-on/note-off al dispositivo elegido en vez de sonar solo en la notebook');
  }catch(e){fail('MIDI · salida al piano físico',e);midiOutput=null}
 
+
+ // Point 3: scheduled note sequences must be cancellable, silent after stop and cancelled on navigation.
+ try{
+  const previousOutput=midiOutput,sent=[];
+  midiOutput={send:(message,when)=>sent.push({message:Array.from(message),when})};
+  playSeq([60,62,64],100,.1);
+  assert(sequencePlaybackActive&&sequencePlaybackTimers.size>=3,'la secuencia no registró sus temporizadores');
+  stopSequencePlayback();
+  assert(!sequencePlaybackActive&&sequencePlaybackTimers.size===0,'Detener no canceló todos los temporizadores');
+  await new Promise(resolve=>setTimeout(resolve,260));
+  assert(!sent.some(item=>item.message[0]===0x90),'se envió una nota después de detener la secuencia');
+  playSeq([60,62,64],100,.1);
+  show('home');
+  assert(!sequencePlaybackActive&&sequencePlaybackTimers.size===0,'la navegación no detuvo la secuencia');
+  midiOutput=previousOutput;
+  pass('Reproducción · detener y navegar','cancela notas pendientes, no dispara ataques posteriores y se detiene al cambiar de pantalla');
+ }catch(e){fail('Reproducción · detener y navegar',e);stopSequencePlayback()}
+
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
