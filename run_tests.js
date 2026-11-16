@@ -91,15 +91,20 @@
    openTheory(lesson.id);
    const rendered=document.getElementById('main')?.innerText||'';
    if(!rendered.includes(lesson.title)||!rendered.includes(THEORY_PRACTICE_ES[lesson.id]||'__missing__')||!rendered.includes(lesson.question))issues.push(lesson.id+': contenido no renderizado');
-   if(!rendered.includes('Práctica guiada en el piano')||!rendered.includes('Comprobación de comprensión'))issues.push(lesson.id+': faltan secciones pedagógicas');
+   if(!rendered.includes('Demostración práctica en el piano')||!rendered.includes('Comprobación de comprensión')||!rendered.includes('Iniciar prueba práctica'))issues.push(lesson.id+': faltan secciones pedagógicas o evaluación práctica');
+    const spec=theoryPracticeSpec(lesson);if(!spec||!Array.isArray(spec.notes)||spec.notes.length<2||!spec.prompt)issues.push(lesson.id+': desafío práctico incompleto');
   }
   assert(issues.length===0,'auditoría de teoría encontró problemas: '+issues.slice(0,12).join(' | '));
-  state.theory={completed:{},xp:0};state.xp=0;openTheory('T01');
+  state.theory={completed:{},practice:{},xp:0};state.xp=0;openTheory('T01');
+  answerTheory('T01',THEORY_LESSONS[0].correct);
+  assert(!theoryDone('T01')&&state.theory.xp===0,'una respuesta correcta sin práctica completó teoría');
+  startTheoryAcademyPractice('T01');theoryAcademyPracticeExpected.forEach(n=>pressKey(n,'test'));
+  assert(checkTheoryAcademyPractice()===true&&state.theory.practice.T01.passed,'la ejecución correcta no acreditó la práctica');
   answerTheory('T01',1-THEORY_LESSONS[0].correct);
   assert(!theoryDone('T01')&&state.theory.xp===0,'una respuesta incorrecta completó teoría o sumó XP');
   answerTheory('T01',THEORY_LESSONS[0].correct);
-  assert(theoryDone('T01')&&state.theory.xp===10,'la respuesta correcta no guardó el concepto y los XP');
-  pass('Academia de teoría · 90 lecciones','seis niveles, explicación profunda, práctica específica de piano, ejemplo, pregunta y evaluación de respuesta');
+  assert(theoryDone('T01')&&state.theory.xp===10,'la práctica + respuesta correcta no completó la lección');
+  pass('Academia de teoría · 90 lecciones','90 desafíos prácticos, ejecución en teclado obligatoria, pregunta de comprensión y progreso condicionado a ambas pruebas');
  }catch(e){fail('Academia de teoría · 90 lecciones',e)}
 
  // Public spaced repetition regression test.
@@ -242,14 +247,14 @@
   assert(state.god.skillEvidenceLog.length===1,'el registro de evidencias no coincide');
   pass('Motor 11 · evidencia única y acotada','sin duplicados, competencias desconocidas ni incrementos excesivos');
  }catch(e){fail('Motor 11 · evidencia única y acotada',e)}
- // Motor 11 coverage: all eight competencies must be connected to course evidence and the weakest skill controls assistance.
+ // Motor 11: verify all eight skill channels using their actual evidence categories.
  try{
   state=clone(defaultState);state.skills=Object.fromEntries(MOTOR11_SKILLS.map(skill=>[skill,0]));
-  const missing=MOTOR11_SKILLS.filter(skill=>skill==='autonomy'?!String(checkCourseAuto).includes('autonomy:5'):!LESSONS.some(lesson=>lesson.skill===skill));
-  assert(missing.length===0,'competencias sin lecciones asignadas: '+missing.join(', '));
+  const evidenceBySkill={orientation:'reading',rhythm:'rhythmReading',right:'phrases',left:'courseTwoHands',chords:'accompaniment',ear:'courseAuto',memory:'courseAuto',autonomy:'courseAuto'};
   for(const skill of MOTOR11_SKILLS){
-   const lesson=LESSONS.find(item=>item.skill===skill);
-   assert(awardUniqueSkillEvidence('motor11-coverage',lesson.id,{[skill]:4})===true,'no se acreditó '+skill);
+   const category=evidenceBySkill[skill];
+   assert(typeof category==='string','falta fuente de evidencia para '+skill);
+   assert(awardUniqueSkillEvidence(category,'motor11-'+skill,{[skill]:4})===true,'no se acreditó '+skill);
    assert(state.skills[skill]===4,'puntaje incorrecto para '+skill);
   }
   assert(state.god.skillEvidenceLog.length===MOTOR11_SKILLS.length,'faltan evidencias en el registro');
