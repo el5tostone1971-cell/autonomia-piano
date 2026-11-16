@@ -967,14 +967,15 @@ const assert = require('node:assert/strict');
     assert.match(resumedLearn.count, /^3 \/ /, 'El contador de aprendizaje no refleja las notas ya realizadas');
     assert.match(resumedLearn.note, /octava/i, 'La nota de reanudación no se mostró');
     await page.evaluate(() => {
-      const piece = repertoireLibrary.find(item => item.id === 'rp9');
-      selectLibraryPiece('rp9');
+      const piece = repertoireLibrary.find(item => item.id === 'rp10');
+      selectLibraryPiece('rp10');
+      state.repertoireMilestones = state.repertoireMilestones || {};state.repertoireMilestones.rp10 = state.repertoireMilestones.rp10 || {};delete state.repertoireMilestones.rp10.play;
       repertoireInput = piece.notes.slice(0, 2);
       saveRepertoireSession('play', 2);
     });
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => typeof window.selectLibraryPiece === 'function', null, { timeout: 20000 });
-    await page.evaluate(() => { selectLibraryPiece('rp9'); startRepertoire(); });
+    await page.evaluate(() => { selectLibraryPiece('rp10'); startRepertoire(); });
     const resumedPlay = await page.evaluate(() => ({ notes: repertoireInput.slice(), count: document.getElementById('repertoireCount')?.textContent || '' }));
     assert.equal(resumedPlay.notes.length, 2, 'La interpretación no recuperó las dos notas guardadas');
     await page.evaluate(() => stopRepertoirePractice());
