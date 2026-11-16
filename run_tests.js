@@ -366,6 +366,19 @@
   pass('Reproducción · detener y navegar','cancela notas pendientes, no dispara ataques posteriores y se detiene al cambiar de pantalla');
  }catch(e){fail('Reproducción · detener y navegar',e);stopSequencePlayback()}
 
+
+ // Point 3: the complete 61-key teaching keyboard must remain fixed and fit without horizontal overflow.
+ try{
+  show('keyboard');
+  const piano=document.querySelector('#main .keys.responsive-piano-keys');
+  assert(piano,'no se renderizó el teclado didáctico');
+  assert(piano.querySelectorAll('.key').length===61,'el teclado no contiene exactamente 61 teclas');
+  assert(getComputedStyle(piano).position==='fixed','las reglas CSS volvieron a convertir el teclado fijo en elemento de página');
+  assert(piano.scrollWidth<=piano.clientWidth+1,'las 61 teclas exceden el ancho visible');
+  assert(parseFloat(getComputedStyle(document.getElementById('main')).paddingBottom)>=140,'el contenido no reservó espacio para que el teclado no lo tape');
+  pass('Teclado · 61 teclas sin desbordamiento','61 teclas visibles, posición fija, sin scroll horizontal y con espacio inferior reservado');
+ }catch(e){fail('Teclado · 61 teclas sin desbordamiento',e)}
+
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
