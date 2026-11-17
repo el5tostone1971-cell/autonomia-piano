@@ -363,6 +363,8 @@
   playSeq([60,62,64],100,.1);
   show('home');
   assert(!sequencePlaybackActive&&sequencePlaybackTimers.size===0,'la navegación no detuvo la secuencia');
+  let arrangementReleased=false;fullArrangementTimer=setTimeout(()=>{},60000);fullArrangementResolve=()=>{arrangementReleased=true};stopFullArrangement();
+  assert(arrangementReleased&&fullArrangementTimer===null&&fullArrangementResolve===null,'Detener no liberó la espera pendiente de la guía musical');
   accomp.running=true;accomp.timer=setTimeout(()=>{},60000);backingTrackTimer=setTimeout(()=>{},60000);let backingVoicesStopped=0,accompVoicesStopped=0;window._autonomiaBackingSources=new Set([{stop(){backingVoicesStopped++}}]);window._autonomiaAccompanimentSources=new Set([{stop(){accompVoicesStopped++}}]);renderSequenceStopControl(true);document.getElementById('sequenceStopControl').click();
   assert(!accomp.running&&accomp.timer===null&&backingTrackTimer===null,'el botón global no detuvo todos los motores de audio');
   assert(backingVoicesStopped===1&&accompVoicesStopped===1&&window._autonomiaBackingSources.size===0&&window._autonomiaAccompanimentSources.size===0,'quedaron voces ya programadas sonando después de la parada global');
