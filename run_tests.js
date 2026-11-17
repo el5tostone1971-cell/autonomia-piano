@@ -397,6 +397,24 @@
   }catch(e){fail('Teclado · 61 teclas compactas tras navegar',e)}
 
  
+ // Block 4: band practice progress is saved after every note and can be resumed.
+ try{
+  const originalState=state,originalPiece=repertoirePiece,originalResults=bandPracticeResults,originalInput=repertoireInput;
+  try{
+   state=clone(defaultState);repertoirePiece=repertoireLibrary[0];
+   bandPracticeResults=[{played:60,expected:62,correct:false,name:'Do',oct:4},{played:62,expected:62,correct:true,name:'Re',oct:4}];
+   repertoireInput=bandPracticeResults.map(x=>x.played);
+   saveBandRepertoireSession();
+   const restored=loadState(),session=restored.repertoireSessions?.[repertoirePiece.id];
+   assert(session?.mode==='band-play'&&session.index===2,'la sesión con banda no se guardó como reanudable');
+   assert(session.notes.join(',')==='60,62'&&session.results.length===2&&!session.results[0].correct&&session.results[1].correct,'se perdieron notas o errores intermedios de la banda');
+   assert(String(startBandPractice).includes("savedSession.mode==='band-play'"),'la práctica con banda no reconoce una sesión guardada para reanudar');
+   pass('Persistencia · repertorio con banda','guarda cada nota/error y permite reanudar una sesión interrumpida');
+  }finally{
+   state=originalState;repertoirePiece=originalPiece;bandPracticeResults=originalResults;repertoireInput=originalInput;saveState();
+  }
+ }catch(e){fail('Persistencia · repertorio con banda',e)}
+
  // Block 4: real persistence round-trip for course, practice and imported repertoire.
  try{
   const originalState=state;
