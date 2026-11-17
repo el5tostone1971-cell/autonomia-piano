@@ -3356,7 +3356,15 @@ bind();renderSide();try{show('home')}catch(e){const m=document.getElementById('m
 setTimeout(runStartupSelfCheck,250);
 // La recuperación del respaldo se ejecuta una sola vez al final del inicio.
 function persistProgressOnExit(){
- try{const snapshot=JSON.stringify(state);localStorage.setItem(KEY,snapshot);localStorage.setItem('autonomia-piano-progress-backup',snapshot);writeProgressIndexedDB(snapshot)}catch(e){console.error('No se pudo guardar el progreso al salir',e)}
+ let snapshot='';
+ try{snapshot=JSON.stringify(state);if(!snapshot)throw new Error('El progreso no se pudo serializar')}catch(e){console.error('No se pudo preparar el progreso al salir',e);return false}
+ // Cada copia se intenta de forma independiente: un fallo de localStorage no debe impedir IndexedDB.
+ let primaryOk=false,backupOk=false;
+ try{localStorage.setItem(KEY,snapshot);primaryOk=localStorage.getItem(KEY)===snapshot}catch(e){console.error('No se pudo guardar el progreso principal al salir',e)}
+ try{localStorage.setItem('autonomia-piano-progress-backup',snapshot);backupOk=localStorage.getItem('autonomia-piano-progress-backup')===snapshot}catch(e){console.error('No se pudo guardar la copia secundaria al salir',e)}
+ try{window._progressBackupPromise=writeProgressIndexedDB(snapshot)}catch(e){console.error('No se pudo iniciar el respaldo IndexedDB al salir',e)}
+ if(!primaryOk&&!backupOk)console.error('No se pudo verificar ninguna copia local del progreso al salir');
+ return primaryOk||backupOk;
 }
 window.addEventListener('pagehide',persistProgressOnExit);
 window.addEventListener('beforeunload',persistProgressOnExit);
