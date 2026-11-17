@@ -384,16 +384,17 @@
     assert(piano,label+': no se renderizó el teclado didáctico');
     assert(piano.querySelectorAll('.key').length===61,label+': no hay exactamente 61 teclas');
     const css=getComputedStyle(piano),rect=piano.getBoundingClientRect(),viewport=Math.max(1,window.innerHeight);
-    assert(css.position==='fixed',label+': el teclado dejó de estar fijo');
+    assert(css.position==='relative',label+': el teclado no está integrado al flujo del contenido');
     assert(rect.height<=viewport*.22+2,label+': el teclado ocupa más del 22% de la altura visible ('+Math.round(rect.height)+'px / '+viewport+'px)');
-    assert(rect.bottom<=viewport+2&&rect.top>=0,label+': el teclado quedó fuera del área visible');
+    const main=document.getElementById('main'),mainRect=main.getBoundingClientRect();
+    assert(rect.left>=mainRect.left-1&&rect.right<=mainRect.right+1,label+': el teclado excede el ancho del contenido');
+    assert(piano.offsetParent===main,label+': el teclado no participa del flujo de la página');
     assert(piano.scrollWidth<=piano.clientWidth+1,label+': las 61 teclas exceden el ancho visible');
-    assert(parseFloat(getComputedStyle(document.getElementById('main')).paddingBottom)>=120,label+': el contenido no reservó espacio inferior');
    };
    show('keyboard');keyboardCheck('entrada al mapa');
    show('practice');show('keyboard');keyboardCheck('volver desde práctica');
    show('course');show('keyboard');keyboardCheck('volver desde lecciones');
-   pass('Teclado · 61 teclas compactas tras navegar','mide altura real contra viewport, comprueba ancho y repite tras cambiar de sección');
+    pass('Teclado · 61 teclas compactas tras navegar','verifica posición en flujo, altura, ancho y navegación entre secciones');
   }catch(e){fail('Teclado · 61 teclas compactas tras navegar',e)}
 
  
