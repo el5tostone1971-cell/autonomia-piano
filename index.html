@@ -2879,6 +2879,7 @@ let repertoireTempoOverride=null;
 function getRepertoireTempo(){return Math.max(45,Math.min(140,Number(repertoireTempoOverride)||(repertoirePiece&&repertoirePiece.tempo)||90))}
 function setRepertoireTempo(value){
  repertoireTempoOverride=Math.max(45,Math.min(140,Number(value)||90));
+ if(bandPracticeActive)updateBandPracticeTempo(repertoireTempoOverride);
  if(repertoireStarted&&!bandPracticeActive){stopRepertoirePulse();window._repBeatTimer=setInterval(repertoirePulse,60000/repertoireTempoOverride);}
  const label=document.getElementById('repertoireTempoLabel');if(label)label.textContent=repertoireTempoOverride+' BPM';
  const status=document.getElementById('backingTrackStatus');if(status&&backingTrackTimer)status.textContent='Acompañamiento en '+repertoireTempoOverride+' BPM · podés ajustar la velocidad mientras tocás';
@@ -2981,28 +2982,49 @@ function backingTrackStep(token){
  backingTrackBeat++;if(backingTrackBeat>=4){backingTrackBeat=0;backingTrackBar=(backingTrackBar+1)%8}
  backingTrackTimer=setTimeout(()=>backingTrackStep(token),unit);
 }
-let bandPracticeTimer=null,bandPracticeActive=false,bandPracticeResults=[];
+let bandPracticeTimer=null,bandPracticeActive=false,bandPracticeResults=[],bandPracticeTotalBeats=0,bandPracticeElapsedBeats=0,bandPracticeTempoAt=0,bandPracticeCurrentTempo=90;
+function scheduleBandPracticeFinish(){
+ if(!bandPracticeActive)return;
+ if(bandPracticeTimer)clearTimeout(bandPracticeTimer);
+ const remaining=Math.max(0,bandPracticeTotalBeats-bandPracticeElapsedBeats);
+ const delay=Math.max(100,remaining*60000/Math.max(45,bandPracticeCurrentTempo));
+ bandPracticeTimer=setTimeout(finishBandPractice,delay);
+}
+function updateBandPracticeTempo(nextTempo){
+ if(!bandPracticeActive)return;
+ const now=performance.now();
+ bandPracticeElapsedBeats+=Math.max(0,now-bandPracticeTempoAt)*bandPracticeCurrentTempo/60000;
+ bandPracticeTempoAt=now;bandPracticeCurrentTempo=Math.max(45,Math.min(140,Number(nextTempo)||90));
+ scheduleBandPracticeFinish();
+}
+function finishBandPractice(){
+ if(!bandPracticeActive)return;
+ const now=performance.now();
+ bandPracticeElapsedBeats+=Math.max(0,now-bandPracticeTempoAt)*bandPracticeCurrentTempo/60000;
+ bandPracticeTempoAt=now;bandPracticeTimer=null;bandPracticeActive=false;repertoireStarted=false;bandPracticeTotalBeats=0;
+ stopBackingTrack();
+ const piece=repertoirePiece;if(!piece)return;
+ const keys=document.querySelectorAll('.repertoireKeys .key');keys.forEach(k=>{k.classList.remove('target-note');k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
+ const attempted=bandPracticeResults.length,hits=bandPracticeResults.filter(x=>x.correct).length,pct=Math.round(hits/Math.max(1,attempted)*100);
+ state.repertoireAttempts=state.repertoireAttempts||{};state.repertoireAttempts[piece.id]=Array.isArray(state.repertoireAttempts[piece.id])?state.repertoireAttempts[piece.id]:[];state.repertoireAttempts[piece.id].push({accuracy:pct,correct:hits,total:attempted,mode:'band-two-pass',at:new Date().toISOString(),results:bandPracticeResults.slice(-128)});state.repertoireAttempts[piece.id]=state.repertoireAttempts[piece.id].slice(-20);saveState();
+ const help=document.getElementById('repertoireCurrentNoteHelp');if(help)help.textContent=pianoLanguage==='pt'?'A sessão terminou. Você pode voltar a praticar com a banda quando quiser.':'La sesión terminó. Podés volver a practicar con la banda cuando quieras.';
+ const done=document.getElementById('repertoireMsg');if(done)done.textContent=pianoLanguage==='pt'?'✓ A prática com banda terminou. Resultado: '+hits+'/'+attempted+' acertos ('+pct+'%). Revise cada nota na lista.':'✓ Terminó la práctica con banda. Resultado: '+hits+'/'+attempted+' aciertos ('+pct+'%). Revisá cada nota en el registro.';
+ const beat=document.getElementById('repertoireBeat');if(beat)beat.textContent=pianoLanguage==='pt'?'✓ Prática concluída':'✓ Práctica terminada';
+ const finalStatus=document.getElementById('backingTrackStatus');if(finalStatus)finalStatus.textContent=pianoLanguage==='pt'?'✓ Música concluída · áudio interrompido':'✓ Canción terminada · audio detenido';
+}
 function startBandPractice(){
  if(!repertoirePiece)return;
  if(bandPracticeTimer){clearTimeout(bandPracticeTimer);bandPracticeTimer=null}
  repertoireInput=[];repertoireTimes=[];repertoirePlayedHistory=[];bandPracticeResults=[];repertoireStarted=true;bandPracticeActive=true;repertoireStart=performance.now();
  const history=document.getElementById('repertoirePlayedNotes');if(history){history.textContent='Todavía no tocaste ninguna nota.';history.classList.remove('band-feedback-list')}
  const piece=repertoirePiece,tempo=getRepertoireTempo(),beats=piece.dur.reduce((sum,d)=>sum+(Number(d)||1),0);
+ bandPracticeTotalBeats=Math.max(1,beats*2);bandPracticeElapsedBeats=0;bandPracticeCurrentTempo=tempo;bandPracticeTempoAt=performance.now();
  const count=document.getElementById('repertoireCount');if(count)count.textContent=pianoLanguage==='pt'?'0 / '+piece.notes.length+' corretas':'0 / '+piece.notes.length+' correctas';
  const msg=document.getElementById('repertoireMsg');if(msg)msg.textContent=pianoLanguage==='pt'?'Prática com banda: toque a música no seu teclado. A sessão dura duas passagens e, depois, todos os instrumentos param automaticamente.':'Práctica con banda: tocá la canción con tu teclado. La sesión dura dos pasadas y después se detienen automáticamente todos los instrumentos.';
  startBackingTrack(false);
  updateRepertoirePracticeTarget();
  const status=document.getElementById('backingTrackStatus');if(status)status.textContent=pianoLanguage==='pt'?'Prática ativa · '+tempo+' BPM · passagem 1 de 2':'Práctica activa · '+tempo+' BPM · pasada 1 de 2';
- const duration=Math.max(5000,beats*60000/tempo*2);
- bandPracticeTimer=setTimeout(()=>{
-  bandPracticeTimer=null;bandPracticeActive=false;repertoireStarted=false;stopBackingTrack();
-  const keys=document.querySelectorAll('.repertoireKeys .key');keys.forEach(k=>{k.classList.remove('target-note');k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
-  const attempted=bandPracticeResults.length,hits=bandPracticeResults.filter(x=>x.correct).length,total=piece.notes.length,pct=Math.round(hits/Math.max(1,attempted)*100);state.repertoireAttempts=state.repertoireAttempts||{};state.repertoireAttempts[piece.id]=Array.isArray(state.repertoireAttempts[piece.id])?state.repertoireAttempts[piece.id]:[];state.repertoireAttempts[piece.id].push({accuracy:pct,correct:hits,total:attempted,mode:'band-two-pass',at:new Date().toISOString(),results:bandPracticeResults.slice(-128)});state.repertoireAttempts[piece.id]=state.repertoireAttempts[piece.id].slice(-20);saveState();
-  const help=document.getElementById('repertoireCurrentNoteHelp');if(help)help.textContent=pianoLanguage==='pt'?'A sessão terminou. Você pode voltar a praticar com a banda quando quiser.':'La sesión terminó. Podés volver a practicar con la banda cuando quieras.';
-  const done=document.getElementById('repertoireMsg');if(done)done.textContent=pianoLanguage==='pt'?'✓ A prática com banda terminou. Resultado: '+hits+'/'+attempted+' acertos ('+pct+'%). Revise cada nota na lista.':'✓ Terminó la práctica con banda. Resultado: '+hits+'/'+attempted+' aciertos ('+pct+'%). Revisá cada nota en el registro.';
-  const beat=document.getElementById('repertoireBeat');if(beat)beat.textContent=pianoLanguage==='pt'?'✓ Prática concluída':'✓ Práctica terminada';
-  const finalStatus=document.getElementById('backingTrackStatus');if(finalStatus)finalStatus.textContent=pianoLanguage==='pt'?'✓ Música concluída · áudio interrompido':'✓ Canción terminada · audio detenido';
- },duration);
+ scheduleBandPracticeFinish();
 }
 function localizedPianoNoteName(n){
  const pc=pitchClassName(n),names=pianoLanguage==='pt'?{C:'Dó',D:'Ré',E:'Mi',F:'Fá',G:'Sol',A:'Lá',B:'Si'}:{C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'};
