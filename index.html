@@ -2277,9 +2277,9 @@ function accompaniment(){return shell('🎹 Acompañamiento','Entrená como con 
 function setAccStyle(k){if(!ACC_STYLES[k])return;if(accomp.running){accomp.running=false;clearTimeout(accomp.timer);accomp.timer=null}accomp.style=k;accomp.bpm=ACC_STYLES[k].bpm;accomp.beat=0;show('accompaniment')}
 function setAccProgression(i){const p=[['C','Am','F','G'],['C','G','Am','F'],['C','F','G','C'],['Am','Dm','G','C']][i]||['C','Am','F','G'];accomp.progression=p;accomp.step=0;accomp.beat=0;show('accompaniment')}
 function accFreq(n){return 440*Math.pow(2,(n-69)/12)}
-function accInstrumentTone(n,d,gain=.04,type='triangle'){const c=audio();if(!c)return;const o=c.createOscillator(),g=c.createGain(),now=c.currentTime;o.type=type;o.frequency.value=accFreq(n);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(Math.max(.0002,gain),now+.012);g.gain.exponentialRampToValueAtTime(.0001,now+Math.max(.05,d));o.connect(g).connect(c.destination);o.start(now);o.stop(now+Math.max(.06,d))}
-function accNoise(d,gain=.018,cut=7000){const c=audio();if(!c)return;const len=Math.max(1,Math.floor(c.sampleRate*d)),buf=c.createBuffer(1,len,c.sampleRate),data=buf.getChannelData(0);for(let i=0;i<len;i++)data[i]=Math.random()*2-1;const src=c.createBufferSource(),filter=c.createBiquadFilter(),g=c.createGain();src.buffer=buf;filter.type='highpass';filter.frequency.value=cut;g.gain.setValueAtTime(gain,c.currentTime);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+d);src.connect(filter).connect(g).connect(c.destination);src.start();src.stop(c.currentTime+d)}
-function accKick(gain=.1){const c=audio();if(!c)return;const o=c.createOscillator(),g=c.createGain(),now=c.currentTime;o.type='sine';o.frequency.setValueAtTime(115,now);o.frequency.exponentialRampToValueAtTime(42,now+.12);g.gain.setValueAtTime(gain,now);g.gain.exponentialRampToValueAtTime(.0001,now+.16);o.connect(g).connect(c.destination);o.start();o.stop(now+.17)}
+function accInstrumentTone(n,d,gain=.04,type='triangle'){const c=audio();if(!c)return;const o=c.createOscillator(),g=c.createGain(),now=c.currentTime;o.type=type;o.frequency.value=accFreq(n);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(Math.max(.0002,gain),now+.012);g.gain.exponentialRampToValueAtTime(.0001,now+Math.max(.05,d));o.connect(g).connect(c.destination);trackPlaybackSource(o,'_autonomiaAccompanimentSources');o.start(now);o.stop(now+Math.max(.06,d))}
+function accNoise(d,gain=.018,cut=7000){const c=audio();if(!c)return;const len=Math.max(1,Math.floor(c.sampleRate*d)),buf=c.createBuffer(1,len,c.sampleRate),data=buf.getChannelData(0);for(let i=0;i<len;i++)data[i]=Math.random()*2-1;const src=c.createBufferSource(),filter=c.createBiquadFilter(),g=c.createGain();src.buffer=buf;filter.type='highpass';filter.frequency.value=cut;g.gain.setValueAtTime(gain,c.currentTime);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+d);src.connect(filter).connect(g).connect(c.destination);trackPlaybackSource(src,'_autonomiaAccompanimentSources');src.start();src.stop(c.currentTime+d)}
+function accKick(gain=.1){const c=audio();if(!c)return;const o=c.createOscillator(),g=c.createGain(),now=c.currentTime;o.type='sine';o.frequency.setValueAtTime(115,now);o.frequency.exponentialRampToValueAtTime(42,now+.12);g.gain.setValueAtTime(gain,now);g.gain.exponentialRampToValueAtTime(.0001,now+.16);o.connect(g).connect(c.destination);trackPlaybackSource(o,'_autonomiaAccompanimentSources');o.start();o.stop(now+.17)}
 function accSnare(){accNoise(.12,.035,900);accInstrumentTone(38,.08,.02,'triangle')}
 function accChordHit(ns,d=.22,gain=.022){ns.forEach((n,i)=>accInstrumentTone(n,d,gain,i===0?'triangle':'sawtooth'))}
 function accTick(){if(!accomp.running)return;const style=ACC_STYLES[accomp.style]||ACC_STYLES.Pop,chord=accomp.progression[accomp.step%accomp.progression.length],ns=ACC_CHORDS[chord]||ACC_CHORDS.C,beat=60/accomp.bpm,g=style.groove,b=accomp.beat%4,root=ns[0]-12,fifth=(ns[2]||ns[0]+7)-12;
@@ -2873,6 +2873,8 @@ function playRepertoireDemo(){if(!repertoirePiece)return;repertoireReadToken++;r
 /* Pistas originales de acompañamiento: no usan grabaciones ni melodías comerciales.
    Bajo, acordes y batería sintéticos para que el alumno toque encima con su teclado. */
 let backingTrackTimer=null,backingTrackToken=0,backingTrackBar=0,backingTrackBeat=0,backingIdleTimer=null;
+function trackPlaybackSource(source,registry){const set=window[registry]||(window[registry]=new Set());set.add(source);source.addEventListener('ended',()=>set.delete(source),{once:true});return source}
+function stopTrackedPlaybackSources(registry){const set=window[registry];if(!set)return;for(const source of [...set]){try{source.stop(0)}catch(e){}set.delete(source)}}
 let repertoireTempoOverride=null;
 function getRepertoireTempo(){return Math.max(45,Math.min(140,Number(repertoireTempoOverride)||(repertoirePiece&&repertoirePiece.tempo)||90))}
 function setRepertoireTempo(value){
@@ -2933,19 +2935,19 @@ function backingOsc(freq,duration,type,volume,when){
  filter.type='lowpass';filter.frequency.setValueAtTime(Math.min(5200,Math.max(900,freq*5)),when);filter.Q.value=.65;
  g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(Math.max(.001,volume),when+.008);
  g.gain.exponentialRampToValueAtTime(.0001,when+Math.max(.06,duration));
- o.connect(filter).connect(g).connect(c.destination);o.start(when);o.stop(when+Math.max(.08,duration)+.02);
+ o.connect(filter).connect(g).connect(c.destination);trackPlaybackSource(o,'_autonomiaBackingSources');o.start(when);o.stop(when+Math.max(.08,duration)+.02);
  // Armónico discreto que da más presencia a acordes y bajo, con un ataque corto.
  const partial=c.createOscillator(),pg=c.createGain();partial.type='sine';partial.frequency.setValueAtTime(freq*2,when);
  pg.gain.setValueAtTime(.0001,when);pg.gain.exponentialRampToValueAtTime(Math.max(.0005,volume*.13),when+.006);
  pg.gain.exponentialRampToValueAtTime(.0001,when+Math.max(.045,duration*.55));
- partial.connect(pg).connect(c.destination);partial.start(when);partial.stop(when+Math.max(.06,duration*.6)+.02);
+ partial.connect(pg).connect(c.destination);trackPlaybackSource(partial,'_autonomiaBackingSources');partial.start(when);partial.stop(when+Math.max(.06,duration*.6)+.02);
 }
 function backingKick(when){
- const c=audio();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(115,when);o.frequency.exponentialRampToValueAtTime(42,when+.13);g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(.35,when+.008);g.gain.exponentialRampToValueAtTime(.0001,when+.16);o.connect(g).connect(c.destination);o.start(when);o.stop(when+.18);
+ const c=audio();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(115,when);o.frequency.exponentialRampToValueAtTime(42,when+.13);g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(.35,when+.008);g.gain.exponentialRampToValueAtTime(.0001,when+.16);o.connect(g).connect(c.destination);trackPlaybackSource(o,'_autonomiaBackingSources');o.start(when);o.stop(when+.18);
 }
 function backingSnare(when){
  const c=audio();if(!c)return;const len=Math.floor(c.sampleRate*.12),buf=c.createBuffer(1,len,c.sampleRate),data=buf.getChannelData(0);for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*(1-i/len);
- const src=c.createBufferSource(),g=c.createGain();src.buffer=buf;g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(.12,when+.006);g.gain.exponentialRampToValueAtTime(.0001,when+.12);src.connect(g).connect(c.destination);src.start(when);
+ const src=c.createBufferSource(),g=c.createGain();src.buffer=buf;g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(.12,when+.006);g.gain.exponentialRampToValueAtTime(.0001,when+.12);src.connect(g).connect(c.destination);trackPlaybackSource(src,'_autonomiaBackingSources');src.start(when);
 }
 function backingHat(when){
  const c=audio();if(!c)return;const len=Math.floor(c.sampleRate*.035),buf=c.createBuffer(1,len,c.sampleRate),data=buf.getChannelData(0);for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*(1-i/len);
@@ -3056,13 +3058,13 @@ async function playFullArrangement(){
 }
 function stopFullArrangement(){fullArrangementToken++;if(fullArrangementTimer){clearTimeout(fullArrangementTimer);fullArrangementTimer=null}}
 function stopBackingTrack(){
- if(typeof stopSequencePlayback==='function')stopSequencePlayback();clearBackingIdleTimer();if(typeof bandPracticeTimer!=='undefined'&&bandPracticeTimer){clearTimeout(bandPracticeTimer);bandPracticeTimer=null}stopFullArrangement();backingTrackToken++;if(backingTrackTimer){clearTimeout(backingTrackTimer);backingTrackTimer=null}
+ if(typeof stopSequencePlayback==='function')stopSequencePlayback();stopTrackedPlaybackSources('_autonomiaBackingSources');clearBackingIdleTimer();if(typeof bandPracticeTimer!=='undefined'&&bandPracticeTimer){clearTimeout(bandPracticeTimer);bandPracticeTimer=null}stopFullArrangement();backingTrackToken++;if(backingTrackTimer){clearTimeout(backingTrackTimer);backingTrackTimer=null}
  document.querySelectorAll('.keys .key').forEach(k=>{k.classList.remove('target-note');k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
  const status=document.getElementById('backingTrackStatus');if(status)status.textContent=pianoLanguage==='pt'?'Todo o áudio foi interrompido':'Todo el audio detenido';
 }
 
 function stopAccompaniment(){
- accomp.running=false;if(accomp.timer){clearTimeout(accomp.timer);accomp.timer=null}accomp.voices=[];
+ accomp.running=false;if(accomp.timer){clearTimeout(accomp.timer);accomp.timer=null}stopTrackedPlaybackSources('_autonomiaAccompanimentSources');accomp.voices=[];
 }
 function stopAllAudio(options={}){
  const keepRepertoire=!!options.keepRepertoire,keepAccompaniment=!!options.keepAccompaniment;
