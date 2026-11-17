@@ -425,6 +425,34 @@
   pass('Persistencia · fusión de respaldos','conserva lecciones, intentos y canciones importadas de dos perfiles parciales');
  }catch(e){fail('Persistencia · fusión de respaldos',e)}
 
+ // Block 4: IndexedDB backup can restore progress independently from localStorage.
+ try{
+  const originalState=state;
+  const fixture=clone(defaultState);fixture.day=2;fixture.lessons={l1:true};fixture.xp=15;
+  fixture.god=fixture.god||{};fixture.god.music={tracks:[{id:'idb-song',name:'Respaldo.mid',sequence:[{midi:67}]}],songPractice:{}};
+  const written=await writeProgressIndexedDB(JSON.stringify(fixture));
+  assert(written===true,'no se pudo escribir el respaldo IndexedDB');
+  state=clone(defaultState);state.day=3;state.lessons={l2:true};state.xp=25;
+  const restored=await restoreProgressIndexedDB();
+  assert(restored.ok,'falló la lectura del respaldo IndexedDB');
+  assert(state.lessons.l1&&state.lessons.l2,'la recuperación no fusionó el respaldo con el estado local');
+  assert(state.god.music.tracks.some(x=>x.id==='idb-song'),'la recuperación perdió la canción guardada en IndexedDB');
+  assert(state.xp===25,'la recuperación reemplazó indebidamente el XP local más alto');
+  state=originalState;
+  pass('Persistencia · recuperación IndexedDB','restaura canciones y progreso del respaldo sin borrar el avance local más reciente');
+ }catch(e){fail('Persistencia · recuperación IndexedDB',e)}
+
+ // Block 4: a failed secondary localStorage copy must not prevent the IndexedDB write attempt.
+ try{
+  const originalSet=localStorage.setItem.bind(localStorage),originalWriter=writeProgressIndexedDB;
+  let idbCalled=false;
+  localStorage.setItem=function(key,value){if(key==='autonomia-piano-progress-backup')throw Error('fallo simulado de copia secundaria');return originalSet(key,value)};
+  writeProgressIndexedDB=function(snapshot){idbCalled=!!snapshot;return Promise.resolve(true)};
+  try{persistProgressOnExit()}finally{localStorage.setItem=originalSet;writeProgressIndexedDB=originalWriter}
+  assert(idbCalled,'un fallo de la copia secundaria impidió intentar IndexedDB');
+  pass('Persistencia · copias independientes al salir','IndexedDB se intenta aunque falle la copia secundaria de localStorage');
+ }catch(e){fail('Persistencia · copias independientes al salir',e)}
+
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
