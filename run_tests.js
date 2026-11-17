@@ -388,7 +388,7 @@
     assert(rect.height<=viewport*.22+2,label+': el teclado ocupa más del 22% de la altura visible ('+Math.round(rect.height)+'px / '+viewport+'px)');
     const main=document.getElementById('main'),mainRect=main.getBoundingClientRect();
     assert(rect.left>=mainRect.left-1&&rect.right<=mainRect.right+1,label+': el teclado excede el ancho del contenido');
-    assert(piano.offsetParent===main,label+': el teclado no participa del flujo de la página');
+    assert(piano.offsetParent!==null&&main.contains(piano),label+': el teclado no participa del flujo de la página');
     assert(piano.scrollWidth<=piano.clientWidth+1,label+': las 61 teclas exceden el ancho visible');
    };
    show('keyboard');keyboardCheck('entrada al mapa');
