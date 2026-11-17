@@ -312,9 +312,10 @@
   assert(accomp.running&&ticks===1,'el botón no inició la base musical');
   toggleAccompaniment();
   assert(!accomp.running&&accomp.timer===null,'el botón no detuvo la base musical');
-  accomp.running=true;accomp.timer=setTimeout(()=>{},60000);
+  accomp.running=true;accomp.timer=setTimeout(()=>{},60000);backingTrackTimer=setTimeout(()=>{},60000);
   show('home');
   assert(!accomp.running&&accomp.timer===null,'el audio siguió activo al salir de Acompañamiento');
+  assert(backingTrackTimer===null,'el acompañamiento de Repertorio siguió programado al cambiar de pantalla');
   state.theory=state.theory||{completed:{},practice:{},xp:0};state.theory.completed=state.theory.completed||{};['T29','T30','T31','T32','T33','T34'].forEach(id=>state.theory.completed[id]=true);
   setAccStyle('Rock');assert(accomp.style==='Rock'&&accomp.bpm===112,'el estilo Rock no aplicó su tempo');
   setAccProgression(3);assert(accomp.progression.join('-')==='Am-Dm-G-C','la progresión seleccionada no se aplicó');
@@ -362,6 +363,8 @@
   playSeq([60,62,64],100,.1);
   show('home');
   assert(!sequencePlaybackActive&&sequencePlaybackTimers.size===0,'la navegación no detuvo la secuencia');
+  accomp.running=true;accomp.timer=setTimeout(()=>{},60000);backingTrackTimer=setTimeout(()=>{},60000);renderSequenceStopControl(true);document.getElementById('sequenceStopControl').click();
+  assert(!accomp.running&&accomp.timer===null&&backingTrackTimer===null,'el botón global no detuvo todos los motores de audio');
   midiOutput=previousOutput;
   pass('Reproducción · detener y navegar','cancela notas pendientes, no dispara ataques posteriores y se detiene al cambiar de pantalla');
  }catch(e){fail('Reproducción · detener y navegar',e);stopSequencePlayback()}
