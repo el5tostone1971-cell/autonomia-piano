@@ -389,6 +389,42 @@
   pass('Teclado · 61 teclas sin desbordamiento','61 teclas visibles, posición fija, sin scroll horizontal y con espacio inferior reservado');
  }catch(e){fail('Teclado · 61 teclas sin desbordamiento',e)}
 
+ 
+ // Block 4: real persistence round-trip for course, practice and imported repertoire.
+ try{
+  const originalState=state;
+  state=clone(defaultState);
+  state.day=4;state.xp=125;state.lessons={l1:true,l2:true,l3:true};
+  state.freePracticeHistory={C:[{at:'2026-11-17T10:00:00.000Z',notes:12,accuracy:92}]};
+  state.repertoireProgress={rp1:75};
+  state.repertoireMilestones={rp1:{learn:true,read:true,play:false}};
+  state.repertoireSessions={rp1:{mode:'play',index:8,notes:[60,62,64],updatedAt:'2026-11-17T10:05:00.000Z'}};
+  state.repertoireAttempts={rp1:[{at:'2026-11-17T10:06:00.000Z',accuracy:88,correct:22,total:25,mode:'play'}]};
+  state.god.imports=[{id:'import-test',name:'Tema.mid',type:'mid',status:'Listo'}];
+  state.god.music={tracks:[{id:'import-test',name:'Tema.mid',sequence:[{midi:60,startMs:0,durationMs:300}]}],songPractice:{'import-test':{index:1,correct:1,errors:0,history:[{at:'2026-11-17T10:07:00.000Z',note:'Do4',correct:true}]}}};
+  assert(saveState(),'saveState no confirmó la escritura local');
+  const reloaded=loadState();
+  assert(reloaded.lessons.l1&&reloaded.lessons.l2&&reloaded.lessons.l3&&reloaded.day>=4,'el curso no sobrevivió al ciclo guardar/recargar');
+  assert(reloaded.freePracticeHistory.C?.[0]?.accuracy===92,'se perdió el historial de práctica libre');
+  assert(reloaded.repertoireProgress.rp1===75&&reloaded.repertoireSessions.rp1.index===8,'se perdió el progreso o la sesión de repertorio');
+  assert(reloaded.repertoireAttempts.rp1?.[0]?.accuracy===88,'se perdió el resultado de una práctica de repertorio');
+  assert(reloaded.god.music.tracks?.[0]?.sequence?.[0]?.midi===60&&reloaded.god.music.songPractice['import-test']?.history?.length===1,'se perdió la canción importada o su historial');
+  assert(reloaded.god.imports?.[0]?.name==='Tema.mid','se perdió el registro de importación');
+  pass('Persistencia · ciclo guardar y recargar','curso, práctica libre, repertorio, resultados y canción importada sobreviven a loadState()');
+ }catch(e){fail('Persistencia · ciclo guardar y recargar',e)}
+
+ // Block 4: merging two partial backups must retain progress from both devices.
+ try{
+  const a=clone(defaultState),b=clone(defaultState);
+  a.day=2;a.lessons={l1:true};a.repertoireAttempts={rp1:[{at:'2026-11-16T10:00:00.000Z',accuracy:70}]};a.god.music={tracks:[{id:'song-a',name:'A.mid',sequence:[{midi:60}]}],songPractice:{}};
+  b.day=3;b.lessons={l2:true};b.repertoireAttempts={rp1:[{at:'2026-11-17T10:00:00.000Z',accuracy:90}]};b.god.music={tracks:[{id:'song-b',name:'B.mid',sequence:[{midi:64}]}],songPractice:{}};
+  const merged=mergeProgressStates(a,b);
+  assert(merged.lessons.l1&&merged.lessons.l2,'la fusión perdió lecciones completadas en uno de los perfiles');
+  assert(merged.repertoireAttempts.rp1?.length===2,'la fusión no conservó ambos intentos de repertorio');
+  assert(merged.god.music.tracks.some(x=>x.id==='song-a')&&merged.god.music.tracks.some(x=>x.id==='song-b'),'la fusión perdió una canción importada');
+  pass('Persistencia · fusión de respaldos','conserva lecciones, intentos y canciones importadas de dos perfiles parciales');
+ }catch(e){fail('Persistencia · fusión de respaldos',e)}
+
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
