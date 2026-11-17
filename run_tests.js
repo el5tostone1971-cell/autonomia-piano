@@ -299,7 +299,10 @@
   const attempt=state.repertoireAttempts['band-test']?.[0];
   assert(attempt&&attempt.results.length===4&&attempt.correct===3&&attempt.total===4,'no guardó los cuatro ataques y el porcentaje de dos pasadas');
   assert(attempt.results[0].correct===false&&attempt.results[0].expected===60&&attempt.results[1].correct===true,'el historial no distingue nota incorrecta y correcta');
-  pass('Práctica con banda · dos pasadas','registra errores sin bloquear, avanza a la nota siguiente, guarda el detalle y detiene el audio al completar dos vueltas');
+  const oldTempoOverride=repertoireTempoOverride;bandPracticeActive=true;repertoireStarted=true;bandPracticeTotalBeats=12;bandPracticeElapsedBeats=0;bandPracticeCurrentTempo=60;bandPracticeTempoAt=performance.now()-1000;setRepertoireTempo(120);
+  assert(bandPracticeElapsedBeats>=.9&&bandPracticeCurrentTempo===120&&bandPracticeTimer!==null,'el cambio de BPM no recalculó el tiempo restante de la sesión');
+  stopBackingTrack();assert(!bandPracticeActive&&!repertoireStarted&&bandPracticeTotalBeats===0,'detener la base dejó activa la práctica');repertoireTempoOverride=oldTempoOverride;
+  pass('Práctica con banda · dos pasadas','registra errores sin bloquear, avanza a la nota siguiente, adapta la duración al BPM y detiene el audio al completar dos vueltas');
  }catch(e){fail('Práctica con banda · dos pasadas',e);bandPracticeActive=false;repertoireStarted=false;stopBackingTrack()}
 
  // Point 3: the accompaniment control must start, stop and stop automatically when leaving its screen.
