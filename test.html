@@ -26,7 +26,7 @@ iframe{display:block;width:100%;height:calc(100vh - 58px);border:0;background:#0
    const doc=frame.contentDocument;
    if(!doc||!doc.querySelector('#main')){showError('la aplicación actual no terminó de cargar (#main no encontrado).');return}
    const runner=doc.createElement('script');
-   runner.src='./run_tests.js';
+   runner.src='./run_tests.js?v=live-20261117';
    runner.onerror=function(){showError('no se pudo cargar run_tests.js.');};
    doc.body.appendChild(runner);
   }catch(e){showError(e.message||String(e))}
