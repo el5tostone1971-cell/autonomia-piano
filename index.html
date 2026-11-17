@@ -2951,7 +2951,7 @@ function backingSnare(when){
 }
 function backingHat(when){
  const c=audio();if(!c)return;const len=Math.floor(c.sampleRate*.035),buf=c.createBuffer(1,len,c.sampleRate),data=buf.getChannelData(0);for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*(1-i/len);
- const src=c.createBufferSource(),g=c.createGain();src.buffer=buf;g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(.035,when+.003);g.gain.exponentialRampToValueAtTime(.0001,when+.03);src.connect(g).connect(c.destination);src.start(when);
+ const src=c.createBufferSource(),g=c.createGain();src.buffer=buf;g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(.035,when+.003);g.gain.exponentialRampToValueAtTime(.0001,when+.03);src.connect(g).connect(c.destination);trackPlaybackSource(src,'_autonomiaBackingSources');src.start(when);
 }
 function backingTrackStep(token){
  if(token!==backingTrackToken||!repertoirePiece)return;
