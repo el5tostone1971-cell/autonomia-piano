@@ -3046,7 +3046,7 @@ function startBackingTrack(watchForSilence=true){
  renderSequenceStopControl(true);
  // Cambiar al acompañamiento cancela cualquier melodía guía o ejercicio anterior.
  repertoireDemoToken++;repertoireLearnToken++;repertoireReadToken++;repertoireLearnActive=false;repertoireReadActive=false;
- stopRepertoirePulse();stopBackingTrack();
+ stopRepertoirePulse();stopBackingTrack({keepPractice:!!bandPracticeActive});
  const c=audio();if(!c)return;
  backingTrackBar=0;backingTrackBeat=0;const token=++backingTrackToken;
  const status=document.getElementById('backingTrackStatus');if(status)status.textContent=pianoLanguage==='pt'?'Tocando: baixo + acordes + bateria · toque sua melodia junto':'Sonando: bajo + acordes + batería · tocá tu melodía encima';
@@ -3079,10 +3079,11 @@ async function playFullArrangement(){
  if(status)status.textContent=pianoLanguage==='pt'?'✓ A música terminou. A melodia e todos os instrumentos foram interrompidos.':'✓ Terminó la canción. Se detuvieron la melodía y todos los instrumentos.';
 }
 function stopFullArrangement(){fullArrangementToken++;if(fullArrangementTimer){clearTimeout(fullArrangementTimer);fullArrangementTimer=null}if(fullArrangementResolve){const resolve=fullArrangementResolve;fullArrangementResolve=null;resolve()}}
-function stopBackingTrack(){
+function stopBackingTrack(options={}){
  if(typeof stopSequencePlayback==='function')stopSequencePlayback();stopTrackedPlaybackSources('_autonomiaBackingSources');clearBackingIdleTimer();if(typeof bandPracticeTimer!=='undefined'&&bandPracticeTimer){clearTimeout(bandPracticeTimer);bandPracticeTimer=null}stopFullArrangement();backingTrackToken++;if(backingTrackTimer){clearTimeout(backingTrackTimer);backingTrackTimer=null}
  document.querySelectorAll('.keys .key').forEach(k=>{k.classList.remove('target-note');k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
  const status=document.getElementById('backingTrackStatus');if(status)status.textContent=pianoLanguage==='pt'?'Todo o áudio foi interrompido':'Todo el audio detenido';
+ if(!options.keepPractice){if(typeof bandPracticeActive!=='undefined')bandPracticeActive=false;if(typeof repertoireStarted!=='undefined')repertoireStarted=false;if(typeof bandPracticeTotalBeats!=='undefined')bandPracticeTotalBeats=0}
 }
 
 function stopAccompaniment(){
