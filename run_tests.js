@@ -377,17 +377,24 @@
  }catch(e){fail('Reproducción · detener y navegar',e);stopSequencePlayback()}
 
 
- // Point 3: the complete 61-key teaching keyboard must remain fixed and fit without horizontal overflow.
- try{
-  showHTML(keyboardMap());
-  const piano=document.querySelector('#main .keys.responsive-piano-keys');
-  assert(piano,'no se renderizó el teclado didáctico');
-  assert(piano.querySelectorAll('.key').length===61,'el teclado no contiene exactamente 61 teclas');
-  assert(getComputedStyle(piano).position==='fixed','las reglas CSS volvieron a convertir el teclado fijo en elemento de página');
-  assert(piano.scrollWidth<=piano.clientWidth+1,'las 61 teclas exceden el ancho visible');
-  assert(parseFloat(getComputedStyle(document.getElementById('main')).paddingBottom)>=140,'el contenido no reservó espacio para que el teclado no lo tape');
-  pass('Teclado · 61 teclas sin desbordamiento','61 teclas visibles, posición fija, sin scroll horizontal y con espacio inferior reservado');
- }catch(e){fail('Teclado · 61 teclas sin desbordamiento',e)}
+ // Point 3: keyboard must remain compact after navigation and never consume the viewport.
+  try{
+   const keyboardCheck=(label)=>{
+    const piano=document.querySelector('#main .keys.responsive-piano-keys');
+    assert(piano,label+': no se renderizó el teclado didáctico');
+    assert(piano.querySelectorAll('.key').length===61,label+': no hay exactamente 61 teclas');
+    const css=getComputedStyle(piano),rect=piano.getBoundingClientRect(),viewport=Math.max(1,window.innerHeight);
+    assert(css.position==='fixed',label+': el teclado dejó de estar fijo');
+    assert(rect.height<=viewport*.22+2,label+': el teclado ocupa más del 22% de la altura visible ('+Math.round(rect.height)+'px / '+viewport+'px)');
+    assert(rect.bottom<=viewport+2&&rect.top>=0,label+': el teclado quedó fuera del área visible');
+    assert(piano.scrollWidth<=piano.clientWidth+1,label+': las 61 teclas exceden el ancho visible');
+    assert(parseFloat(getComputedStyle(document.getElementById('main')).paddingBottom)>=120,label+': el contenido no reservó espacio inferior');
+   };
+   show('keyboard');keyboardCheck('entrada al mapa');
+   show('practice');show('keyboard');keyboardCheck('volver desde práctica');
+   show('course');show('keyboard');keyboardCheck('volver desde lecciones');
+   pass('Teclado · 61 teclas compactas tras navegar','mide altura real contra viewport, comprueba ancho y repite tras cambiar de sección');
+  }catch(e){fail('Teclado · 61 teclas compactas tras navegar',e)}
 
  
  // Block 4: real persistence round-trip for course, practice and imported repertoire.
