@@ -88,6 +88,8 @@ h1,h2,h3{letter-spacing:-.02em}
 @media(max-width:600px){#main .keys.responsive-piano-keys{height:clamp(88px,16vh,118px)!important;max-height:18vh!important}#main .keys.responsive-piano-keys .key span{font-size:6px!important}}
 
 /* Ajuste común de teclados de Repertorio y Canciones: 61 teclas dentro del ancho disponible. */
+/* En repertorio, el teclado queda fijo al borde inferior durante la lectura; el dock completo no debe atrapar el scroll. */
+#main #repertoirePlayDock{position:static!important;top:auto!important;}
 #main .keys.repertoireKeys{display:block!important;position:sticky!important;bottom:0!important;top:auto!important;inset:auto 0 0!important;z-index:60!important;width:100%!important;max-width:100%!important;min-width:0!important;height:clamp(88px,15vh,148px)!important;max-height:18vh!important;overflow:hidden!important;transform:none!important;transform-origin:top left!important;margin:18px 0 12px!important;padding:7px 0 0!important;box-sizing:border-box!important;background:linear-gradient(180deg,rgba(8,12,24,.97),#080c18)!important;border:1px solid #354465!important;border-radius:12px 12px 0 0!important;box-shadow:0 -4px 14px rgba(0,0,0,.22)!important}
 #main .keys.repertoireKeys .key{position:absolute!important;top:7px!important;flex:none!important;min-width:0!important;margin:0!important;padding:0!important;transform:none!important;box-sizing:border-box!important}
 #main .keys.repertoireKeys .key.white{left:var(--key-left)!important;width:var(--key-width)!important;height:calc(100% - 7px)!important;border-radius:0 0 5px 5px!important}
