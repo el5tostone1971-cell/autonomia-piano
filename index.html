@@ -374,8 +374,7 @@ function showNextLessonScreen(done,next){
  const main=document.getElementById('main');if(!main)return;navActive('course');
  main.innerHTML=`<div class="card"><div class="pill">✓ Progreso guardado</div><h1>¡Muy bien!</h1><p class="muted">Completaste <b>Día ${done.day}: ${done.title}</b>.</p><div class="note-box"><div class="tag">SIGUIENTE · DÍA ${next.day}</div><h2>${next.title}</h2><p class="muted">${next.desc}</p><button class="btn primary" type="button" onclick="openLesson('${next.id}')">▶ Continuar ahora</button><button class="btn" type="button" onclick="show('course')">Ver curso completo</button><p class="muted" id="autoNextMsg">Abriendo el siguiente ejercicio automáticamente…</p></div></div>`;
  renderSide();
- clearTimeout(window._nextTimer);
- window._nextTimer=setTimeout(()=>{const b=document.getElementById('autoNextMsg');if(b){b.textContent='Abierto automáticamente.';openLesson(next.id)}},1200);
+ clearTimeout(window._nextTimer);window._nextTimer=null;
 }
 function shell(title,sub,body){return `<div class="card"><div class="pill">Método de Autonomía Progresiva</div><h1>${title}</h1><p class="muted">${sub}</p>${body}</div>`}
 function navActive(v){document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v))}
@@ -2428,7 +2427,7 @@ function insertCourseTeachingGuide(l){
  const html='<section class="note-box courseTeachingGuide" aria-label="'+(pt?'Guia para aprender esta lição':'Guía para aprender esta lección')+'"><div class="pill">'+labels.before+' · '+(pt?'NÍVEL ':'NIVEL ')+phase+' / 6 · '+g.name+'</div><h3>'+labels.understand+'</h3><p>'+g.why+'</p><h3>'+labels.solve+'</h3><ol>'+g.steps.map(x=>'<li>'+x+'</li>').join('')+'</ol><p><b>'+labels.inLesson+'</b> '+(a[l.kind]||g.steps[0])+'</p><p><b>'+labels.error+'</b> '+g.mistake+'</p><p class="muted"><b>'+labels.pass+'</b> '+criterion+'</p></section>';
  const heading=main.querySelector('h1');if(heading)heading.insertAdjacentHTML('afterend',html);else main.insertAdjacentHTML('afterbegin',html);
 }
-function openLesson(id){clearTimeout(window._nextTimer);if(adaptiveRunActive&&adaptiveLessonId!==id){adaptiveRunActive=false;adaptiveLessonId=null}const l=LESSONS.find(x=>x.id===id);if(!l)return;if(l.day>state.day){toast('Todavía no está desbloqueado. Primero demostramos el día '+state.day+'.');return}currentLessonId=id;const rb=document.getElementById('retryBtn');if(rb)rb.style.display='inline-block';const f={find:findLesson,pattern:patternLesson,rhythm:rhythmLesson,memory:memoryLesson,ear:earLesson,chords:chordLesson,left:leftLesson,separate:separateLesson,memory2:memory2Lesson,rhythm2:rhythm2Lesson,chordseq:chordSeqLesson,autonomy:autonomyLesson,staffcourse:courseStaffLesson,courseTwoHands:courseTwoHandsLesson,courseAuto:courseAutoLesson,theorycourse:theoryCourseLesson,generic:genericLesson,chordgeneric:chordGenericLesson,orientationCourse:orientationCourseLesson,pulseCourse:pulseCourseLesson,echoCourse:echoCourseLesson};if(f[l.kind]){f[l.kind](l);insertCourseTeachingGuide(l);restoreLessonDraft(l)}else toast('Ejercicio no implementado: '+l.kind)}
+function openLesson(id){clearTimeout(window._nextTimer);if(adaptiveRunActive&&adaptiveLessonId!==id){adaptiveRunActive=false;adaptiveLessonId=null}const l=LESSONS.find(x=>x.id===id);if(!l)return;if(l.day>state.day){toast('Todavía no está desbloqueado. Primero demostramos el día '+state.day+'.');return}currentLessonId=id;const rb=document.getElementById('retryBtn');if(rb)rb.style.display='inline-block';const f={find:findLesson,pattern:patternLesson,rhythm:rhythmLesson,memory:memoryLesson,ear:earLesson,chords:chordLesson,left:leftLesson,separate:separateLesson,memory2:memory2Lesson,rhythm2:rhythm2Lesson,chordseq:chordSeqLesson,autonomy:autonomyLesson,staffcourse:courseStaffLesson,courseTwoHands:courseTwoHandsLesson,courseAuto:courseAutoLesson,theorycourse:theoryCourseLesson,generic:genericLesson,chordgeneric:chordGenericLesson,orientationCourse:orientationCourseLesson,pulseCourse:pulseCourseLesson,echoCourse:echoCourseLesson};if(f[l.kind]){f[l.kind](l);insertCourseTeachingGuide(l);restoreLessonDraft(l);restoreGenericLessonDraft(l)}else toast('Ejercicio no implementado: '+l.kind)}
 let orientationCourseExpected=[48,53,55,60,65,67],orientationCourseStep=0,orientationCourseSeen=[];
 let pulseCourseTimes=[],pulseCourseArmed=false,pulseCourseStartedAt=0;
 let echoCourseExpected=[],echoCourseInput=[],echoCourseScored=false,echoCourseTimers=[];
@@ -3219,11 +3218,36 @@ function handleExerciseNote(n,name){if(typeof registerImportedSongPractice==='fu
  if(document.getElementById('sepRight')||document.getElementById('sepLeft')){const right=['C','D','E','G'],left=['C','G','A','F'];const r=n>=60?matchPrefix(sepRightInput,right,pc):sepRightInput.length;let l=sepLeftInput.length;if(n<60){if(sepRightInput.length===4){l=matchPrefix(sepLeftInput,left,pc);const msg=document.getElementById('sepOrderMsg');if(msg)msg.textContent=pianoTranslateText('Bien: derecha completa. Ahora practicá el patrón de la izquierda.')}else{const msg=document.getElementById('sepOrderMsg');if(msg)msg.textContent=pianoTranslateText('Primero completá C · D · E · G con la mano derecha; después se habilita la izquierda.')}}if(document.getElementById('sepRight'))document.getElementById('sepRight').textContent=r+'/4';if(document.getElementById('sepLeft'))document.getElementById('sepLeft').textContent=l+'/4';saveLessonDraft('l8',{sepRightInput:sepRightInput.slice(),sepLeftInput:sepLeftInput.slice()})}
  if(document.getElementById('chordCount')||document.getElementById('seqChordCount')||document.getElementById('genericChordCount'))registerChordNote(n);
  if(window._rhythmArmed)registerRhythmTap();
+ persistCurrentLessonDraft(n);
 }
 let sepRightInput=[],sepLeftInput=[],leftMidiInput=[];
 function saveLessonDraft(id,data){if(!id||state.lessons?.[id])return;state.lessonDrafts=state.lessonDrafts||{};state.lessonDrafts[id]={...data,updatedAt:new Date().toISOString()};saveState()}
 function restoreLessonDraft(l){if(!l)return;const d=state.lessonDrafts?.[l.id];if(!d)return;if(l.id==='l7'&&Array.isArray(d.leftMidiInput)){leftMidiInput=d.leftMidiInput.slice(0,4).map(Number);leftInput=leftMidiInput.map(n=>NOTE_NAMES[n%12]);const out=document.getElementById('leftInput');if(out)out.textContent=leftMidiInput.map(x=>pitchClassName(x)+' '+(Math.floor(x/12)-1)).join(' · ');const f=document.getElementById('leftFeedback');if(f&&leftMidiInput.length)f.textContent='Avance recuperado: '+leftMidiInput.length+' / 4 notas. Seguí desde donde quedaste.';return;}if(l.id==='l8'){sepRightInput=Array.isArray(d.sepRightInput)?d.sepRightInput.slice(0,4):[];sepLeftInput=Array.isArray(d.sepLeftInput)?d.sepLeftInput.slice(0,4):[];const r=document.getElementById('sepRight'),left=document.getElementById('sepLeft'),msg=document.getElementById('sepOrderMsg');if(r)r.textContent=sepRightInput.length+'/4';if(left)left.textContent=sepLeftInput.length+'/4';if(msg)msg.textContent=sepRightInput.length===4?'Avance recuperado: derecha completa. Seguí con la mano izquierda.':'Avance recuperado: '+sepRightInput.length+' / 4 notas de la mano derecha.';}}
 function clearLessonDraft(id){if(state.lessonDrafts?.[id]){delete state.lessonDrafts[id];saveState()}}
+function persistCurrentLessonDraft(lastNote){
+ const id=currentLessonId;if(!id||state.lessons?.[id])return;
+ const arrays={pattern:pattern.slice(),mem:mem.slice(),earInput:earInput.slice(),leftInput:leftInput.slice(),leftMidiInput:leftMidiInput.slice(),sepRightInput:sepRightInput.slice(),sepLeftInput:sepLeftInput.slice(),autoInput:autoInput.slice(),rhythmTimes:rhythmTimes.slice(),rhythmExpected:rhythmExpected.slice(),memoryExpectedSeq:memoryExpectedSeq.slice()};
+ const visible={};['doCount','patInput','memInput','mem2Input','leftInput','leftFeedback','rhythm2Input','rhythm2Msg','autoInput','earInput','sepRight','sepLeft','sepOrderMsg','readingInput','orientationCourseTarget','orientationCourseProgress','pulseCourseCount','echoCourseInput','courseStaffInput','courseTwoHandsCount','courseAutoInput','theoryCoursePracticeInput','courseAutoCount'].forEach(key=>{const el=document.getElementById(key);if(el)visible[key]=el.textContent});
+ state.lessonDrafts=state.lessonDrafts||{};
+ state.lessonDrafts[id]={version:2,arrays,visible,lastNote:Number(lastNote),updatedAt:new Date().toISOString()};
+ saveState();
+}
+function restoreGenericLessonDraft(l){
+ const d=state.lessonDrafts?.[l?.id];if(!d||d.version!==2)return;
+ const a=d.arrays||{};
+ if(Array.isArray(a.pattern))pattern=a.pattern.slice();
+ if(Array.isArray(a.mem))mem=a.mem.slice();
+ if(Array.isArray(a.earInput))earInput=a.earInput.slice();
+ if(Array.isArray(a.leftInput))leftInput=a.leftInput.slice();
+ if(Array.isArray(a.leftMidiInput))leftMidiInput=a.leftMidiInput.slice();
+ if(Array.isArray(a.sepRightInput))sepRightInput=a.sepRightInput.slice();
+ if(Array.isArray(a.sepLeftInput))sepLeftInput=a.sepLeftInput.slice();
+ if(Array.isArray(a.autoInput))autoInput=a.autoInput.slice();
+ if(Array.isArray(a.rhythmTimes))rhythmTimes=[];
+ if(Array.isArray(a.rhythmExpected))rhythmExpected=a.rhythmExpected.slice();
+ if(Array.isArray(a.memoryExpectedSeq))memoryExpectedSeq=a.memoryExpectedSeq.slice();
+ const v=d.visible||{};Object.keys(v).forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=v[id]});
+}
 function matchPrefix(arr,expected,pc){if(arr.length<expected.length){if(pc===expected[arr.length])arr.push(pc);else if(pc===expected[0]){arr.length=0;arr.push(pc)}}return arr.length}
 function recordMemoryEvidence(ok,sequence){
  if(memoryAttemptScored)return false;
