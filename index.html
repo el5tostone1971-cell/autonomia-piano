@@ -356,6 +356,7 @@ function startAdaptive(id){const r=adaptiveRecommendation();if(!r||r.l.id!==id)r
 function completeCore(id){
  const l=LESSONS.find(x=>x.id===id); if(!l)return false;
  const first=!state.lessons[id];
+ if(first){state.lessonResults=state.lessonResults||{};state.lessonResults[id]=captureLessonResult(id);}
  if(state.lessonDrafts?.[id])delete state.lessonDrafts[id];
  const isAdaptive=adaptiveRunActive&&adaptiveLessonId===id;
  if(first){state.lessons[id]=true;award(l.xp,null,0);if(l.inc>0&&l.skill)awardUniqueSkillEvidence('courseLesson',id,{[l.skill]:l.inc});adaptiveRunActive=false;adaptiveLessonId=null;if(!isAdaptive&&l.day>=state.day){state.day=Math.min(90,Math.max(state.day,l.day+1));}else state.diagnostics=state.diagnostics||{last:'',counts:{},history:[],adaptiveRuns:0,adaptiveLast:''};state.diagnostics.history=state.diagnostics.history||[];state.diagnostics.history.push({date:new Date().toLocaleDateString('es-AR'),label:l.title||id,ok:true,day:state.day,adaptive:!!isAdaptive});if(state.diagnostics.history.length>30)state.diagnostics.history.shift();saveState();}
@@ -370,9 +371,23 @@ function completeCore(id){
  if(first && next)showNextLessonScreen(l,next);else show('course');
  return true;
 }
+function captureLessonResult(id){
+ const noteNames=arr=>(Array.isArray(arr)?arr:[]).map(n=>typeof n==='number'?localizedPianoNoteName(n)+' '+(Math.floor(n/12)-1):String(n)).join(' · ');
+ let parts=[];
+ if(id==='l1'&&doFound.size)parts.push('Do localizados: '+doFound.size);
+ if(id==='l7'&&leftMidiInput.length)parts.push('Notas: '+noteNames(leftMidiInput));
+ if(id==='l8'){if(sepRightInput.length)parts.push('Derecha: '+noteNames(sepRightInput));if(sepLeftInput.length)parts.push('Izquierda: '+noteNames(sepLeftInput));}
+ if(pattern.length)parts.push('Secuencia: '+noteNames(pattern));
+ if(mem.length)parts.push('Memoria: '+noteNames(mem));
+ if(earInput.length)parts.push('Oído: '+noteNames(earInput));
+ if(autoInput.length)parts.push('Respuesta: '+noteNames(autoInput));
+ if(!parts.length)parts.push('Ejercicio aprobado y progreso registrado.');
+ return {parts,completedAt:new Date().toISOString()};
+}
 function showNextLessonScreen(done,next){
  const main=document.getElementById('main');if(!main)return;navActive('course');
- main.innerHTML=`<div class="card"><div class="pill">✓ Progreso guardado</div><h1>¡Muy bien!</h1><p class="muted">Completaste <b>Día ${done.day}: ${done.title}</b>.</p><div class="note-box"><div class="tag">SIGUIENTE · DÍA ${next.day}</div><h2>${next.title}</h2><p class="muted">${next.desc}</p><button class="btn primary" type="button" onclick="openLesson('${next.id}')">▶ Continuar ahora</button><button class="btn" type="button" onclick="show('course')">Ver curso completo</button><p class="muted" id="autoNextMsg">Abriendo el siguiente ejercicio automáticamente…</p></div></div>`;
+ const result=state.lessonResults?.[done.id];
+ main.innerHTML=`<div class="card"><div class="pill">✓ Progreso guardado</div><h1>¡Muy bien!</h1><p class="muted">Completaste <b>Día ${done.day}: ${done.title}</b>.</p><div class="note-box"><b>Tu resultado</b><p>${(result?.parts||['Ejercicio aprobado y progreso registrado.']).map(escapeMusicText).join('<br>')}</p></div><div class="note-box"><div class="tag">SIGUIENTE · DÍA ${next.day}</div><h2>${next.title}</h2><p class="muted">${next.desc}</p><button class="btn primary" type="button" onclick="openLesson('${next.id}')">▶ Continuar ahora</button><button class="btn" type="button" onclick="show('course')">Ver curso completo</button></div></div>`;
  renderSide();
  clearTimeout(window._nextTimer);window._nextTimer=null;
 }
