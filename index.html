@@ -3226,6 +3226,7 @@ function restoreLessonDraft(l){if(!l)return;const d=state.lessonDrafts?.[l.id];i
 function clearLessonDraft(id){if(state.lessonDrafts?.[id]){delete state.lessonDrafts[id];saveState()}}
 function persistCurrentLessonDraft(lastNote){
  const id=currentLessonId;if(!id||state.lessons?.[id])return;
+ const activeLessonFields=['doCount','patInput','memInput','mem2Input','leftInput','rhythm2Input','autoInput','earInput','sepRight','readingInput','orientationCourseTarget','pulseCourseCount','echoCourseInput','courseStaffInput','courseTwoHandsCount','courseAutoInput','theoryCoursePracticeInput'];if(!activeLessonFields.some(key=>document.getElementById(key)))return;
  const arrays={pattern:pattern.slice(),mem:mem.slice(),earInput:earInput.slice(),leftInput:leftInput.slice(),leftMidiInput:leftMidiInput.slice(),sepRightInput:sepRightInput.slice(),sepLeftInput:sepLeftInput.slice(),autoInput:autoInput.slice(),rhythmTimes:rhythmTimes.slice(),rhythmExpected:rhythmExpected.slice(),memoryExpectedSeq:memoryExpectedSeq.slice()};
  const visible={};['doCount','patInput','memInput','mem2Input','leftInput','leftFeedback','rhythm2Input','rhythm2Msg','autoInput','earInput','sepRight','sepLeft','sepOrderMsg','readingInput','orientationCourseTarget','orientationCourseProgress','pulseCourseCount','echoCourseInput','courseStaffInput','courseTwoHandsCount','courseAutoInput','theoryCoursePracticeInput','courseAutoCount'].forEach(key=>{const el=document.getElementById(key);if(el)visible[key]=el.textContent});
  state.lessonDrafts=state.lessonDrafts||{};
