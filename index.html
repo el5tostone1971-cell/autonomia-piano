@@ -2547,6 +2547,7 @@ function answerCourseStaffTheory(choice){
  const l=LESSONS.find(x=>x.id===currentLessonId),t=l&&STAFF_THEORY[l.staffTheoryIndex],el=document.getElementById('courseStaffTheoryFeedback');if(!t||!el)return;
  if(choice===t.a){window._courseStaffTheoryPassed=true;el.textContent=pianoTranslateText('✓ '+t.why+' Ahora resolvé la lectura del pentagrama y tocá la frase.')}
  else{window._courseStaffTheoryPassed=false;el.textContent=pianoTranslateText('Todavía no. '+t.why+' Volvé a leer la explicación y elegí otra respuesta.')}
+ persistCurrentLessonDraft();
 }
 
 function courseStaffLesson(l){
@@ -2561,17 +2562,17 @@ function courseStaffLesson(l){
  showHTML(shell('🎼 '+l.title,'Primero comprendé la regla de lectura; después resolvé el pentagrama y trasladá la frase al teclado.',body));
 }
 function renderCourseStaffInput(){const out=document.getElementById('courseStaffInput');if(!out)return;const seq=courseStaffStage==='name'?courseStaffNamed:courseStaffPlayed;const names=pianoLanguage==='pt'?{C4:'Dó',D4:'Ré',E4:'Mi',F4:'Fá',G4:'Sol',A4:'Lá',B4:'Si'}:{C4:'Do',D4:'Re',E4:'Mi',F4:'Fa',G4:'Sol',A4:'La',B4:'Si'};out.textContent=seq.length?seq.map(n=>courseStaffStage==='name'?(names[n]||n):NOTE_NAMES[n%12]+(Math.floor(n/12)-1)).join(' · '):'—'}
-function nameCourseStaff(note){if(courseStaffStage!=='name'||courseStaffNamed.length>=courseStaffExpected.length)return;courseStaffNamed.push(note);renderCourseStaffInput()}
-function registerCourseStaffNote(n){if(courseStaffStage!=='play'||courseStaffPlayed.length>=courseStaffExpected.length)return;courseStaffPlayed.push(n);renderCourseStaffInput()}
-function undoCourseStaff(){if(courseStaffStage==='name')courseStaffNamed.pop();else if(courseStaffStage==='play')courseStaffPlayed.pop();renderCourseStaffInput()}
-function clearCourseStaff(){if(courseStaffStage==='name')courseStaffNamed=[];else if(courseStaffStage==='play')courseStaffPlayed=[];renderCourseStaffInput()}
+function nameCourseStaff(note){if(courseStaffStage!=='name'||courseStaffNamed.length>=courseStaffExpected.length)return;courseStaffNamed.push(note);renderCourseStaffInput();persistCurrentLessonDraft()}
+function registerCourseStaffNote(n){if(courseStaffStage!=='play'||courseStaffPlayed.length>=courseStaffExpected.length)return;courseStaffPlayed.push(n);renderCourseStaffInput();persistCurrentLessonDraft()}
+function undoCourseStaff(){if(courseStaffStage==='name')courseStaffNamed.pop();else if(courseStaffStage==='play')courseStaffPlayed.pop();renderCourseStaffInput();persistCurrentLessonDraft()}
+function clearCourseStaff(){if(courseStaffStage==='name')courseStaffNamed=[];else if(courseStaffStage==='play')courseStaffPlayed=[];renderCourseStaffInput();persistCurrentLessonDraft()}
 function checkCourseStaff(){
  const feedback=document.getElementById('courseStaffFeedback'),prompt=document.getElementById('courseStaffPrompt'),choices=document.getElementById('courseStaffChoices');
  if(!window._courseStaffTheoryPassed){const theory=document.getElementById('courseStaffTheoryFeedback');if(theory)theory.textContent=pianoTranslateText('Primero respondé correctamente la pregunta de teoría.');return}
  if(courseStaffStage==='name'){
   if(courseStaffNamed.length!==courseStaffExpected.length){if(feedback)feedback.textContent=pianoTranslateText('Completá las cuatro notas antes de comprobar.');return}
   if(courseStaffNamed.join('|')!==courseStaffExpected.join('|')){if(feedback)feedback.textContent=pianoTranslateText('La lectura todavía no coincide. Revisá líneas, espacios y dirección; corregí y volvé a comprobar.');return}
-  courseStaffStage='play';courseStaffPlayed=[];if(prompt)prompt.textContent=pianoTranslateText('2. Lectura correcta. Ahora tocá las cuatro notas en el teclado, en el mismo orden.');if(choices)choices.style.display='none';renderCourseStaffInput();if(feedback)feedback.textContent=pianoTranslateText('Ahora trasladá lo que leíste al instrumento. La app no te indica qué tecla tocar.');return;
+  courseStaffStage='play';courseStaffPlayed=[];persistCurrentLessonDraft();if(prompt)prompt.textContent=pianoTranslateText('2. Lectura correcta. Ahora tocá las cuatro notas en el teclado, en el mismo orden.');if(choices)choices.style.display='none';renderCourseStaffInput();if(feedback)feedback.textContent=pianoTranslateText('Ahora trasladá lo que leíste al instrumento. La app no te indica qué tecla tocar.');return;
  }
  if(courseStaffPlayed.length!==courseStaffExpected.length){if(feedback)feedback.textContent=pianoTranslateText('Tocá las cuatro notas antes de comprobar.');return}
  const expected=courseStaffExpected.map(n=>READING_MIDI[n]);
@@ -2688,9 +2689,10 @@ function answerTheoryCourse(choice){
  const l=LESSONS.find(x=>x.id===currentLessonId),t=l&&THEORY_COURSE[l.theoryIndex],el=document.getElementById('theoryCourseFeedback');if(!t||!el)return;
  if(choice===t.a){window._theoryCourseAnswered=true;theoryCoursePracticeActive=true;const panel=document.getElementById('theoryCoursePractice');if(panel)panel.style.display='block';el.textContent=pianoTranslateText('✓ '+t.why+' Concepto comprendido. Ahora aplicalo tocando la secuencia indicada.');}
  else{el.textContent=pianoTranslateText('Todavía no. '+t.why+' Volvé a leer la explicación y reintentá.');const retry=document.getElementById('theoryCourseRetry');if(retry)retry.style.display='inline-block';}
+ persistCurrentLessonDraft();
 }
-function registerTheoryCoursePracticeNote(note){if(!theoryCoursePracticeActive||theoryCoursePracticePlayed.length>=theoryCoursePracticeExpected.length)return;theoryCoursePracticePlayed.push(note);const el=document.getElementById('theoryCoursePracticeInput');if(el)el.textContent=theoryCoursePracticePlayed.map(n=>localizedPianoNoteName(n)+(Math.floor(n/12)-1)).join(' · ');}
-function clearTheoryCoursePractice(){theoryCoursePracticePlayed=[];const el=document.getElementById('theoryCoursePracticeInput');if(el)el.textContent='—';const msg=document.getElementById('theoryCoursePracticeFeedback');if(msg)msg.textContent=pianoTranslateText('Intento borrado. Volvé a tocar la secuencia.');}
+function registerTheoryCoursePracticeNote(note){if(!theoryCoursePracticeActive||theoryCoursePracticePlayed.length>=theoryCoursePracticeExpected.length)return;theoryCoursePracticePlayed.push(note);const el=document.getElementById('theoryCoursePracticeInput');if(el)el.textContent=theoryCoursePracticePlayed.map(n=>localizedPianoNoteName(n)+(Math.floor(n/12)-1)).join(' · ');persistCurrentLessonDraft();}
+function clearTheoryCoursePractice(){theoryCoursePracticePlayed=[];const el=document.getElementById('theoryCoursePracticeInput');if(el)el.textContent='—';const msg=document.getElementById('theoryCoursePracticeFeedback');if(msg)msg.textContent=pianoTranslateText('Intento borrado. Volvé a tocar la secuencia.');persistCurrentLessonDraft();}
 function checkTheoryCoursePractice(){if(!theoryCoursePracticeActive)return;const msg=document.getElementById('theoryCoursePracticeFeedback');if(theoryCoursePracticePlayed.length!==theoryCoursePracticeExpected.length){if(msg)msg.textContent=pianoTranslateText('Faltan notas: '+theoryCoursePracticePlayed.length+' / '+theoryCoursePracticeExpected.length+'.');return}const wrong=theoryCoursePracticePlayed.findIndex((n,i)=>n!==theoryCoursePracticeExpected[i]);if(wrong>=0){const expected=theoryCoursePracticeExpected[wrong];if(msg)msg.textContent=pianoTranslateText('La nota '+(wrong+1)+' no coincide. Se esperaba '+localizedPianoNoteName(expected)+(Math.floor(expected/12)-1)+'. Corregí la secuencia y volvé a comprobar.');return}theoryCoursePracticeActive=false;complete(currentLessonId);if(msg)msg.textContent=pianoTranslateText('✓ Concepto comprendido y aplicado en el teclado. Lección completada.');}
 
 const CHORD_THEORY=[
@@ -3243,10 +3245,10 @@ function clearLessonDraft(id){if(state.lessonDrafts?.[id]){delete state.lessonDr
 function persistCurrentLessonDraft(lastNote){
  const id=currentLessonId;if(!id||state.lessons?.[id])return;
  const activeLessonFields=['doCount','patInput','memInput','mem2Input','leftInput','rhythm2Input','autoInput','earInput','sepRight','readingInput','orientationCourseTarget','pulseCourseCount','echoCourseInput','courseStaffInput','courseTwoHandsCount','courseAutoInput','theoryCoursePracticeInput'];if(!activeLessonFields.some(key=>document.getElementById(key)))return;
- const arrays={pattern:pattern.slice(),mem:mem.slice(),earInput:earInput.slice(),leftInput:leftInput.slice(),leftMidiInput:leftMidiInput.slice(),sepRightInput:sepRightInput.slice(),sepLeftInput:sepLeftInput.slice(),autoInput:autoInput.slice(),rhythmTimes:rhythmTimes.slice(),rhythmExpected:rhythmExpected.slice(),memoryExpectedSeq:memoryExpectedSeq.slice()};
+ const arrays={pattern:pattern.slice(),mem:mem.slice(),earInput:earInput.slice(),leftInput:leftInput.slice(),leftMidiInput:leftMidiInput.slice(),sepRightInput:sepRightInput.slice(),sepLeftInput:sepLeftInput.slice(),autoInput:autoInput.slice(),rhythmTimes:rhythmTimes.slice(),rhythmExpected:rhythmExpected.slice(),memoryExpectedSeq:memoryExpectedSeq.slice(),courseStaffExpected:courseStaffExpected.slice(),courseStaffNamed:courseStaffNamed.slice(),courseStaffPlayed:courseStaffPlayed.slice(),theoryCoursePracticeExpected:theoryCoursePracticeExpected.slice(),theoryCoursePracticePlayed:theoryCoursePracticePlayed.slice()};
  const visible={};['doCount','patInput','memInput','mem2Input','leftInput','leftFeedback','rhythm2Input','rhythm2Msg','autoInput','earInput','sepRight','sepLeft','sepOrderMsg','readingInput','orientationCourseTarget','orientationCourseProgress','pulseCourseCount','echoCourseInput','courseStaffInput','courseTwoHandsCount','courseAutoInput','theoryCoursePracticeInput','courseAutoCount'].forEach(key=>{const el=document.getElementById(key);if(el)visible[key]=el.textContent});
  state.lessonDrafts=state.lessonDrafts||{};
- state.lessonDrafts[id]={version:2,arrays,visible,lastNote:Number(lastNote),updatedAt:new Date().toISOString()};
+ state.lessonDrafts[id]={version:2,arrays,visible,courseStaffStage,courseStaffTheoryPassed:!!window._courseStaffTheoryPassed,theoryCoursePracticeActive:!!theoryCoursePracticeActive,theoryCourseAnswered:!!window._theoryCourseAnswered,lastNote:Number(lastNote),updatedAt:new Date().toISOString()};
  saveState();
 }
 function restoreGenericLessonDraft(l){
@@ -3263,7 +3265,16 @@ function restoreGenericLessonDraft(l){
  if(Array.isArray(a.rhythmTimes))rhythmTimes=[];
  if(Array.isArray(a.rhythmExpected))rhythmExpected=a.rhythmExpected.slice();
  if(Array.isArray(a.memoryExpectedSeq))memoryExpectedSeq=a.memoryExpectedSeq.slice();
+ if(Array.isArray(a.courseStaffExpected))courseStaffExpected=a.courseStaffExpected.slice();
+ if(Array.isArray(a.courseStaffNamed))courseStaffNamed=a.courseStaffNamed.slice();
+ if(Array.isArray(a.courseStaffPlayed))courseStaffPlayed=a.courseStaffPlayed.slice();
+ if(Array.isArray(a.theoryCoursePracticeExpected))theoryCoursePracticeExpected=a.theoryCoursePracticeExpected.slice();
+ if(Array.isArray(a.theoryCoursePracticePlayed))theoryCoursePracticePlayed=a.theoryCoursePracticePlayed.slice();
+ if(l?.kind==='staffcourse'){courseStaffStage=d.courseStaffStage||'name';window._courseStaffTheoryPassed=!!d.courseStaffTheoryPassed;}
+ if(l?.kind==='theorycourse'){theoryCoursePracticeActive=!!d.theoryCoursePracticeActive;window._theoryCourseAnswered=!!d.theoryCourseAnswered;}
  const v=d.visible||{};Object.keys(v).forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=v[id]});
+ if(l?.kind==='staffcourse'){renderCourseStaffInput();const prompt=document.getElementById('courseStaffPrompt'),choices=document.getElementById('courseStaffChoices'),theory=document.getElementById('courseStaffTheoryFeedback');if(courseStaffStage==='play'){if(prompt)prompt.textContent=pianoTranslateText('2. Lectura correcta. Ahora tocá las cuatro notas en el teclado, en el mismo orden.');if(choices)choices.style.display='none';}if(theory&&window._courseStaffTheoryPassed)theory.textContent=pianoTranslateText('✓ Concepto teórico recuperado. Continuá con la lectura.');}
+ if(l?.kind==='theorycourse'){const panel=document.getElementById('theoryCoursePractice');if(panel&&window._theoryCourseAnswered)panel.style.display='block';const input=document.getElementById('theoryCoursePracticeInput');if(input)input.textContent=theoryCoursePracticePlayed.length?theoryCoursePracticePlayed.map(n=>localizedPianoNoteName(n)+(Math.floor(n/12)-1)).join(' · '):'—';}
 }
 function matchPrefix(arr,expected,pc){if(arr.length<expected.length){if(pc===expected[arr.length])arr.push(pc);else if(pc===expected[0]){arr.length=0;arr.push(pc)}}return arr.length}
 function recordMemoryEvidence(ok,sequence){
