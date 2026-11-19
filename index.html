@@ -3705,6 +3705,15 @@ function productionStatusText(){return productionReadiness().map(x=>(x[1]?'✓ '
 function exportArchitecturePackage(){const snap=autonomiaSnapshot();queueSyncEvent('snapshot.exported',{schemaVersion:snap.schemaVersion});return snap;}
 /* ===== END v39 PRODUCT ARCHITECTURE ===== */
 
+/* Automated QA runs through direct eval so it can inspect this script's lexical scope. */
+if(new URLSearchParams(location.search).get('autonomia-test')==='1'){
+ fetch('./run_tests.js?v=live-20261119-7',{cache:'no-store'})
+  .then(response=>{if(!response.ok)throw Error('No se pudo cargar el banco de pruebas: HTTP '+response.status);return response.text()})
+  .then(source=>{eval(source)})
+  .catch(error=>{document.body.innerHTML='<h2>Error al iniciar las pruebas</h2><pre>'+String(error&&error.stack||error)+'</pre>'});
+}
+
+
 applyPianoLanguage();
 // Recuperar el respaldo independiente una sola vez, fusionándolo con el progreso local.
 restoreProgressIndexedDB().then(async result=>{
