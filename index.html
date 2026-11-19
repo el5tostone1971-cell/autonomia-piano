@@ -1479,7 +1479,7 @@ function pianoTranslateText(text){
  fixed.unshift(...practicePhrases);
  const topicPhrases=[["El semitono","O semitom"],["El tono","O tom"],["Reconocer distancias","Reconhecer distâncias"],["Escala mayor","Escala maior"],["Construir una escala mayor","Construir uma escala maior"],["Escala menor natural","Escala menor natural"],["Sostenido y bemol","Sustenido e bemol"],["Becuadro","Bequadro"],["Enarmonía","Enarmonia"],["Intervalo: segunda","Intervalo: segunda"],["Intervalo: tercera","Intervalo: terça"],["Intervalo: quinta justa","Intervalo: quinta justa"],["Grados de la escala","Graus da escala"],["Tónica y dominante","Tônica e dominante"],["Aplicación: leer una escala","Aplicação: ler uma escala"]];
  fixed.unshift(...topicPhrases);
- for(let i=0;i<fixed.length;i++)if(out.includes(fixed[i][0]))out=out.split(fixed[i][0]).join("__PT_FIXED_"+i+"__");
+ for(let i=0;i<fixed.length;i++){const pair=fixed[i];if(Array.isArray(pair)&&pair.length>=2&&typeof pair[0]==='string'&&pair[0]&&out.includes(pair[0]))out=out.split(pair[0]).join("__PT_FIXED_"+i+"__");}
  out=pianoApplyDictionary(out);
  // "La" pode ser artigo ou nome de nota: protegemos a nota em sequências musicais e com indicação de oitava.
  out=out.replace(/^\s*Re\s*$/,'__PITCH_NOTE_D__');
@@ -1510,10 +1510,10 @@ function pianoTranslateText(text){
  ];
  for(const pair of residualPhrases)out=out.split(pair[0]).join(pair[1]);
  const residualWords=[
-  ["tenés","tem"],["construí","construa"],["reconocé","reconheça"],
-  ["escribe","escreve"],["anatomía","anatomia"],["adicionales","suplementares"],
-  ["extienden","prolongam"],["posición","posição"],["dejamos","deixamos"],["reconocés","reconhece"]
- ];
+   ["tenés","tem"],["construí","construa"],["completá","complete"],["reconocé","reconheça"],
+   ["escriben","escrevem"],["escribe","escreve"],["Uní","Una"],["uní","una"],["estás","está"],["Cuántos","Quantos"],["cuántos","quantos"],["cualquiera","qualquer"],["anatomía","anatomia"],["horizontales","horizontais"],["nombre","nome"],["comparten","compartilham"],["suena","soa"],["sonar","soar"],["en","em"],["del","do"],["la misma","a mesma"],["misma","mesma"],["deben","devem"],["debe","deve"],["por separado","separadamente"],["encima","acima"],["adicionales","suplementares"],
+   ["extienden","prolongam"],["posición","posição"],["dejamos","deixamos"],["reconocés","reconhece"]
+  ];
  for(const pair of residualWords){
   const escaped=pair[0].replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   out=out.replace(new RegExp('(^|[^\\p{L}])'+escaped+'(?=$|[^\\p{L}])','giu'),(m,prefix)=>prefix+pair[1]);
