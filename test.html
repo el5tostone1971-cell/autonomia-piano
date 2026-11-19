@@ -19,19 +19,15 @@ iframe{display:block;width:100%;height:calc(100vh - 58px);border:0;background:#0
 <iframe id="app" title="Aplicación actual y resultados de pruebas" src="./index.html?autonomia-test=1"></iframe>
 <script>
 (function(){
- const frame=document.getElementById('app'),error=document.getElementById('error');
- function showError(message){error.style.display='block';error.textContent='No se pudieron iniciar las pruebas: '+message}
+ const frame=document.getElementById('app');
  frame.addEventListener('load',function(){
   try{
    const doc=frame.contentDocument;
-   if(!doc||!doc.querySelector('#main')){showError('la aplicación actual no terminó de cargar (#main no encontrado).');return}
-   const runner=doc.createElement('script');
-   runner.src='./run_tests.js?v=live-20261119-6';
-   runner.onerror=function(){showError('no se pudo cargar run_tests.js.');};
-   doc.body.appendChild(runner);
-  }catch(e){showError(e.message||String(e))}
+   if(!doc||!doc.querySelector('#main')){
+    const error=document.getElementById('error');error.style.display='block';error.textContent='La aplicación no terminó de cargar.';
+   }
+  }catch(e){const error=document.getElementById('error');error.style.display='block';error.textContent=e.message||String(e)}
  });
- frame.addEventListener('error',function(){showError('no se pudo abrir index.html.')});
 })();
 </script>
 </body>
