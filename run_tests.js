@@ -279,13 +279,13 @@
   selectLibraryPiece('rp2');assert(repertoireReadActive&&repertoireReadIndex===2,'no retomó lectura en su índice');
   selectLibraryPiece('rp3');assert(repertoireInput.length===2&&repertoireInput[0]===64&&repertoireInput[1]===64,'no restauró las notas tocadas');
   startRepertoire();assert(repertoireInput.length===2,'Continuar interpretación descartó las notas recuperadas');
-  stopRepertoirePractice();
+  if(typeof window.stopRepertoirePractice==='function')window.stopRepertoirePractice();else if(typeof window.stopBackingTrack==='function')window.stopBackingTrack();
   state.repertoireMilestones={};repertoirePiece=repertoireLibrary.find(x=>x.id==='rp1');
   markRepertoireMilestone('learn');assert(state.repertoireProgress.rp1===25,'aprendizaje no computó 25%');
   markRepertoireMilestone('read');assert(state.repertoireProgress.rp1===50,'lectura no computó 50%');
   markRepertoireMilestone('play');assert(state.repertoireProgress.rp1===100,'interpretación no completó 100%');
   pass('Repertorio · recuperación de las tres etapas','aprendizaje, lectura e interpretación retoman índice/notas y guardan 25/50/100%');
- }catch(e){fail('Repertorio · recuperación de las tres etapas',e);stopRepertoirePractice()}
+ }catch(e){fail('Repertorio · recuperación de las tres etapas',e);if(typeof window.stopRepertoirePractice==='function')window.stopRepertoirePractice();else if(typeof window.stopBackingTrack==='function')window.stopBackingTrack();}
 
  // Point 3: band practice records errors, advances, completes two passes and stops the backing.
  try{
