@@ -75,6 +75,28 @@
   pass('Cartões das 90 lições em português','dia, competência, título, descrição e ação localizados');
  }catch(e){fail('Cartões das 90 lições em português',e)}
 
+
+ // Block A · stronger Portuguese audit: inspect the actual rendered exercise screens, not the translator's own expected output.
+ try{
+  const previousLanguage=pianoLanguage,previousDay=state.day,issues=[];
+  const spanishOnly=/\\b(?:cuando|donde|después|mientras|todavía|hacia|escriben|escribe|debe|deben|debajo|encima|cualquier|cualquiera|izquierda|derecha|además|también|aunque|luego|lejos|cerca|arriba|abajo|siguiente|siguientes|mismo|misma|mismos|mismas|mejor|peor|ahora|primero|primera|tercero|sonido|sonidos|duración|posición|compás|pulso|silencio|semitono|tono|octava|mayor|tónica|tríada|tríadas|arpegio|inversión|cadencia|síncopa|contratiempo|necesitás|tenés|podés|querés|sabés|estás|están|tocá|escuchá|leé|encontrá|usá|prepará|mantené|reconocé|resolvé|explicá|observá|volvé|corregí|practicá|completá|formá|construí|memorizá|uní|cantá|bajá|subí|elegí|identificá|marcá|compará|repetí|regresá|trasladá|evitá|dejá)\\b/i;
+  try{
+   pianoLanguage='pt';state.day=90;applyPianoLanguage();
+   for(const lesson of LESSONS){
+    openLesson(lesson.id);clearTimeout(window._nextTimer);
+    const rendered=document.getElementById('main')?.innerText||'',match=rendered.match(spanishOnly);
+    if(match)issues.push({scope:'curso',id:lesson.id,word:match[0],text:rendered.slice(0,260)});
+   }
+   for(const lesson of THEORY_LESSONS){
+    openTheory(lesson.id);
+    const rendered=document.getElementById('main')?.innerText||'',match=rendered.match(spanishOnly);
+    if(match)issues.push({scope:'academia',id:lesson.id,word:match[0],text:rendered.slice(0,260)});
+   }
+  }finally{pianoLanguage=previousLanguage;state.day=previousDay;applyPianoLanguage();show('course')}
+  assert(issues.length===0,'Texto en español o traducción incompleta en pantallas portuguesas: '+JSON.stringify(issues.slice(0,12)));
+  pass('Português · auditoría de pantallas 180/180','90 ejercicios del curso y 90 lecciones de teoría inspeccionados en portugués');
+ }catch(e){fail('Português · auditoría de pantallas 180/180',e)}
+
  // Theory academy: audit every lesson's content, concrete piano application, illustration, quiz and level assignment.
  try{
   const expectedIds=Array.from({length:90},(_,i)=>'T'+String(i+1).padStart(2,'0'));
