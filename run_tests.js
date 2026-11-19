@@ -168,10 +168,10 @@
   startRepertoire();assert(repertoireInput.length===0,'una repetición no comenzó desde el principio');
   repertoireInput=[60,62];repertoireTimes=[0,60000/70];checkRepertoire();
   assert(state.skills.right===earned.right&&state.skills.rhythm===earned.rhythm,'repetir una canción volvió a otorgar puntos de competencia');
-  stopRepertoirePractice();repertoireTempoOverride=null;
+  if(typeof window.stopRepertoirePractice==='function')window.stopRepertoirePractice();else if(typeof window.stopBackingTrack==='function')window.stopBackingTrack();repertoireTempoOverride=null;
   originalPiece.notes=originalNotes;originalPiece.dur=originalDur;
   pass('Repertorio progresivo','aprendizaje por altura + lectura con octava + memoria sin pistas + tempo ajustable');
- }catch(e){fail('Repertorio progresivo',e);repertoireTempoOverride=null;if(typeof stopRepertoirePractice==='function')stopRepertoirePractice();else if(typeof stopBackingTrack==='function')stopBackingTrack()}
+ }catch(e){fail('Repertorio progresivo',e);repertoireTempoOverride=null;if(typeof window.stopRepertoirePractice==='function')window.stopRepertoirePractice();else if(typeof window.stopBackingTrack==='function')window.stopBackingTrack()}
  // PRS.
  try{state=clone(defaultState);state.god.sight={score:0,attempts:0,history:[]};startSightTest();prsInput=prsExpected.slice();const beat=60000/prsExcerpt.tempo;prsTimes=prsExpected.map((_,i)=>i*beat);finishSightTest();assert(state.god.sight.attempts===1,'PRS no registró intento');pass('PRS lectura a primera vista','puntaje registrado')}catch(e){fail('PRS lectura a primera vista',e)}
  // Performance.
