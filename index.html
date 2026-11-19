@@ -1490,6 +1490,24 @@ function pianoTranslateText(text){
   out=out.replace(new RegExp('(^|[^\\p{L}])'+es+'(?=$|[^\\p{L}])','giu'),(m,prefix)=>{const replacement=m.slice(prefix.length),translated=pair[1],value=replacement&&replacement===replacement.toUpperCase()?translated.toUpperCase():replacement&&replacement[0]===replacement[0].toUpperCase()?translated[0].toUpperCase()+translated.slice(1):translated;return prefix+value});
  }
  for(let i=0;i<fixed.length;i++)out=out.split('__PT_FIXED_'+i+'__').join(fixed[i][1]);
+ // Cobertura final de formas residuales detectadas por la auditoría de las 180 pantallas.
+ const residualPhrases=[
+  ["Pasos e saltos","Passos e saltos"],
+  ["Dos notas consecutivas por posición son un paso.","Duas notas consecutivas por posição formam um passo."],
+  ["Si dejamos una posición intermedia","Se deixarmos uma posição intermediária"],
+  ["Las líneas adicionales extienden el pentagrama.","As linhas suplementares prolongam a pauta."],
+  ["La cabeza indica altura; su forma, plica y banderas indican","A cabeça indica a altura; sua forma, haste e bandeirolas indicam"]
+ ];
+ for(const pair of residualPhrases)out=out.split(pair[0]).join(pair[1]);
+ const residualWords=[
+  ["tenés","tem"],["construí","construa"],["reconocé","reconheça"],
+  ["escribe","escreve"],["anatomía","anatomia"],["adicionales","suplementares"],
+  ["extienden","prolongam"],["posición","posição"],["dejamos","deixamos"]
+ ];
+ for(const pair of residualWords){
+  const escaped=pair[0].replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  out=out.replace(new RegExp('(^|[^\\p{L}])'+escaped+'(?=$|[^\\p{L}])','giu'),(m,prefix)=>prefix+pair[1]);
+ }
  return out.replace(/__PITCH_NOTE_17__/g,'Lá').replace(/__PITCH_NOTE_C__/g,'Dó').replace(/__PITCH_NOTE_F__/g,'Fá').replace(/__PITCH_NOTE_D__/g,'Ré').replace(/Répertório/g,'Repertório');
 }
 function pianoTranslateLessonContent(){if(pianoLanguage!=='pt')return;const main=document.getElementById('main');if(main){const walker=document.createTreeWalker(main,NodeFilter.SHOW_TEXT);const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);for(const node of nodes){if(node.nodeValue&&node.nodeValue.trim())node.nodeValue=pianoTranslateText(node.nodeValue)}}document.querySelectorAll('#main [placeholder],#main [aria-label],#main [title]').forEach(el=>{for(const attr of ['placeholder','aria-label','title'])if(el.hasAttribute(attr))el.setAttribute(attr,pianoTranslateText(el.getAttribute(attr))) })}
