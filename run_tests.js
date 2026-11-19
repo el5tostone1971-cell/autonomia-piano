@@ -374,7 +374,7 @@
   assert(backingVoicesStopped===1&&accompVoicesStopped===1&&window._autonomiaBackingSources.size===0&&window._autonomiaAccompanimentSources.size===0,'quedaron voces ya programadas sonando después de la parada global');
   midiOutput=previousOutput;
   pass('Reproducción · detener y navegar','cancela notas pendientes, no dispara ataques posteriores y se detiene al cambiar de pantalla');
- }catch(e){fail('Reproducción · detener y navegar',e);stopSequencePlayback()}
+ }catch(e){fail('Reproducción · detener y navegar',e);if(typeof window.stopSequencePlayback==='function')window.stopSequencePlayback()}
 
 
  // Point 3: keyboard must remain compact after navigation and never consume the viewport.
