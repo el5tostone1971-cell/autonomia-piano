@@ -171,7 +171,7 @@
   stopRepertoirePractice();repertoireTempoOverride=null;
   originalPiece.notes=originalNotes;originalPiece.dur=originalDur;
   pass('Repertorio progresivo','aprendizaje por altura + lectura con octava + memoria sin pistas + tempo ajustable');
- }catch(e){fail('Repertorio progresivo',e);repertoireTempoOverride=null;stopRepertoirePractice()}
+ }catch(e){fail('Repertorio progresivo',e);repertoireTempoOverride=null;if(typeof stopRepertoirePractice==='function')stopRepertoirePractice();else if(typeof stopBackingTrack==='function')stopBackingTrack()}
  // PRS.
  try{state=clone(defaultState);state.god.sight={score:0,attempts:0,history:[]};startSightTest();prsInput=prsExpected.slice();const beat=60000/prsExcerpt.tempo;prsTimes=prsExpected.map((_,i)=>i*beat);finishSightTest();assert(state.god.sight.attempts===1,'PRS no registró intento');pass('PRS lectura a primera vista','puntaje registrado')}catch(e){fail('PRS lectura a primera vista',e)}
  // Performance.
