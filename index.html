@@ -3082,16 +3082,6 @@ function updateRepertoirePracticeTarget(){
  if(help)help.textContent=pianoLanguage==='pt'?'PRÓXIMA NOTA: '+note+' ('+pc+'), oitava '+oct+'. Toque essa nota no seu teclado seguindo a pulsação.':'SIGUIENTE NOTA: '+note+' ('+pc+'), octava '+oct+'. Tocá esa nota en tu teclado real siguiendo el pulso.';
  keys.forEach(k=>{const midi=Number(k.dataset.midi),match=midi===n;k.classList.toggle('target-note',match);k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
 }
- if(!repertoirePiece)return;
- const i=bandPracticeActive?(bandPracticeResults.length%repertoirePiece.notes.length):repertoireInput.length;if(i>=repertoirePiece.notes.length)return;
- const n=repertoirePiece.notes[i],pc=pitchClassName(n),note=localizedPianoNoteName(n),oct=Math.floor(n/12)-1;
- const name=document.getElementById('repertoireCurrentNoteName'),help=document.getElementById('repertoireCurrentNoteHelp');
- if(repertoireStage>=2&&!bandPracticeActive){if(name)name.textContent=(pianoLanguage==='pt'?'Nota ':'Nota ')+(i+1)+' / '+repertoirePiece.notes.length+' · '+note+' ('+pc+') · '+(pianoLanguage==='pt'?'oitava ':'octava ')+oct;if(help)help.textContent=pianoLanguage==='pt'?'TOQUE ESTA NOTA NO TECLADO. O metrônomo marca o tempo; não indica a altura da nota.':'TOCÁ ESTA NOTA EN EL TECLADO. El metrónomo marca el tiempo; no indica la altura de la nota.';}
- if(name)name.textContent=note+' ('+pc+') · '+(pianoLanguage==='pt'?'oitava ':'octava ')+oct;
- if(help)help.textContent=pianoLanguage==='pt'?'PRÓXIMA NOTA: '+note+' ('+pc+'), oitava '+oct+'. Toque essa nota no seu teclado seguindo a pulsação.':'SIGUIENTE NOTA: '+note+' ('+pc+'), octava '+oct+'. Tocá esa nota en tu teclado real siguiendo el pulso.';
- const keys=[...document.querySelectorAll('.repertoireKeys .key')];
- keys.forEach(k=>{const midi=Number(k.dataset.midi),match=midi===n;k.classList.toggle('target-note',match);k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
-}
 function startBackingTrack(watchForSilence=true){
  if(!repertoirePiece)return;
  renderSequenceStopControl(true);
