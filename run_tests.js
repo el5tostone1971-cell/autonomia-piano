@@ -43,7 +43,7 @@
           chordSequence=l.targetChords.slice();checkGenericChords(l.id);
         }else if(l.kind==='courseTwoHands'){
           startCourseTwoHands();
-          courseTwoHandsEvents.forEach(event=>event.left.concat(event.right).forEach(note=>registerCourseTwoHandsNote(note)));
+          courseTwoHandsEvents.forEach(event=>event.left.concat(Array.isArray(event.right)?event.right:[event.right]).forEach(note=>registerCourseTwoHandsNote(note)));
           checkCourseTwoHands();
         }else if(l.kind==='courseAuto'){
           courseAutoCanAnswer=true;armCourseAuto();courseAutoPlayed=courseAutoExpected.slice();checkCourseAuto();
