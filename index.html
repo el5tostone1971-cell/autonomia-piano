@@ -1519,6 +1519,9 @@ function pianoTranslateText(text){
    const re=new RegExp('(^|[^\\p{L}])'+pair[0]+'(?=$|[^\\p{L}])','giu');
    out=out.replace(re,(m,prefix)=>prefix+pair[1]);
   }
+  // Substituições literais finais: garantem correções mesmo quando o texto contém HTML ou pontuação.
+  const literalPT=[["completá","complete"],["construí","construa"],["Uní","Una"],["reconocé","reconheça"],["evitá","evite"],["dejá","deixe"],["tenés","tem"],["escribe","escreve"],["adicionales","suplementares"],["direcció","direção"]];
+  for(const pair of literalPT){out=out.split(pair[0]).join(pair[1]);out=out.split(pair[0].toUpperCase()).join(pair[1].toUpperCase());}
   return out.replace(/__PITCH_NOTE_17__/g,'Lá').replace(/__PITCH_NOTE_C__/g,'Dó').replace(/__PITCH_NOTE_F__/g,'Fá').replace(/__PITCH_NOTE_D__/g,'Ré').replace(/Répertório/g,'Repertório');
 }
 function pianoTranslateLessonContent(){if(pianoLanguage!=='pt')return;const main=document.getElementById('main');if(main){const walker=document.createTreeWalker(main,NodeFilter.SHOW_TEXT);const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);for(const node of nodes){if(node.nodeValue&&node.nodeValue.trim())node.nodeValue=pianoTranslateText(node.nodeValue)}}document.querySelectorAll('#main [placeholder],#main [aria-label],#main [title]').forEach(el=>{for(const attr of ['placeholder','aria-label','title'])if(el.hasAttribute(attr))el.setAttribute(attr,pianoTranslateText(el.getAttribute(attr))) })}
