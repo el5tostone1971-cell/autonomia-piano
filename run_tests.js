@@ -26,7 +26,12 @@
       case 'l14': pulseCourseStartedAt=performance.now();pulseCourseTimes=Array.from({length:8},(_,i)=>pulseCourseStartedAt+i*600);pulseCourseArmed=true;checkPulseCourse();break;
       case 'l15': echoCourseInput=echoCourseExpected.slice();checkEchoCourse();break;
       default:
-        if(l.kind==='staffcourse'){
+        if(l.kind==='pulseCourse'){
+          pulseCourseStartedAt=performance.now();pulseCourseTimes=Array.from({length:8},(_,i)=>pulseCourseStartedAt+i*600);pulseCourseArmed=true;checkPulseCourse();
+        }else if(l.kind==='echoCourse'){
+          echoCourseInput=echoCourseExpected.slice();checkEchoCourse();
+        }else if(l.kind==='staffcourse'){
+        }else if(l.kind==='staffcourse'){
           answerCourseStaffTheory(STAFF_THEORY[l.staffTheoryIndex].a);
           courseStaffExpected.forEach(note=>nameCourseStaff(note));
           checkCourseStaff();
