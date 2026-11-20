@@ -158,12 +158,63 @@ const MOTIFS=[[0,1,2,3,2,1,0],[0,2,4,2,0],[0,1,3,2,4,3,1,0],[0,2,1,3,2,4,2,0],[0
 const FOCI=[['Eco melódico','Escuchá el motivo, cantalo y reproducilo sin acelerar.'],['Salto de tercera','Reconocé el salto y mantené la mano relajada.'],['Subida y bajada','Tocá el contorno ascendente y regresá con continuidad.'],['Bloque de memoria','Memorizá el bloque, ocultá la ayuda y tocá la frase completa.'],['Cambio de punto de partida','Trasladá el patrón a otra nota natural sin cambiar su forma.'],['Continuidad','Uní las notas sin detenerte entre grupos.'],['Control de dedos','Mantené los dedos cerca de las teclas y evitá tensar la muñeca.'],['Frase con retorno','Identificá dónde vuelve la melodía y cerrá con precisión.'],['Lectura de patrón','Leé los nombres de las notas sin barras descendentes.'],['Autocorrección','Detectá el error, borrá el intento y corregí desde el comienzo.']];
 const CHORD_SETS=[['C','G','Am','F'],['Am','F','C','G'],['C','Am','F','G'],['F','C','G','Am'],['G','D','Em','C'],['C','F','G','C'],['Am','G','F','E'],['C','G','F','G']];
 function makeGenericLessons(){
+ const readingPlan=[
+  ['Clave de Sol: notas de referencia','Ubicá Sol en la segunda línea y Do central. Antes de nombrar cada nota, identificá la clave y las referencias.'],
+  ['Leer líneas y espacios','Reconocé si cada nota está en línea o espacio y avanzá por posiciones consecutivas.'],
+  ['Subir y bajar por grados','Leé el contorno de la frase: distinguí movimiento ascendente, descendente y repetición.'],
+  ['Pasos conjuntos','Identificá notas vecinas en el pentagrama y anticipá la siguiente posición antes de tocar.'],
+  ['Saltos de tercera','Reconocé cuándo una nota salta una posición intermedia y calculá el destino.'],
+  ['Combinar pasos y saltos','Separá la frase en grupos pequeños y detectá qué movimientos son conjuntos y cuáles son saltos.'],
+  ['Lectura desde notas guía','Usá Do central y Sol como referencias para deducir notas cercanas sin contar desde cero.'],
+  ['Reconocer patrones visuales','Encontrá formas que se repiten en el pentagrama y trasladalas al teclado.'],
+  ['Leer sin nombres escritos','Retirá las etiquetas: identificá altura y dirección por la posición de las notas.'],
+  ['Anticipar el final de la frase','Leé el grupo completo antes de tocar y prepará la posición de llegada.'],
+  ['Lectura con cambios de dirección','Seguí una frase que alterna subidas, bajadas y notas repetidas.'],
+  ['Frases con intervalos variados','Combiná segundas y terceras; nombrá el movimiento antes de tocarlo.'],
+  ['Lectura y ritmo juntos','Leé alturas y duraciones por separado y después coordiná ambas informaciones.'],
+  ['Lectura continua','Mantené la mirada por delante de la nota que estás tocando y evitá detenerte en cada símbolo.'],
+  ['Comprobación de lectura','Interpretá una frase nueva: reconocé referencias, dirección, intervalos y posición final.']
+ ];
+ const coordinationPlan=[
+  ['Independencia: dos manos por separado','Practicá el patrón de la izquierda hasta hacerlo estable; después aprendé la melodía derecha sin ayuda de la otra mano.'],
+  ['Unir dos notas por mano','Coordiná dos eventos sencillos y mantené las manos relajadas; primero lento, después continuo.'],
+  ['Acompañamiento en pulsos','Sostené el acorde de la izquierda mientras la derecha completa una frase de varias notas.'],
+  ['Melodía sobre cambio armónico','Mantené la línea derecha mientras la izquierda cambia de acorde en el momento indicado.'],
+  ['Acorde quebrado','Distribuí las notas del acorde izquierdo en una secuencia y conservá la melodía derecha.'],
+  ['Ritmos diferentes entre manos','La izquierda mantiene pulsos regulares y la derecha organiza dos ataques por pulso.'],
+  ['Anticipar el cambio de acorde','Prepará la siguiente posición izquierda sin interrumpir la melodía.'],
+  ['Frase larga con acompañamiento','Uní varios bloques sin reiniciar el pulso en cada cambio.'],
+  ['Melodía con notas sostenidas','Mantené la duración de la melodía mientras la izquierda continúa el acompañamiento.'],
+  ['Cambios armónicos cada dos pulsos','Coordiná la duración del acorde con la frase derecha y reconocé el momento del cambio.'],
+  ['Acompañar una melodía nueva','Leé la melodía derecha y aplicá un patrón de acompañamiento conocido en la izquierda.'],
+  ['Recuperar una mano sin detenerse','Si una mano se equivoca, mantené el pulso y retomá en el siguiente bloque.'],
+  ['Coordinación con frase ascendente','Tocá una melodía ascendente con acompañamiento estable y cambios armónicos.'],
+  ['Coordinación con frase descendente','Conservá el acompañamiento mientras la melodía desciende y resuelve.'],
+  ['Integración de ambas manos','Interpretá una frase completa con melodía, acompañamiento, cambios y pulso continuo.']
+ ];
+ const autonomyPlan=[
+  ['Autonomía: leer antes de tocar','Observá una frase nueva. Identificá clave, nota inicial, dirección y ritmo antes de llevarla al teclado.','reading'],
+  ['Autonomía: reconocer de oído','Escuchá un motivo, cantá su contorno y reproducilo. Después comprobá qué notas cambian.','ear'],
+  ['Autonomía: recordar una frase','Escuchá una frase breve, agrupala en motivos y reproducila sin mirar.','memory'],
+  ['Autonomía: corregir un error','Compará tu ejecución con el modelo, localizá el primer punto distinto y corregí desde allí.','autonomy'],
+  ['Autonomía: leer y anticipar','Leé el siguiente grupo mientras tocás el actual; mantené la continuidad de la frase.','reading'],
+  ['Autonomía: pulso y fraseo','Sostené el pulso mientras diferenciás el comienzo, la continuación y el cierre de una melodía.','rhythm'],
+  ['Autonomía: reconocer intervalos','Escuchá y leé movimientos por grado conjunto y salto; trasladalos al teclado.','ear'],
+  ['Autonomía: acompañar una melodía','Elegí un patrón armónico conocido y mantenelo mientras tocás una melodía independiente.','chords'],
+  ['Autonomía: memoria con estructura','Recordá una frase identificando repetición, contraste y punto de llegada.','memory'],
+  ['Autonomía: interpretar una frase','Decidí dónde respirar musicalmente, qué notas conducir y cómo cerrar la frase.','phrasing'],
+  ['Autonomía: resolver una dificultad','Aislá el fragmento difícil, reducí la velocidad y reunilo con el resto sin perder el pulso.','autonomy'],
+  ['Autonomía: combinar lectura y oído','Leé una frase y verificá auditivamente si la interpretación conserva su dirección y sus intervalos.','reading'],
+  ['Autonomía: crear una respuesta','A partir de un motivo breve, inventá una continuación que conserve el pulso y tenga un cierre claro.','creation'],
+  ['Autonomía: preparar una interpretación','Planificá notas de referencia, digitación, pulso y cambios antes de ejecutar la frase completa.','planning'],
+  ['Autonomía: evaluación integral','Combiná lectura, oído, memoria, coordinación y autocorrección en una interpretación continua.','integration']
+ ];
  for(let d=13;d<=90;d++){
   const phase=d<=15?1:d<=30?2:d<=45?3:d<=60?4:d<=75?5:6;
   if(phase===4){
    const prog=CHORD_SETS[(d-46)%CHORD_SETS.length];
    const names=['Construcción de tríadas','Raíz y calidad del acorde','Progresión armónica','Cambios con pulso','Acordes en contexto'];
-   GENERIC_LESSONS.push({id:'l'+d,day:d,title:names[(d-46)%names.length]+' · '+prog.join(' → '),desc:'Formá cada tríada, escuchá su calidad y enlazá los acordes sin perder el pulso. La evaluación comprueba las notas y el orden de la progresión.',kind:'chordgeneric',skill:'chords',xp:35+Math.floor((d-45)/3)*2,inc:5,targetChords:prog,chordTheoryIndex:d-46,hide:true,level:phase});
+   GENERIC_LESSONS.push({id:'l'+d,day:d,title:names[(d-46)%names.length]+' · '+prog.join(' → '),desc:'Identificá la fundamental, construí la tríada y escuchá su función dentro de la progresión. La comprobación exige reconocer la calidad y tocar las notas en orden.',kind:'chordgeneric',skill:'chords',xp:35+Math.floor((d-45)/3)*2,inc:5,targetChords:prog,chordTheoryIndex:d-46,hide:true,level:phase});
    continue;
   }
   const motif=MOTIFS[(d-13)%MOTIFS.length],shift=(d-13)%7,seq=motif.map(i=>SCALE[(i+shift)%7]);let title,desc,skill;
@@ -172,9 +223,26 @@ function makeGenericLessons(){
     ['Mapa del teclado: Do, Fa y Sol','Encontrá Do, Fa y Sol en dos octavas. Usá los grupos de dos y tres teclas negras como referencias; la evaluación comprueba también la octava.','orientation'],
     ['Pulso estable: ocho ataques','Escuchá la cuenta previa y tocá ocho ataques con intervalos regulares. La devolución separa adelantos, retrasos y variación del pulso.','rhythm'],
     ['Eco melódico de cuatro notas','Escuchá cuatro notas, cantá el contorno y reproducilas en el teclado. La devolución señala la primera posición diferente.','ear']
-   ][d-13];[title,desc,skill]=early;
+   ][d-13];
    const kinds={13:'orientationCourse',14:'pulseCourse',15:'echoCourse'};
-   GENERIC_LESSONS.push({id:'l'+d,day:d,title,desc,kind:kinds[d],skill,xp:35,inc:5,hide:true,level:phase});continue;
+   GENERIC_LESSONS.push({id:'l'+d,day:d,title:early[0],desc:early[1],kind:kinds[d],skill:early[2],xp:35,inc:5,hide:true,level:phase});continue;
+  }
+  if(phase===2){
+   const p=readingPlan[d-16];
+   GENERIC_LESSONS.push({id:'l'+d,day:d,title:p[0]+' · Día '+d,desc:p[1]+' Leé primero la dirección y las distancias; después nombrá y tocá cada nota.',kind:'staffcourse',skill:'orientation',xp:30+Math.floor((d-16)/3)*2,inc:3,seq:seq.slice(0,4),staffTheoryIndex:d-16,hide:true,level:phase});continue;
+  }
+  if(phase===3){
+   const f=FOCI[(d-31)%FOCI.length];title=['Lenguaje musical: fundamentos','Tonos y semitonos','Escalas y alteraciones','Intervalos y grados'][Math.floor((d-31)/4)%4]+' · '+f[0];desc='Estudiá el concepto, observá el ejemplo y resolvé una comprobación concreta antes de avanzar. '+f[1];skill='right';
+   GENERIC_LESSONS.push({id:'l'+d,day:d,title:title+' · Día '+d,desc,kind:'theorycourse',skill:'right',xp:32+Math.floor((d-31)/3)*2,inc:0,theoryIndex:d-31,hide:true,level:phase});continue;
+  }
+  if(phase===5){
+   const p=coordinationPlan[d-61],cycle=[['C','F','G','C'],['Am','F','C','G'],['Dm','G','C','Am'],['F','G','Em','Am'],['C','Am','Dm','G']][(d-61)%5];
+   const seqLen=6+Math.floor((d-61)/3);const expanded=Array.from({length:seqLen},(_,i)=>SCALE[(i+(d-61))%7]);
+   GENERIC_LESSONS.push({id:'l'+d,day:d,title:p[0]+' · Día '+d,desc:p[1],kind:'courseTwoHands',skill:'left',xp:40+Math.floor((d-61)/3)*2,inc:0,seq:expanded,leftChordCycle:cycle,hide:false,level:phase});continue;
+  }
+  if(phase===6){
+   const p=autonomyPlan[d-76],seqLen=4+Math.floor((d-76)/3);const phrase=Array.from({length:seqLen},(_,i)=>SCALE[(i*([1,2,1,3][(d-76)%4]+(d-76)%3)+(d-76))%7]);
+   GENERIC_LESSONS.push({id:'l'+d,day:d,title:p[0]+' · Día '+d,desc:p[1]+' Esta prueba es una parte de la autonomía musical; no sustituye la lectura, el oído, la coordinación y la interpretación.',kind:'courseAuto',skill:'memory',xp:40+Math.floor((d-76)/3)*2,inc:0,seq:phrase,autonomyFocus:p[2],hide:true,level:phase});continue;
   }
   if(phase===1){
    const early=[
@@ -182,22 +250,8 @@ function makeGenericLessons(){
     ['Pulso y repetición','Tocá cada nota a intervalos regulares; priorizá estabilidad antes que velocidad.','rhythm'],
     ['Eco melódico','Escuchá la frase, cantala y reproducila en el teclado.','ear']
    ][d-13];[title,desc,skill]=early;
-  }else if(phase===2){
-   const f=FOCI[(d-16)%FOCI.length];title=['Lectura por grados','Ritmo y lectura','Reconocimiento de patrones','Lectura sin depender de etiquetas'][Math.floor((d-16)/4)%4]+' · '+f[0];desc='Leé primero la dirección y las distancias; después tocá la frase y explicá cómo encontraste cada nota. '+f[1];skill=['orientation','rhythm','right','memory'][(d-16)%4];
-  }else if(phase===3){
-   const f=FOCI[(d-31)%FOCI.length];title=['Lenguaje musical: fundamentos','Tonos y semitonos','Escalas y alteraciones','Intervalos y grados'][Math.floor((d-31)/4)%4]+' · '+f[0];desc='Estudiá el concepto, observá el ejemplo y resolvé una comprobación concreta antes de avanzar. '+f[1];skill='right';
-   GENERIC_LESSONS.push({id:'l'+d,day:d,title:title+' · Día '+d,desc,kind:'theorycourse',skill:'right',xp:32+Math.floor((d-31)/3)*2,inc:0,theoryIndex:d-31,hide:true,level:phase});continue;
-  }else if(phase===5){
-   const f=FOCI[(d-61)%FOCI.length];title=['Independencia de manos','Coordinación progresiva','Acompañamiento estable','Continuidad musical'][Math.floor((d-61)/4)%4]+' · '+f[0];desc='Prepará cada mano por separado, uní bloques cortos y mantené el pulso sin detenerte. '+f[1];skill=['left','right','rhythm','autonomy'][(d-61)%4];
-  }else{
-   const f=FOCI[(d-76)%FOCI.length];title=['Memoria musical','Lectura autónoma','Interpretación y oído','Autocorrección'][Math.floor((d-76)/4)%4]+' · '+f[0];desc='Sin seguir notas animadas: escuchá, anticipá y tocá la frase completa. Detectá y corregí tus propios errores. '+f[1];skill=['memory','ear','right','autonomy'][(d-76)%4];
   }
-  // Una secuencia de notas aislada no certifica memoria, oído, lectura ni autonomía; no suma competencias sin una prueba específica.
-  if(phase===2){GENERIC_LESSONS.push({id:'l'+d,day:d,title:title+' · Día '+d,desc,kind:'staffcourse',skill:'orientation',xp:30+Math.floor((d-16)/3)*2,inc:3,seq:seq.slice(0,4),staffTheoryIndex:d-16,hide:true,level:phase});continue;}
-  if(phase===5){GENERIC_LESSONS.push({id:'l'+d,day:d,title:title+' · Coordinación de bloque · Día '+d,desc:'Combiná el acorde completo de la mano izquierda con una nota de melodía en la derecha. Cada bloque exige las cuatro notas correctas; no alcanza con usar una sola mano.',kind:'courseTwoHands',skill:'left',xp:40+Math.floor((d-61)/3)*2,inc:0,seq,hide:false,level:phase});continue;}
-  if(phase===6){GENERIC_LESSONS.push({id:'l'+d,day:d,title:title+' · Eco auditivo y memoria · Día '+d,desc:'Escuchá la frase completa sin verla escrita. Cuando termine, reproducila de memoria en el teclado. La secuencia no se muestra durante el intento.',kind:'courseAuto',skill:'memory',xp:40+Math.floor((d-76)/3)*2,inc:0,seq,hide:true,level:phase});continue;}
-  // Una secuencia de notas aislada no certifica memoria, oído, lectura ni autonomía; no suma competencias sin una prueba específica.
-  GENERIC_LESSONS.push({id:'l'+d,day:d,title:title+' · Día '+d,desc,kind:'generic',skill:'right',xp:25+Math.min(40,Math.floor((d-12)/4)*2),inc:0,seq,hide:phase>=2,level:phase});
+  GENERIC_LESSONS.push({id:'l'+d,day:d,title:title+' · Día '+d,desc,kind:'generic',skill:'right',xp:25+Math.min(40,Math.floor((d-12)/4)*2),inc:0,seq,hide:false,level:phase});
  }
 }
 makeGenericLessons();
@@ -2622,7 +2676,7 @@ const COURSE_LEFT_CHORDS=[
 function courseTwoHandsLesson(l){
  resetExercise();courseTwoHandsLessonData=l;courseTwoHandsStep=0;courseTwoHandsWindow=[];courseTwoHandsStarted=false;
  const assistance=autonomyHelpForLesson(l);
- const seq=l.seq||['C','D','E','G'];courseTwoHandsEvents=seq.map((note,i)=>{const chord=COURSE_LEFT_CHORDS[Math.floor(i/2)%4];return {left:chord.notes.slice(),right:60+Math.max(0,NOTE_NAMES.indexOf(note)),chord:chord.name,note:note};});
+ const seq=l.seq||['C','D','E','G'];courseTwoHandsEvents=seq.map((note,i)=>{const cycle=Array.isArray(l.leftChordCycle)&&l.leftChordCycle.length?l.leftChordCycle:['C','G','Am','F'];const chord=COURSE_LEFT_CHORDS.find(x=>x.name===cycle[Math.floor(i/2)%cycle.length])||COURSE_LEFT_CHORDS[Math.floor(i/2)%4];return {left:chord.notes.slice(),right:60+Math.max(0,NOTE_NAMES.indexOf(note)),chord:chord.name,note:note};});
  const rows=courseTwoHandsEvents.map((e,i)=>'<div class="note-box"><b>Bloque '+(i+1)+'</b><div>Izquierda: <b>'+e.chord+'</b></div><div>Derecha: <b>'+localizedPianoNoteName(e.right)+'</b></div><small class="muted">Acorde completo + melodía</small></div>').join('');
  const guide='<div id="courseTwoHandsGuide" class="'+(assistance.show?'':'hidden')+'"><div class="two">'+rows+'</div></div>';
  const body='<div class="note-box"><b>Secuencia de coordinación</b>'+guide+'<div class="row-controls"><button class="btn" type="button" onclick="toggleCourseTwoHandsGuide()">👁 '+courseLocal('Mostrar / ocultar referencia','Mostrar / ocultar referência')+'</button></div><p class="muted">'+courseLocal('Nivel de ayuda: ','Nível de ajuda: ')+assistance.label+'.</p><p id="courseTwoHandsMsg" class="muted">'+courseLocal('Prepará ambas manos. Tocá las tres notas del acorde grave y la nota aguda del mismo bloque.','Prepare as duas mãos. Toque as três notas do acorde grave e a nota aguda do mesmo bloco.')+'</p><div id="courseTwoHandsCount" class="target">0 / '+courseTwoHandsEvents.length+' bloques</div><div class="row-controls"><button class="btn primary" onclick="startCourseTwoHands()">▶ '+courseLocal('Empezar','Começar')+'</button><button class="btn" onclick="clearCourseTwoHands()">× '+courseLocal('Reiniciar','Reiniciar')+'</button><button class="btn good" onclick="checkCourseTwoHands()">'+courseLocal('Comprobar','Conferir')+'</button></div></div>'+keyboard()+'<div class="note-box muted">'+courseLocal('La app comprueba que estén las cuatro notas de cada bloque. En esta versión no mide la simultaneidad exacta de las pulsaciones.','O app verifica as quatro notas de cada bloco. Nesta versão, não mede a simultaneidade exata das teclas.')+'</div>';
