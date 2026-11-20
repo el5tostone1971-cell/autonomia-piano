@@ -2591,7 +2591,7 @@ function checkPulseCourse(){
  const pt=pianoLanguage==='pt',msg=document.getElementById('pulseCourseFeedback');
  if(pulseCourseTimes.length!==8){if(msg)msg.textContent=pt?'Você registrou '+pulseCourseTimes.length+' de 8 ataques. Complete os oito.':'Registraste '+pulseCourseTimes.length+' de 8 ataques. Completá los ocho.';return}
  const errors=pulseCourseTimes.map((t,i)=>(t-pulseCourseStartedAt)-i*600),abs=errors.map(Math.abs),avg=abs.reduce((a,b)=>a+b,0)/8,max=Math.max(...abs);
- if(avg<=150&&max<=260){pulseCourseArmed=false;if(msg)msg.textContent=pt?'✓ Pulso estável: oito ataques regulares.':'✓ Pulso estable: ocho ataques regulares.';complete('l14');return}
+ if(avg<=150&&max<=260){pulseCourseArmed=false;if(msg)msg.textContent=pt?'✓ Pulso estável: oito ataques regulares.':'✓ Pulso estable: ocho ataques regulares.';complete(currentLessonId||'l14');return}
  const drift=errors.reduce((a,b)=>a+b,0)/8,worst=abs.indexOf(max),when=errors[worst]>0?(pt?'atrasado':'tarde'):(pt?'adiantado':'temprano');
  if(msg)msg.textContent=(pt?'Ataque ':'Ataque ')+(worst+1)+': '+Math.round(max)+' ms '+when+'. '+(Math.abs(drift)>70?(drift>0?(pt?'Você está desacelerando; antecipe a próxima pulsação.':'Te estás atrasando; anticipá el siguiente pulso.'):(pt?'Você está acelerando; espere a pulsação.':'Te estás adelantando; esperá el pulso.')):(pt?'O intervalo entre ataques ainda varia. Conte em voz alta e tente novamente.':'Los intervalos todavía varían. Contá en voz alta y volvé a intentarlo.'));
  diagnose(drift>70?'late':drift< -70?'early':'rhythm',msg?.textContent||'','rhythm');
@@ -2612,7 +2612,7 @@ function registerEchoCourseNote(n){if(echoCourseScored||echoCourseInput.length>=
 function checkEchoCourse(){
  const m=document.getElementById('echoCourseStatus');if(echoCourseInput.length!==4){if(m)m.textContent=courseLocal('Faltan notas: llevás '+echoCourseInput.length+' de 4.','Faltam notas: você registrou '+echoCourseInput.length+' de 4.');return}
  const wrong=echoCourseInput.findIndex((n,i)=>n!==echoCourseExpected[i]);
- if(wrong<0){echoCourseScored=true;if(m)m.textContent=courseLocal('✓ Eco correcto: reconociste y reprodujiste las cuatro alturas relativas.','✓ Eco correto: você reconheceu e reproduziu as quatro alturas relativas.');complete('l15');return}
+ if(wrong<0){echoCourseScored=true;if(m)m.textContent=courseLocal('✓ Eco correcto: reconociste y reprodujiste las cuatro alturas relativas.','✓ Eco correto: você reconheceu e reproduziu as quatro alturas relativas.');complete(currentLessonId||'l15');return}
  if(m)m.textContent=courseLocal('La primera diferencia está en la nota '+(wrong+1)+'. Tocaste '+localizedPianoNoteName(echoCourseInput[wrong])+' y el eco esperado era '+localizedPianoNoteName(echoCourseExpected[wrong])+'. Escuchá otra vez y corregí.','A primeira diferença está na nota '+(wrong+1)+'. Você tocou '+localizedPianoNoteName(echoCourseInput[wrong])+' e o eco esperado era '+localizedPianoNoteName(echoCourseExpected[wrong])+'. Ouça novamente e corrija.');
 }
 function resetExercise(){window._courseStaffTheoryPassed=false;courseTwoHandsStarted=false;courseTwoHandsWindow=[];courseAutoArmed=false;courseAutoCanAnswer=false;clearTimeout(courseAutoPlaybackTimer);courseAutoPlayed=[];mem=[];pattern=[];doFound=new Set();leftInput=[];leftMidiInput=[];sepRightInput=[];sepLeftInput=[];chordHits=new Set();chordSequence=[];chordWindow.clear();rhythmTimes=[];rhythmExpected=[];autoInput=[];earInput=[];window._rhythmArmed=false;window._earSolved=false;clearTimeout(chordWindowTimer);clearTimeout(window._nextTimer)}
