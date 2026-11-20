@@ -31,7 +31,6 @@
         }else if(l.kind==='echoCourse'){
           echoCourseInput=echoCourseExpected.slice();checkEchoCourse();
         }else if(l.kind==='staffcourse'){
-        }else if(l.kind==='staffcourse'){
           answerCourseStaffTheory(STAFF_THEORY[l.staffTheoryIndex].a);
           courseStaffExpected.forEach(note=>nameCourseStaff(note));
           checkCourseStaff();
