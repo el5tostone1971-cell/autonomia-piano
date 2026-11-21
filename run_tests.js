@@ -71,6 +71,11 @@
   assert(level1.every(l=>exerciseFunctionName(l.kind)&&typeof window[exerciseFunctionName(l.kind)]==='function'),'Nivel 1 incluye motor ausente');
   assert(level1.every(l=>l.title&&l.desc&&l.desc.length>=20),'Nivel 1 tiene consignas incompletas');
   assert(level1.slice(12).every(l=>['orientationCourse','pulseCourse','echoCourse'].includes(l.kind)),'La integración final del Nivel 1 no contiene orientación, pulso y oído');
+  const level1ExpectedKinds=['find','pattern','rhythm','memory','ear','chords','left','separate','memory2','rhythm2','chordseq','autonomy','orientationCourse','pulseCourse','echoCourse'];
+  assert(level1.every((l,i)=>l.kind===level1ExpectedKinds[i]),'La secuencia de motores del Nivel 1 no coincide con el recorrido diseñado');
+  assert(level1[5].desc.includes('tríada')||level1[5].desc.includes('acorde'),'La introducción al acorde no explica su contenido');
+  assert(level1[9].desc.includes('siete notas')||level1[9].desc.includes('7 notas'),'La lección de melodía rítmica no explicita la frase');
+
   pass('Nivel 1 · estructura y motores','15 lecciones ordenadas, motores existentes y tres ejercicios integradores finales');
  }catch(e){fail('Nivel 1 · estructura y motores',e)}
 
