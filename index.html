@@ -336,6 +336,8 @@ function mergeProgressStates(base,incoming){
  out.xp=Math.max(Number(a.xp)||0,Number(b.xp)||0);out.day=Math.max(Number(a.day)||1,Number(b.day)||1);
  out.streak=Math.max(Number(a.streak)||0,Number(b.streak)||0);out.lastPractice=[a.lastPractice,b.lastPractice].filter(Boolean).sort().pop()||'';
  out.god=Object.assign({},a.god||{},b.god||{});
+ const examA=a.god?.finalExam||defaultState.god.finalExam,examB=b.god?.finalExam||defaultState.god.finalExam;
+ out.god.finalExam=clone(String(examA.updatedAt||examA.startedAt||'')>String(examB.updatedAt||examB.startedAt||'')?examA:examB);
  if(a.god||b.god){
   out.god.spaced=Object.assign({},a.god?.spaced||{},b.god?.spaced||{});const q=[...(a.god?.spaced?.queue||[]),...(b.god?.spaced?.queue||[])];out.god.spaced.queue=[...new Map(q.map(x=>[x.id||JSON.stringify(x),x])).values()];
   const union=(x,y)=>[...new Set([...(Array.isArray(x)?x:[]),...(Array.isArray(y)?y:[])])];
