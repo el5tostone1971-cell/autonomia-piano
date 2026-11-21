@@ -74,7 +74,7 @@
   const level1ExpectedKinds=['find','pattern','rhythm','memory','ear','chords','left','separate','memory2','rhythm2','chordseq','autonomy','orientationCourse','pulseCourse','echoCourse'];
   assert(level1.every((l,i)=>l.kind===level1ExpectedKinds[i]),'La secuencia de motores del Nivel 1 no coincide con el recorrido diseñado');
   const level1TeachingChecks=['cuatro Do','cinco dedos','cuatro pulsos','de memoria','contorno','tríada de Do mayor','registro grave','frase de la derecha','motivos','ataques regulares','nota común','memoria inmediata'];
-  assert(level1.slice(0,12).every((l,i)=>l.desc.toLowerCase().includes(level1TeachingChecks[i])),'La descripción pedagógica del Nivel 1 perdió su objetivo explícito');
+  assert(level1.slice(0,12).every((l,i)=>l.desc.toLowerCase().includes(level1TeachingChecks[i].toLowerCase())),'La descripción pedagógica del Nivel 1 perdió su objetivo explícito');
 
   const savedLanguage=pianoLanguage;pianoLanguage='pt';const ptLevel1=level1.slice(0,12).map(l=>pianoTranslateText(l.desc));pianoLanguage=savedLanguage;
   assert(ptLevel1[0].includes('Oriente-se no teclado')&&ptLevel1[5].includes('tríade de Dó maior')&&ptLevel1[11].includes('memória imediata'),'Las consignas nuevas del Nivel 1 no tienen traducción portuguesa completa');
