@@ -70,6 +70,8 @@
   assert(readingPlan.every(p=>p[0]&&p[1]&&p[1].length>=75),'Hay etapas de lectura sin consigna aplicable');
   const level2=LESSONS.filter(l=>l.day>=16&&l.day<=30);
   assert(level2.length===15&&level2.every((l,i)=>l.staffTheoryIndex===i&&l.title.includes(readingPlan[i][0])&&l.desc.includes(readingPlan[i][1])),'Las lecciones no siguen el orden progresivo de lectura');
+  const staffTopics=['El pentagrama','Clave de Sol','Notas en las líneas','Notas en los espacios','Dirección y altura','Líneas adicionales','Do central y teclado','Octavas','Figuras y duración','Corcheas','Silencios','Compás y 4/4','Barra de compás','Sostenidos y bemoles en la lectura','Armadura y alteración accidental'];
+  assert(STAFF_THEORY.length===15&&STAFF_THEORY.every((t,i)=>t.topic===staffTopics[i]),'La explicación teórica no coincide con el foco práctico del día');
   pass('Nivel 2 · lectura progresiva','15 etapas únicas, vinculadas a su explicación y ejercicio de pentagrama');
  }catch(e){fail('Nivel 2 · lectura progresiva',e)}
 
