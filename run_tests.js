@@ -63,6 +63,16 @@
   pass('90/90 ejercicios del curso','seis niveles de 15; cada lección aprobada con su motor real y metadatos completos');
  }catch(e){fail('90/90 ejercicios del curso',e)}
 
+ // Block A/B · Level 3 must provide fifteen distinct, applied theory focuses.
+ try{
+  assert(Array.isArray(FOCI)&&FOCI.length===15,'Nivel 3 debe tener 15 focos, uno por día');
+  assert(new Set(FOCI.map(f=>f[0])).size===15,'Nivel 3 repite títulos de foco');
+  assert(FOCI.every(f=>f[0]&&f[1]&&f[1].length>=70),'Hay focos sin explicación o aplicación suficiente');
+  const level3=LESSONS.filter(l=>l.day>=31&&l.day<=45);
+  assert(level3.length===15&&level3.every((l,i)=>l.theoryIndex===i&&l.desc.includes(FOCI[i][1])),'Las quince lecciones no usan su foco correspondiente');
+  pass('Nivel 3 · 15 focos únicos','progresión sin repetición; cada día incluye concepto y aplicación al teclado');
+ }catch(e){fail('Nivel 3 · 15 focos únicos',e)}
+
  // Portuguese audit: all ninety lesson titles and descriptions must not retain Rioplatense Spanish imperatives.
  try{
   const oldLanguage=pianoLanguage,spanishImperatives=/\b(?:Encontrá|Tocá|Escuchá|Usá|Leé|Explicá|Estudiá|Observá|Resolvé|Prepará|Uní|Mantené|Anticipá|Detectá|Corregí|Combiná|Memorizá|Ocultá|Regresá|Trasladá|Cantalo|Reproducilo|Evitá|Cerrá|Borrá|Volvé|Repetí|Practicá|Construí|Formá|Contá|Ubicá|Nombrá|Marcá|Compará|Dejá|Apoyá|Soltá|Seguí|Aprendé|Comprendé|Elegí|Trabajá|Reconocé|Identificá|Subí|Bajá)\b/i,leftovers=[];
