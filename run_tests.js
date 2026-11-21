@@ -135,6 +135,17 @@
   pass('Academia de teoría · 90 lecciones','90 desafíos prácticos, ejecución en teclado obligatoria, pregunta de comprensión y progreso condicionado a ambas pruebas');
  }catch(e){fail('Academia de teoría · 90 lecciones',e)}
 
+ // Level 4 · ensure the fifteen harmony lessons form a distinct, ordered curriculum.
+ try{
+  const harmony=LESSONS.filter(x=>x.kind==='chordgeneric').sort((a,b)=>a.day-b.day);
+  assert(harmony.length===15,'Nivel 4 no contiene quince prácticas de armonía');
+  assert(harmony.every((lesson,i)=>lesson.day===46+i&&lesson.chordTheoryIndex===i),'las prácticas de armonía no siguen el orden T01–T15');
+  assert(new Set(harmony.map(x=>x.title.split(' · ')[0])).size===15,'hay títulos repetidos en las quince prácticas de armonía');
+  assert(harmony.every(x=>Array.isArray(x.targetChords)&&x.targetChords.length===4&&x.desc.length>100),'hay una práctica de armonía sin progresión o consigna específica');
+  assert(CHORD_THEORY.length===15&&CHORD_THEORY.every((theory,i)=>theory.topic===harmony[i].title.split(' · ')[0]),'el foco pedagógico no coincide con la explicación y evaluación de armonía');
+  pass('Nivel 4 · progresión de armonía','15 focos distintos: tríadas, inversiones, cifrado, funciones, cadencia y conducción de voces');
+ }catch(e){fail('Nivel 4 · progresión de armonía',e)}
+
  // Public spaced repetition regression test.
  try{
   state=clone(defaultState); state.day=3; state.lessons={l1:true,l2:true,l3:true}; state.god.spaced.queue=[]; saveState();
