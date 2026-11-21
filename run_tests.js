@@ -63,6 +63,16 @@
   pass('90/90 ejercicios del curso','seis niveles de 15; cada lección aprobada con su motor real y metadatos completos');
  }catch(e){fail('90/90 ejercicios del curso',e)}
 
+ // Block A/B · Level 2 sight-reading must progress through distinct, usable reading skills.
+ try{
+  assert(Array.isArray(readingPlan)&&readingPlan.length===15,'Nivel 2 debe tener quince etapas de lectura');
+  assert(new Set(readingPlan.map(p=>p[0])).size===15,'Nivel 2 repite títulos de lectura');
+  assert(readingPlan.every(p=>p[0]&&p[1]&&p[1].length>=75),'Hay etapas de lectura sin consigna aplicable');
+  const level2=LESSONS.filter(l=>l.day>=16&&l.day<=30);
+  assert(level2.length===15&&level2.every((l,i)=>l.staffTheoryIndex===i&&l.title.includes(readingPlan[i][0])&&l.desc.includes(readingPlan[i][1])),'Las lecciones no siguen el orden progresivo de lectura');
+  pass('Nivel 2 · lectura progresiva','15 etapas únicas, vinculadas a su explicación y ejercicio de pentagrama');
+ }catch(e){fail('Nivel 2 · lectura progresiva',e)}
+
  // Block A/B · Level 3 must provide fifteen distinct, applied theory focuses.
  try{
   assert(Array.isArray(FOCI)&&FOCI.length===15,'Nivel 3 debe tener 15 focos, uno por día');
