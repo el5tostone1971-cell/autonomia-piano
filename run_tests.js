@@ -600,6 +600,19 @@
   pass('Persistencia · copias independientes al salir','IndexedDB se intenta aunque falle la copia secundaria de localStorage');
  }catch(e){fail('Persistencia · copias independientes al salir',e)}
 
+ // Block B · honest limits of the coordination evaluator in both languages.
+ try{
+  const oldLang=pianoLanguage,oldDay=state.day,oldData=courseTwoHandsLessonData;
+  try{
+   pianoLanguage='es';state.day=90;courseTwoHandsLesson(LESSONS.find(x=>x.id==='l61'));clearTimeout(courseTwoHandsWindowTimer);
+   const es=document.getElementById('courseTwoHandsMsg')?.textContent||'';
+   assert(/no mide todavía la duración sostenida/i.test(es),'La pantalla española no aclara que no evalúa duración sostenida');
+   pianoLanguage='pt';courseTwoHandsLesson(LESSONS.find(x=>x.id==='l61'));clearTimeout(courseTwoHandsWindowTimer);
+   const pt=document.getElementById('courseTwoHandsMsg')?.textContent||'';
+   assert(/não mede a duração sustentada/i.test(pt),'A tela em português não esclarece que não avalia duração sustentada');
+  }finally{pianoLanguage=oldLang;state.day=oldDay;courseTwoHandsLessonData=oldData;clearTimeout(courseTwoHandsWindowTimer)}
+  pass('Nivel 5 · honestidad de evaluación ES/PT','La pantalla distingue comprobación de alturas agrupadas de duración y precisión temporal');
+ }catch(e){fail('Nivel 5 · honestidad de evaluación ES/PT',e)}
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
