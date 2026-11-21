@@ -63,6 +63,17 @@
   pass('90/90 ejercicios del curso','seis niveles de 15; cada lección aprobada con su motor real y metadatos completos');
  }catch(e){fail('90/90 ejercicios del curso',e)}
 
+ // Block A · Nivel 1 fundamentos: comprobar orden y foco real de cada motor.
+ try{
+  const level1=LESSONS.filter(l=>l.day>=1&&l.day<=15);
+  assert(level1.length===15,'Nivel 1 no contiene 15 lecciones');
+  assert(level1.every((l,i)=>l.day===i+1&&l.id==='l'+(i+1)),'Orden o IDs del Nivel 1 inconsistentes');
+  assert(level1.every(l=>exerciseFunctionName(l.kind)&&typeof window[exerciseFunctionName(l.kind)]==='function'),'Nivel 1 incluye motor ausente');
+  assert(level1.every(l=>l.title&&l.desc&&l.desc.length>=20),'Nivel 1 tiene consignas incompletas');
+  assert(level1.slice(12).every(l=>['orientationCourse','pulseCourse','echoCourse'].includes(l.kind)),'La integración final del Nivel 1 no contiene orientación, pulso y oído');
+  pass('Nivel 1 · estructura y motores','15 lecciones ordenadas, motores existentes y tres ejercicios integradores finales');
+ }catch(e){fail('Nivel 1 · estructura y motores',e)}
+
  // Block A/B · Level 2 sight-reading must progress through distinct, usable reading skills.
  try{
   assert(Array.isArray(readingPlan)&&readingPlan.length===15,'Nivel 2 debe tener quince etapas de lectura');
