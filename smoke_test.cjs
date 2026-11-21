@@ -73,7 +73,7 @@ const assert = require('node:assert/strict');
         const manifest = await fetch('./manifest.webmanifest').then(response => response.json());
         const registration = await navigator.serviceWorker.register('./sw.js');
         await navigator.serviceWorker.ready;
-        const cache = await caches.open('autonomia-piano-shell-v3');
+        const cache = await caches.open('autonomia-piano-shell-v4');
         return { display: manifest.display, shortName: manifest.short_name, active: !!registration.active, cachedIndex: !!(await cache.match('./index.html')), cachedManifest: !!(await cache.match('./manifest.webmanifest')) };
       });
       assert.equal(pwa.display, 'standalone', 'El manifiesto no declara modo instalable');
