@@ -76,6 +76,8 @@
   const level1TeachingChecks=['cuatro Do','cinco dedos','cuatro pulsos','de memoria','contorno','tríada de Do mayor','registro grave','frase de la derecha','motivos','ataques regulares','nota común','memoria inmediata'];
   assert(level1.slice(0,12).every((l,i)=>l.desc.toLowerCase().includes(level1TeachingChecks[i])),'La descripción pedagógica del Nivel 1 perdió su objetivo explícito');
 
+  const savedLanguage=pianoLanguage;pianoLanguage='pt';const ptLevel1=level1.slice(0,12).map(l=>pianoTranslateText(l.desc));pianoLanguage=savedLanguage;
+  assert(ptLevel1[0].includes('Oriente-se no teclado')&&ptLevel1[5].includes('tríade de Dó maior')&&ptLevel1[11].includes('memória imediata'),'Las consignas nuevas del Nivel 1 no tienen traducción portuguesa completa');
   assert(level1[5].desc.includes('tríada')||level1[5].desc.includes('acorde'),'La introducción al acorde no explica su contenido');
   assert(level1[9].desc.includes('siete notas')||level1[9].desc.includes('7 notas'),'La lección de melodía rítmica no explicita la frase');
 
