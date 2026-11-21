@@ -73,6 +73,9 @@
   assert(level1.slice(12).every(l=>['orientationCourse','pulseCourse','echoCourse'].includes(l.kind)),'La integración final del Nivel 1 no contiene orientación, pulso y oído');
   const level1ExpectedKinds=['find','pattern','rhythm','memory','ear','chords','left','separate','memory2','rhythm2','chordseq','autonomy','orientationCourse','pulseCourse','echoCourse'];
   assert(level1.every((l,i)=>l.kind===level1ExpectedKinds[i]),'La secuencia de motores del Nivel 1 no coincide con el recorrido diseñado');
+  const level1TeachingChecks=['cuatro Do','cinco dedos','cuatro pulsos','de memoria','contorno','tríada de Do mayor','registro grave','frase de la derecha','motivos','ataques regulares','nota común','memoria inmediata'];
+  assert(level1.slice(0,12).every((l,i)=>l.desc.toLowerCase().includes(level1TeachingChecks[i])),'La descripción pedagógica del Nivel 1 perdió su objetivo explícito');
+
   assert(level1[5].desc.includes('tríada')||level1[5].desc.includes('acorde'),'La introducción al acorde no explica su contenido');
   assert(level1[9].desc.includes('siete notas')||level1[9].desc.includes('7 notas'),'La lección de melodía rítmica no explicita la frase');
 
