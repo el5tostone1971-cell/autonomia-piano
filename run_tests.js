@@ -207,9 +207,9 @@
 
  // Smoke all main exercise views.
  try{
-  const views=['home','course','practice','reading','rhythmReading','twoHands','phrases','technique','midiStudio','repertoire','ear','earAdvanced','accompaniment','progress','teacher','spaced','resources','settings'];
+  const views=['home','course','practice','reading','rhythmReading','twoHands','phrases','technique','midiStudio','repertoire','ear','earAdvanced','accompaniment','progress','teacher','spaced','resources','settings','finalExam'];
   for(const v of views){show(v);assert(document.getElementById('main')?.innerHTML.length>0,`vista vacía: ${v}`)}
-  pass('18 vistas principales','todas renderizan');
+  pass('19 vistas principales','todas renderizan, incluido el examen final');
  }catch(e){fail('18 vistas principales',e)}
 
  // Reading: verify octaves remain visible in the learner's submitted sequence and duplicate phrases do not farm skill points.
