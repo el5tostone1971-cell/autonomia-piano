@@ -1619,7 +1619,7 @@ function pianoTranslateText(text){
  ];
  for(const pair of residualPhrases)out=out.split(pair[0]).join(pair[1]);
   for(const pair of THEORY_PT_TERMS.slice().sort((a,b)=>String(b[0]).length-String(a[0]).length)){
-   const es=pair[0].replace(/[.*+?^$()|[\]\\]/g,'\\$&');
+   const es=String(pair[0]).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   out=out.replace(new RegExp('(^|[^\\p{L}])'+es+'(?=$|[^\\p{L}])','giu'),(m,prefix)=>{const replacement=m.slice(prefix.length),translated=pair[1],value=replacement&&replacement===replacement.toUpperCase()?translated.toUpperCase():replacement&&replacement[0]===replacement[0].toUpperCase()?translated[0].toUpperCase()+translated.slice(1):translated;return prefix+value});
  }
  for(let i=0;i<fixed.length;i++){const pair=fixed[i];if(Array.isArray(pair)&&typeof pair[1]==='string')out=out.split("__PT_FIXED_"+i+"__").join(pair[1]);}
