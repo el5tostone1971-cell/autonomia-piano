@@ -366,8 +366,9 @@
  }catch(e){fail('Motor 11 · cobertura de ocho competencias',e)}
 
  // Final autonomy exam: nine practical stages must be demonstrated again and persist as one attempt.
+ const finalExamPreviousLanguage=pianoLanguage;
  try{
-  const oldLanguage=pianoLanguage;pianoLanguage='es';
+  pianoLanguage='es';
   state=normalizeState(clone(defaultState));state.day=90;state.lessons=Object.fromEntries(LESSONS.map(l=>[l.id,true]));state.xp=123;
   state.god.finalExam={running:false,completed:false,passed:{},currentLessonId:null,startedAt:null,completedAt:null,updatedAt:'',attempts:0};
   assert(FINAL_EXAM_TASKS.length===9,'el examen no contiene nueve competencias prácticas');
@@ -385,9 +386,9 @@
   assert(Object.keys(state.god.finalExam.passed).length===9,'el resultado final no contiene las nueve etapas');
   assert(state.xp===123,'repetir las lecciones del examen otorgó XP duplicada');
   assert(finalExamView().includes('9/9'),'la pantalla final no muestra el resultado completo');
-  pianoLanguage=oldLanguage;
+  pianoLanguage=finalExamPreviousLanguage;
   pass('Examen final de autonomía','nueve competencias demostradas, avance secuencial, resultado persistente y sin XP duplicada');
- }catch(e){fail('Examen final de autonomía',e)}
+ }catch(e){pianoLanguage=finalExamPreviousLanguage;fail('Examen final de autonomía',e)}
  // Repertoire resume: all three stages recover their own index and the played notes.
  try{
   state=normalizeState(clone(defaultState));state.repertoireMilestones={};state.repertoireSessions={
