@@ -1579,12 +1579,6 @@ function pianoTranslateText(text){
  out=out.replace(/Do(?=[–,·]\s*(?:Si|Re|Mi|Fa|Sol|La)\b)/g,'__PITCH_NOTE_C__');
  out=out.replace(/La(?=\d)/g,'__PITCH_NOTE_17__');
  out=out.replace(/La(?=[–,·]\s*(?:Si|Do|Re|Mi|Fa|Sol)\b)/g,'__PITCH_NOTE_17__');
- for(const pair of THEORY_PT_TERMS){
-  const es=pair[0].replace(/[.*+?^$()|[\]\\]/g,'\\$&');
-  out=out.replace(new RegExp('(^|[^\\p{L}])'+es+'(?=$|[^\\p{L}])','giu'),(m,prefix)=>{const replacement=m.slice(prefix.length),translated=pair[1],value=replacement&&replacement===replacement.toUpperCase()?translated.toUpperCase():replacement&&replacement[0]===replacement[0].toUpperCase()?translated[0].toUpperCase()+translated.slice(1):translated;return prefix+value});
- }
- for(let i=0;i<fixed.length;i++){const pair=fixed[i];if(Array.isArray(pair)&&typeof pair[1]==='string')out=out.split("__PT_FIXED_"+i+"__").join(pair[1]);}
- // Cobertura final de formas residuales detectadas por la auditoría de las 180 pantallas.
  const residualPhrases=[
   ["Pasos e saltos","Passos e saltos"],
   ["Dos notas consecutivas por posición son un paso.","Duas notas consecutivas por posição formam um passo."],
@@ -1593,6 +1587,13 @@ function pianoTranslateText(text){
   ["La cabeza indica altura; su forma, plica y banderas indican","A cabeça indica a altura; sua forma, haste e bandeirolas indicam"]
  ];
  for(const pair of residualPhrases)out=out.split(pair[0]).join(pair[1]);
+ for(const pair of THEORY_PT_TERMS.slice().sort((a,b)=>String(b[0]).length-String(a[0]).length)){
+  const es=pair[0].replace(/[.*+?^$()|[\]\\]/g,'\\ for(const pair of THEORY_PT_TERMS){
+  const es=pair[0].replace(/[.*+?^$()|[\]\\]/g,'\\$&');');
+  out=out.replace(new RegExp('(^|[^\\p{L}])'+es+'(?=$|[^\\p{L}])','giu'),(m,prefix)=>{const replacement=m.slice(prefix.length),translated=pair[1],value=replacement&&replacement===replacement.toUpperCase()?translated.toUpperCase():replacement&&replacement[0]===replacement[0].toUpperCase()?translated[0].toUpperCase()+translated.slice(1):translated;return prefix+value});
+ }
+ for(let i=0;i<fixed.length;i++){const pair=fixed[i];if(Array.isArray(pair)&&typeof pair[1]==='string')out=out.split("__PT_FIXED_"+i+"__").join(pair[1]);}
+ // As frases específicas já foram traduzidas antes das substituições de palavras.
  const residualWords=[
    ["completá","complete"],["construí","construa"],["Uní","Una"],["cuándo","quando"],["mejor","melhor"],["evitá","evite"],["dejá","deixe"],["tenés","tem"],["escribe","escreve"],["adicionales","suplementares"],["direcció","direção"],["Preparación","Preparação"],["preparación","preparação"],["al cambiar","ao mudar"],
    ["escriben","escrevem"],["estás","está"],["Cuántos","Quantos"],["cualquiera","qualquer"],["nombre","nome"],["comparten","compartilham"],
