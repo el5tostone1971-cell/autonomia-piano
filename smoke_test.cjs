@@ -6,9 +6,12 @@ const assert = require('node:assert/strict');
   const page = await browser.newPage();
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));
+  page.on('console', msg => { if (msg.type() === 'error') pageErrors.push('console: ' + msg.text()); });
   try {
     await page.goto(process.env.APP_URL || 'http://127.0.0.1:10000/', { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => typeof window.selectLibraryPiece === 'function', null, { timeout: 20000 });
+    await page.waitForFunction(() => typeof window.selectLibraryPiece === 'function' || !!document.getElementById('bootError'), null, { timeout: 20000 });
+    const bootFailure = await page.locator('#bootError').textContent().catch(() => '');
+    assert.equal(!!bootFailure, false, 'La aplicación informó un error de inicio: ' + bootFailure + ' | ' + pageErrors.join(' | '));
     assert.match(await page.title(), /Autonomía Piano/i, 'La página principal no cargó');
 
     // En escritorio, el contenido principal debe quedar a la derecha del menú, sin superposición.
