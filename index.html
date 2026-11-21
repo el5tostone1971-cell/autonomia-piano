@@ -2478,6 +2478,54 @@ function progress(){
  <div class="section"><h2>Patrones de error</h2><div class="stats">${errRows}</div></div>
  <div class="section card"><h2>Últimas sesiones</h2>${recentRows}</div>${adaptiveCard()}`);
 }
+function getFinalExamState(){
+ state.god=state.god||{};
+ if(!state.god.finalExam||typeof state.god.finalExam!=='object')state.god.finalExam=clone(defaultState.god.finalExam);
+ const e=state.god.finalExam;
+ e.passed=e.passed&&typeof e.passed==='object'?e.passed:{};
+ return e;
+}
+function finalExamView(){
+ const pt=pianoLanguage==='pt',exam=getFinalExamState(),passed=FINAL_EXAM_TASKS.filter(t=>!!exam.passed[t.id]).length,total=FINAL_EXAM_TASKS.length,unlocked=state.day>=90;
+ const rows=FINAL_EXAM_TASKS.map((t,i)=>{
+  const done=!!exam.passed[t.id],current=exam.running&&exam.currentLessonId===t.id;
+  const title=pt?t.titlePt:t.title;
+  const status=done?(pt?'✓ Aprovado': '✓ Aprobado'):current?(pt?'Em andamento':'En curso'):(pt?'Pendente':'Pendiente');
+  return '<div class="day"><span><b>'+(i+1)+'. '+title+'</b><br><span class="muted">'+(pt?({orientation:'Localização no teclado',rhythm:'Pulso e precisão',ear:'Percepção auditiva',reading:'Leitura na pauta',theory:'Linguagem musical',chords:'Harmonia',coordination:'Coordenação',memory:'Memória',integration:'Integração'}[t.skill]||t.desc):t.desc)+'</span></span><span class="status '+(done?'done':'')+'">'+status+'</span></div>';
+ }).join('');
+ const title=pt?'Exame final de autonomia':'Examen final de autonomía';
+ const subtitle=pt?'Uma avaliação prática em nove etapas. Você precisa demonstrar cada competência tocando; não basta ter concluído as lições anteriormente.':'Una evaluación práctica en nueve etapas. Tenés que demostrar cada competencia tocando; no alcanza con haber aprobado las lecciones anteriormente.';
+ const lock=pt?'Complete o percurso de 90 dias para desbloquear o exame final.':'Completá el recorrido de 90 días para desbloquear el examen final.';
+ const button=!unlocked?(pt?'Exame bloqueado':'Examen bloqueado'):exam.running?(pt?'Continuar exame':'Continuar examen'):exam.completed?(pt?'Repetir exame':'Repetir examen'):(pt?'Começar exame':'Comenzar examen');
+ const result=exam.completed?(pt?'Aprovado · 9 de 9 etapas concluídas.':'Aprobado · 9 de 9 etapas completadas.'):'';
+ return shell('🎓 '+title,subtitle,
+  '<div class="stats"><div class="stat"><strong>'+passed+'/'+total+'</strong><span class="muted">'+(pt?'etapas aprovadas':'etapas aprobadas')+'</span></div><div class="stat"><strong>'+(exam.attempts||0)+'</strong><span class="muted">'+(pt?'tentativas':'intentos')+'</span></div><div class="stat"><strong>'+(exam.completed?(pt?'Aprovado':'Aprobado'):exam.running?(pt?'Em curso':'En curso'):(pt?'Não iniciado':'Sin iniciar'))+'</strong><span class="muted">'+(pt?'estado do exame':'estado del examen')+'</span></div></div>'+
+  (unlocked?'<div class="note-box"><h3>'+(pt?'O que será avaliado':'Qué se evalúa')+'</h3><p>'+(pt?'Orientação, pulso, ouvido, leitura, linguagem musical, harmonia, coordenação, memória e integração. Cada etapa exige uma demonstração real no instrumento.':'Orientación, pulso, oído, lectura, lenguaje musical, armonía, coordinación, memoria e integración. Cada etapa exige una demostración real en el instrumento.')+'</p></div>':'<div class="note-box"><b>'+lock+'</b></div>')+
+  '<div class="section"><h2>'+(pt?'Etapas do exame':'Etapas del examen')+'</h2>'+rows+'</div>'+
+  (result?'<div class="note-box"><h3>'+result+'</h3><p>'+(pt?'O resultado foi salvo no seu progresso.':'El resultado quedó guardado en tu progreso.')+'</p></div>':'')+
+  '<button class="btn primary" '+(!unlocked?'disabled':'')+' onclick="'+(exam.running?'continueFinalExam()':'startFinalExam()')+'">'+button+'</button>'+
+  (exam.running?'<button class="btn" onclick="show(\'course\')">'+(pt?'Sair sem perder o exame':'Salir sin perder el examen')+'</button>':'')
+ );
+}
+function startFinalExam(){
+ if(state.day<90){toast(pianoLanguage==='pt'?'O exame final é liberado ao chegar ao dia 90.':'El examen final se desbloquea al llegar al día 90.');show('finalExam');return}
+ const e=getFinalExamState();e.running=true;e.completed=false;e.passed={};e.currentLessonId=FINAL_EXAM_TASKS[0].id;e.startedAt=new Date().toISOString();e.completedAt=null;e.attempts=(Number(e.attempts)||0)+1;e.updatedAt=e.startedAt;saveState();openLesson(e.currentLessonId);
+}
+function continueFinalExam(){
+ const e=getFinalExamState();if(!e.running){show('finalExam');return}
+ const next=FINAL_EXAM_TASKS.find(t=>!e.passed[t.id]);
+ if(!next){e.running=false;e.completed=true;e.currentLessonId=null;e.completedAt=new Date().toISOString();e.updatedAt=e.completedAt;saveState();show('finalExam');return}
+ e.currentLessonId=next.id;e.updatedAt=new Date().toISOString();saveState();openLesson(next.id);
+}
+function recordFinalExamLesson(id){
+ const e=getFinalExamState();if(!e.running||e.currentLessonId!==id)return false;
+ e.passed[id]={at:new Date().toISOString(),result:state.lessonResults?.[id]||null};
+ const next=FINAL_EXAM_TASKS.find(t=>!e.passed[t.id]);
+ if(next)e.currentLessonId=next.id;
+ else{e.running=false;e.completed=true;e.currentLessonId=null;e.completedAt=new Date().toISOString()}
+ e.updatedAt=new Date().toISOString();saveState();show('finalExam');return true;
+}
+
 function midiStudio(){let avg=midiTelemetry.notes?Math.round(midiTelemetry.velocitySum/midiTelemetry.notes):0;let dur=midiTelemetry.durations.length?Math.round(midiTelemetry.durations.reduce((a,b)=>a+b,0)/midiTelemetry.durations.length):0;const outs=midiAccess?[...midiAccess.outputs.values()]:[];return shell('🎛️ MIDI avanzado','Conectá tu piano para recibir las notas de la app y enviar las teclas que tocás.',`<div class="note-box"><b>Salida de sonido al piano</b><p class="muted">Conectá el teclado por USB-MIDI o interfaz MIDI. Luego pulsá Conectar MIDI y seleccioná su salida aquí.</p><select id="midiOutputSelect" class="btn" onchange="selectMIDIOutput(this.value)"><option value="">Sonido solo en notebook (sin salida MIDI)</option>${outs.map(o=>`<option value="${o.id}" ${midiOutput&&midiOutput.id===o.id?'selected':''}>${escapeMusicText(o.name||'Piano MIDI')}</option>`).join('')}</select><p class="muted">Salida activa: ${midiOutput?escapeMusicText(midiOutput.name):'ninguna'}</p><button class="btn" onclick="connectMIDI()">Conectar / actualizar MIDI</button><button class="btn" onclick="playPianoNote(60,.5)">Probar Do central</button></div><div class="two"><div class="note-box"><b>Estado</b><p class="muted">${state.midi?'🟢 MIDI conectado':'⚪ MIDI no conectado'}</p><p class="muted">Canal: ${midiTelemetry.channel??'—'}</p></div><div class="note-box"><b>Interpretación</b><p class="muted">Notas: ${midiTelemetry.notes}</p><p class="muted">Velocidad media: ${avg}/127 · máxima: ${midiTelemetry.velocityMax}/127</p><p class="muted">Duración media: ${dur} ms</p></div></div><div class="note-box"><b>Qué analiza la app</b><ul class="muted"><li>Velocidad de cada ataque</li><li>Duración real de la nota</li><li>Notas simultáneas para acordes</li><li>Canal MIDI y timing</li><li>Datos enviados al diagnóstico técnico</li></ul></div><button class="btn" onclick="resetMidiTelemetry()">Reiniciar medición</button> <button class="btn" onclick="connectMIDI()">Conectar MIDI</button>`)}
 function resetMidiTelemetry(){midiTelemetry={notes:0,velocitySum:0,velocityMax:0,lastVelocity:0,active:new Map(),durations:[],lastOn:null,lastOff:null,channel:null,pedal:0,eventsOn:[],eventsOff:[]};show('midiStudio');toast('Medición MIDI reiniciada')}
 function midiNoteOn(note,vel,channel){if(typeof resetBackingIdleTimer==='function')resetBackingIdleTimer();const now=performance.now();midiTelemetry.notes++;midiTelemetry.velocitySum+=vel;midiTelemetry.velocityMax=Math.max(midiTelemetry.velocityMax,vel);midiTelemetry.lastVelocity=vel;midiTelemetry.channel=channel;midiTelemetry.active.set(note,{time:now,velocity:vel});midiTelemetry.lastOn={note,time:now,velocity:vel};midiTelemetry.eventsOn.push({note,time:now,velocity:vel});if(midiTelemetry.eventsOn.length>500)midiTelemetry.eventsOn.shift();}
