@@ -157,6 +157,24 @@ const SCALE=['C','D','E','F','G','A','B'];
 const MOTIFS=[[0,1,2,3,2,1,0],[0,2,4,2,0],[0,1,3,2,4,3,1,0],[0,2,1,3,2,4,2,0],[0,1,2,4,3,2,1,0],[0,3,2,4,1,3,0],[0,2,3,1,4,2,0],[0,1,0,2,1,3,2,0],[0,2,4,3,1,2,0],[0,1,3,4,2,3,1,0],[0,2,1,4,3,2,0],[0,1,2,3,4,3,2,1,0]];
 const FOCI=[['Eco melódico','Escuchá el motivo, cantalo y reproducilo sin acelerar.'],['Salto de tercera','Reconocé el salto y mantené la mano relajada.'],['Subida y bajada','Tocá el contorno ascendente y regresá con continuidad.'],['Bloque de memoria','Memorizá el bloque, ocultá la ayuda y tocá la frase completa.'],['Cambio de punto de partida','Trasladá el patrón a otra nota natural sin cambiar su forma.'],['Continuidad','Uní las notas sin detenerte entre grupos.'],['Control de dedos','Mantené los dedos cerca de las teclas y evitá tensar la muñeca.'],['Frase con retorno','Identificá dónde vuelve la melodía y cerrá con precisión.'],['Lectura de patrón','Leé los nombres de las notas sin barras descendentes.'],['Autocorrección','Detectá el error, borrá el intento y corregí desde el comienzo.']];
 const CHORD_SETS=[['C','G','Am','F'],['Am','F','C','G'],['C','Am','F','G'],['F','C','G','Am'],['G','D','Em','C'],['C','F','G','C'],['Am','G','F','E'],['C','G','F','G']];
+
+const CHORD_LESSON_FOCI=[
+ ['Qué es una tríada','Comprendé la estructura de fundamental, tercera y quinta. Construí Do–Mi–Sol y reconocé sus tres funciones dentro del acorde.'],
+ ['Tríada mayor','Diferenciá la tercera mayor y la menor por su distancia en semitonos. Comprobá la estructura 4 + 3 en el teclado.'],
+ ['Tríada menor','Compará la tríada menor con la mayor y escuchá cómo cambia su carácter. Construí La–Do–Mi y verificá 3 + 4 semitonos.'],
+ ['Tríada disminuida','Identificá dos terceras menores superpuestas. Construí Si–Re–Fa y comprobá la quinta disminuida.'],
+ ['Fundamental y nombre del acorde','Reconocé la fundamental aunque las notas aparezcan en otro orden. Reordená las notas de Do mayor sin cambiar la identidad del acorde.'],
+ ['Estado fundamental','Ubicá la fundamental en el bajo y las otras notas por encima. Tocá Do–Mi–Sol y explicá por qué está en estado fundamental.'],
+ ['Primera inversión','Llevá la tercera al bajo sin cambiar las notas del acorde. Tocá Mi–Sol–Do y compará su sonido con el estado fundamental.'],
+ ['Segunda inversión','Colocá la quinta en el bajo. Tocá Sol–Do–Mi y distinguí la inversión por la nota más grave.'],
+ ['Cifrado mayor y menor','Interpretá letras y sufijos del cifrado americano. Compará C, Cm y Am y tocá cada acorde correctamente.'],
+ ['Acordes de una escala mayor','Construí tríadas sobre los grados de Do mayor y clasificá sus calidades: mayores, menores y disminuida.'],
+ ['Tónica: función de reposo','Escuchá la sensación de estabilidad del grado I. Tocá una progresión que vuelva a C y reconocé el punto de llegada.'],
+ ['Subdominante: preparación','Reconocé la función del grado IV y su movimiento hacia la dominante. Tocá F–G y escuchá la preparación.'],
+ ['Dominante: tensión','Identificá la tensión del grado V y anticipá su resolución. Tocá G y prepará el regreso a C.'],
+ ['Cadencia V–I','Practicá la resolución de dominante a tónica. Tocá G–C y reconocé auditivamente el cierre tonal.'],
+ ['Conducción de voces','Buscá movimientos pequeños entre acordes y conservá notas comunes cuando sea posible. Compará dos disposiciones de la misma progresión.']
+];
 function makeGenericLessons(){
  const readingPlan=[
   ['Clave de Sol: notas de referencia','Ubicá Sol en la segunda línea y Do central. Antes de nombrar cada nota, identificá la clave y las referencias.'],
@@ -212,9 +230,8 @@ function makeGenericLessons(){
  for(let d=13;d<=90;d++){
   const phase=d<=15?1:d<=30?2:d<=45?3:d<=60?4:d<=75?5:6;
   if(phase===4){
-   const prog=CHORD_SETS[(d-46)%CHORD_SETS.length];
-   const names=['Construcción de tríadas','Raíz y calidad del acorde','Progresión armónica','Cambios con pulso','Acordes en contexto'];
-   GENERIC_LESSONS.push({id:'l'+d,day:d,title:names[(d-46)%names.length]+' · '+prog.join(' → '),desc:'Identificá la fundamental, construí la tríada y escuchá su función dentro de la progresión. La comprobación exige reconocer la calidad y tocar las notas en orden.',kind:'chordgeneric',skill:'chords',xp:35+Math.floor((d-45)/3)*2,inc:5,targetChords:prog,chordTheoryIndex:d-46,hide:true,level:phase});
+   const prog=CHORD_SETS[(d-46)%CHORD_SETS.length],focus=CHORD_LESSON_FOCI[d-46];
+   GENERIC_LESSONS.push({id:'l'+d,day:d,title:focus[0]+' · '+prog.join(' → '),desc:focus[1]+' La práctica exige reconocer los acordes y tocar la progresión completa en el orden indicado.',kind:'chordgeneric',skill:'chords',xp:35+Math.floor((d-45)/3)*2,inc:5,targetChords:prog,chordTheoryIndex:d-46,hide:true,level:phase});
    continue;
   }
   const motif=MOTIFS[(d-13)%MOTIFS.length],shift=(d-13)%7,seq=motif.map(i=>SCALE[(i+shift)%7]);let title,desc,skill;
