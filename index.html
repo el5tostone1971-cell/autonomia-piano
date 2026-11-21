@@ -2716,6 +2716,7 @@ function checkCourseStaff(){
  complete(currentLessonId);
 }
 let courseTwoHandsLessonData=null,courseTwoHandsEvents=[],courseTwoHandsStep=0,courseTwoHandsWindow=[],courseTwoHandsStarted=false;
+let courseTwoHandsWindowTimer=null;
 const COURSE_LEFT_CHORDS=[
  {name:'C',notes:[48,52,55]},{name:'G',notes:[43,47,50]},
  {name:'Am',notes:[45,48,52]},{name:'F',notes:[41,45,48]},
@@ -2732,13 +2733,15 @@ function courseTwoHandsLesson(l){
 }
 function toggleCourseTwoHandsGuide(){const guide=document.getElementById('courseTwoHandsGuide');if(guide)guide.classList.toggle('hidden');}
 function renderCourseTwoHandsCount(){const c=document.getElementById('courseTwoHandsCount');if(c)c.textContent=courseTwoHandsStep+' / '+courseTwoHandsEvents.length+' '+courseLocal('bloques','blocos')}
-function startCourseTwoHands(){courseTwoHandsStep=0;courseTwoHandsWindow=[];courseTwoHandsStarted=true;renderCourseTwoHandsCount();const m=document.getElementById('courseTwoHandsMsg');if(m)m.textContent=courseLocal('▶ Bloque 1: acorde grave con la izquierda + melodía aguda con la derecha.','▶ Bloco 1: acorde grave com a mão esquerda + melodia aguda com a mão direita.')}
-function clearCourseTwoHands(){courseTwoHandsStep=0;courseTwoHandsWindow=[];courseTwoHandsStarted=false;renderCourseTwoHandsCount();const m=document.getElementById('courseTwoHandsMsg');if(m)m.textContent=courseLocal('Intento reiniciado. Cuando estés listo, empezá de nuevo.','Tentativa reiniciada. Quando estiver pronto, comece novamente.')}
+function startCourseTwoHands(){clearTimeout(courseTwoHandsWindowTimer);courseTwoHandsWindowTimer=null;courseTwoHandsStep=0;courseTwoHandsWindow=[];courseTwoHandsStarted=true;renderCourseTwoHandsCount();const m=document.getElementById('courseTwoHandsMsg');if(m)m.textContent=courseLocal('▶ Bloque 1: acorde grave con la izquierda + melodía aguda con la derecha.','▶ Bloco 1: acorde grave com a mão esquerda + melodia aguda com a mão direita.')}
+function clearCourseTwoHands(){clearTimeout(courseTwoHandsWindowTimer);courseTwoHandsWindowTimer=null;courseTwoHandsStep=0;courseTwoHandsWindow=[];courseTwoHandsStarted=false;renderCourseTwoHandsCount();const m=document.getElementById('courseTwoHandsMsg');if(m)m.textContent=courseLocal('Intento reiniciado. Cuando estés listo, empezá de nuevo.','Tentativa reiniciada. Quando estiver pronto, comece novamente.')}
 function registerCourseTwoHandsNote(n){
  if(!courseTwoHandsStarted||courseTwoHandsStep>=courseTwoHandsEvents.length)return;
+ if(!courseTwoHandsWindow.length){clearTimeout(courseTwoHandsWindowTimer);courseTwoHandsWindowTimer=setTimeout(()=>{courseTwoHandsWindow=[];courseTwoHandsWindowTimer=null;const m=document.getElementById('courseTwoHandsMsg');if(m)m.textContent=courseLocal('Las notas del bloque llegaron demasiado separadas. Reuní el acorde y la melodía dentro de un mismo intento.','As notas do bloco chegaram muito separadas. Reúna o acorde e a melodia dentro da mesma tentativa.')},1400)}
  courseTwoHandsWindow.push(n);const e=courseTwoHandsEvents[courseTwoHandsStep],target=e.left.concat(e.right).sort((a,b)=>a-b),got=courseTwoHandsWindow.slice().sort((a,b)=>a-b);
- if(got.length>target.length){courseTwoHandsWindow=[];const m=document.getElementById('courseTwoHandsMsg');if(m)m.textContent=courseLocal('Hubo notas de más. Volvé a reunir las cuatro notas del bloque.','Houve notas a mais. Reúna novamente as quatro notas do bloco.');return}
+ if(got.length>target.length){clearTimeout(courseTwoHandsWindowTimer);courseTwoHandsWindowTimer=null;courseTwoHandsWindow=[];const m=document.getElementById('courseTwoHandsMsg');if(m)m.textContent=courseLocal('Hubo notas de más. Volvé a reunir las cuatro notas del bloque.','Houve notas a mais. Reúna novamente as quatro notas do bloco.');return}
  if(got.length===target.length){
+  clearTimeout(courseTwoHandsWindowTimer);courseTwoHandsWindowTimer=null;
   if(got.join(',')===target.join(',')){courseTwoHandsStep++;courseTwoHandsWindow=[];renderCourseTwoHandsCount();const m=document.getElementById('courseTwoHandsMsg');if(m)m.textContent=courseTwoHandsStep===courseTwoHandsEvents.length?courseLocal('✓ Todos los bloques están completos. Comprobá para guardar el avance.','✓ Todos os blocos estão completos. Confira para salvar o progresso.'):courseLocal('✓ Bloque correcto. Prepará el bloque ','✓ Bloco correto. Prepare o bloco ')+(courseTwoHandsStep+1)+'.'}
   else{courseTwoHandsWindow=[];const m=document.getElementById('courseTwoHandsMsg');if(m)m.textContent=courseLocal('Este bloque no coincide. Revisá el acorde de la izquierda y la nota de la derecha; podés repetirlo.','Este bloco não corresponde. Confira o acorde da esquerda e a nota da direita; você pode tentar novamente.')}
  }
