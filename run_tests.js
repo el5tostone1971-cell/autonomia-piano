@@ -219,6 +219,22 @@
 
  // Two hands.
  try{newTwoHands();startTwoHands();for(const ev of twoHandsPhrase.events)for(const n of ev.left.concat(ev.right))registerTwoHandsNote(n);const twoHandsBeat=60000/twoHandsPhrase.tempo;twoHandsTimes=twoHandsPhrase.events.map((_,i)=>i*twoHandsBeat);checkTwoHands();assert(twoHandsAwarded,'dos manos no otorgó dominio');pass('Dos manos','todos los bloques coordinados')}catch(e){fail('Dos manos',e)}
+ // Curso de dos manos: cada bloque debe reunirse en una ventana acotada, sin asumir cuatro notas.
+ try{
+  courseTwoHandsEvents=[{left:[48,52,55],right:[60]},{left:[48],right:[62,64]}];
+  courseTwoHandsStep=0;courseTwoHandsWindow=[];courseTwoHandsStarted=true;clearTimeout(courseTwoHandsWindowTimer);courseTwoHandsWindowTimer=null;
+  registerCourseTwoHandsNote(48);
+  assert(!!courseTwoHandsWindowTimer,'no se activó el límite temporal del bloque');
+  clearCourseTwoHands();
+  assert(courseTwoHandsWindowTimer===null&&!courseTwoHandsStarted,'reiniciar no limpió el temporizador y el intento');
+  startCourseTwoHands();
+  for(const n of [48,52,55,60])registerCourseTwoHandsNote(n);
+  assert(courseTwoHandsStep===1,'el patrón de cuatro notas no se reconoció');
+  for(const n of [48,62,64])registerCourseTwoHandsNote(n);
+  assert(courseTwoHandsStep===2,'el patrón variable de tres notas no se reconoció');
+  clearCourseTwoHands();
+  pass('Dos manos · ventana y patrones variables','descarta notas dispersas y valida bloques con cantidades distintas');
+ }catch(e){fail('Dos manos · ventana y patrones variables',e)}
  // Technique.
  try{newTechnique();startTechnique();const beat=60000/techniqueExercise.tempo;techniqueTimes=techniqueExercise.notes.map((_,i)=>i*beat);techniqueStep=techniqueExercise.notes.length;checkTechnique();assert(techniqueAwarded,'técnica no aprobó');pass('Técnica/digitación','secuencia + pulso aceptados')}catch(e){fail('Técnica/digitación',e)}
  // Repertoire.
