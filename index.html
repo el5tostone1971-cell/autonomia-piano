@@ -471,6 +471,7 @@ function completeCore(id){
    adaptiveRunActive=false;adaptiveLessonId=null;
    saveState();
  }
+ if(recordFinalExamLesson(id)){toast(pianoLanguage==='pt'?'✓ Etapa do exame aprovada.':'✓ Etapa del examen aprobada.');return true;}
  const next=LESSONS.find(x=>x.day===state.day&&!state.lessons[x.id]);
  toast(first?'✓ Ejercicio aprobado · +'+l.xp+' XP':'✓ Ejercicio repetido · sin XP adicional');
  if(first && next)showNextLessonScreen(l,next);else show('course');
