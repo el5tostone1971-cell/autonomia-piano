@@ -293,7 +293,7 @@ const assert = require('node:assert/strict');
     assert.doesNotMatch(portugueseSettings, /Tu progreso|No necesitás registrarte|Crear cuenta|Iniciar sesión/, 'Los ajustes conservan textos en español');
 
     // Revisar todas las pantallas del menú buscando instrucciones frecuentes que no deben quedar en español.
-    const auditedViews = ['home','course','practice','repertoire','keyboard','theory','reading','rhythmReading','twoHands','phrases','technique','ear','earAdvanced','accompaniment','midiStudio','progress','spaced','teacher','resources','settings'];
+    const auditedViews = ['home','course','practice','repertoire','keyboard','theory','reading','rhythmReading','twoHands','phrases','technique','ear','earAdvanced','accompaniment','midiStudio','progress','spaced','teacher','resources','settings','finalExam'];
     const spanishUiPattern = /\b(?:Tocá|Encontrá|Elegí|Practicá|Escuchá|Leé|Completá|Podés|Volvé|Mirá|Buscá|Aprendé|Entrená|Repasá|Lecciones|Práctica|Teoría musical|Mi progreso|Tu progreso|Sistema y ajustes|No necesitás|Empezá|creás|querés|Conectá|usá|Ingresá|sincronizás|vos|Empecemos)\b|Día \d|ningún dato sale|No reemplaza la práctica/i;
     for (const view of auditedViews) {
       await page.evaluate(viewName => show(viewName), view);
