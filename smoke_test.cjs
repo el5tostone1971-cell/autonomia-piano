@@ -288,7 +288,11 @@ const assert = require('node:assert/strict');
 
     await page.evaluate(() => show('settings'));
     const portugueseSettings = await page.locator('#main').innerText();
-    assert.match(portugueseSettings, /A versão gratuita funciona sem conta/, 'Los ajustes no se tradujeron');
+    assert.match(portugueseSettings, /Seu progresso fica salvo neste dispositivo/, 'El respaldo local no se explicó en portugués');
+    assert.match(portugueseSettings, /Exportar backup/, 'La exportación de respaldo no aparece en portugués');
+    assert.match(portugueseSettings, /Importar backup/, 'La importación de respaldo no aparece en portugués');
+    assert.match(portugueseSettings, /ainda não disponíveis/, 'La pantalla no aclara que la nube no está activa');
+    assert.doesNotMatch(portugueseSettings, /Criar conta|Iniciar sessão|Sincronizar agora/, 'Se ofrecen acciones cloud sin backend activo');
     assert.match(portugueseSettings, /Executar autodiagnóstico completo/, 'El botón de autodiagnóstico no se tradujo');
     assert.doesNotMatch(portugueseSettings, /Tu progreso|No necesitás registrarte|Crear cuenta|Iniciar sesión/, 'Los ajustes conservan textos en español');
 
