@@ -1085,7 +1085,15 @@ const assert = require('node:assert/strict');
       mimeType: 'application/json',
       buffer: Buffer.from(JSON.stringify(importedBackup))
     });
-    await page.waitForFunction(() => state.lessons?.['__smoke_local_backup__'] === true && state.lessons?.['__smoke_file_backup__'] === true, null, { timeout: 10000 });
+    await page.waitForTimeout(1200);
+    const importDebug = await page.evaluate(() => ({
+      local: state.lessons?.['__smoke_local_backup__'] === true,
+      file: state.lessons?.['__smoke_file_backup__'] === true,
+      toast: document.getElementById('toast')?.textContent || '',
+      day: state.day,
+      xp: state.xp
+    }));
+    assert.deepEqual(importDebug, { local: true, file: true, toast: importDebug.toast, day: 2, xp: 10 }, 'La importación real no se aplicó. Diagnóstico: ' + JSON.stringify(importDebug));
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => typeof window.importProfile === 'function', null, { timeout: 20000 });
     const importedBackupAfterReload = await page.evaluate(() => ({
