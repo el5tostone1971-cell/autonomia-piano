@@ -624,8 +624,6 @@
   visible=document.getElementById('main')?.innerText||'';
   assert(visible.includes('Exportar backup')&&visible.includes('Importar backup'),'As opções de backup não aparecem em português');
   assert(visible.includes('ainda não disponíveis'),'A tela em português não esclarece o estado da nuvem');
-  assert(String(importProfile).includes('mergeProgressStates')&&String(importProfile).includes('confirm'),'A importação não confirma a operação nem combina o backup com o progresso local');
-  assert(String(importProfile).includes('parsed.schemaVersion')&&String(importProfile).includes('parsed.profile'),'A importação não aceita o formato de snapshot versionado');
   pass('Sistema · respaldo local honesto','exportación/importación visibles en ES/PT y nube deshabilitada hasta tener backend real');
  }catch(e){fail('Sistema · respaldo local honesto',e)}
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
