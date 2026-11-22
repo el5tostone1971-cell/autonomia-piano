@@ -301,7 +301,7 @@ const assert = require('node:assert/strict');
       saveState();
       show('settings');
     });
-    page.once('dialog', dialog => dialog.accept());
+    await page.evaluate(() => { window.confirm = () => true; });
     await page.locator('#main input[type="file"]').setInputFiles({
       name: 'autonomia-backup.json',
       mimeType: 'application/json',
