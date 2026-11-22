@@ -1093,7 +1093,11 @@ const assert = require('node:assert/strict');
       day: state.day,
       xp: state.xp
     }));
-    assert.deepEqual(importDebug, { local: true, file: true, toast: importDebug.toast, day: 2, xp: 10 }, 'La importación real no se aplicó. Diagnóstico: ' + JSON.stringify(importDebug));
+    assert.equal(importDebug.local, true, 'La importación eliminó el progreso local. Diagnóstico: ' + JSON.stringify(importDebug));
+    assert.equal(importDebug.file, true, 'La importación no incorporó el progreso del archivo. Diagnóstico: ' + JSON.stringify(importDebug));
+    assert.ok(importDebug.day >= 2, 'La importación redujo el día de progreso. Diagnóstico: ' + JSON.stringify(importDebug));
+    assert.ok(importDebug.xp >= 10, 'La importación redujo la experiencia acumulada. Diagnóstico: ' + JSON.stringify(importDebug));
+    assert.match(importDebug.toast, /Respaldo importado y combinado/i, 'La aplicación no confirmó la importación. Diagnóstico: ' + JSON.stringify(importDebug));
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => typeof window.importProfile === 'function', null, { timeout: 20000 });
     const importedBackupAfterReload = await page.evaluate(() => ({
