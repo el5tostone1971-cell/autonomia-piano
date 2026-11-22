@@ -613,6 +613,19 @@
   }finally{pianoLanguage=oldLang;state.day=oldDay;courseTwoHandsLessonData=oldData;courseTwoHandsEvents=oldEvents;courseTwoHandsStep=oldStep;courseTwoHandsWindow=oldWindow;courseTwoHandsStarted=oldStarted;clearTimeout(courseTwoHandsWindowTimer)}
   pass('Nivel 5 · honestidad de evaluación ES/PT','La pantalla distingue comprobación de alturas agrupadas de duración y precisión temporal');
  }catch(e){fail('Nivel 5 · honestidad de evaluación ES/PT',e)}
+ // Block D: settings must expose real local backup controls and never promise unavailable cloud sync.
+ try{
+  pianoLanguage='es';show('settings');
+  let visible=document.getElementById('main')?.innerText||'';
+  assert(visible.includes('Exportar respaldo')&&visible.includes('Importar respaldo'),'Sistema no ofrece exportar e importar el respaldo local');
+  assert(visible.includes('todavía no disponibles'),'Sistema no aclara que la nube/cuentas aún no están activas');
+  assert(!document.querySelector('#main button[onclick*="cloudRegister"],#main button[onclick*="cloudLogin"]'),'Sistema sigue ofreciendo registro o inicio de sesión sin backend');
+  pianoLanguage='pt';show('settings');
+  visible=document.getElementById('main')?.innerText||'';
+  assert(visible.includes('Exportar backup')&&visible.includes('Importar backup'),'As opções de backup não aparecem em português');
+  assert(visible.includes('ainda não disponíveis'),'A tela em português não esclarece o estado da nuvem');
+  pass('Sistema · respaldo local honesto','exportación/importación visibles en ES/PT y nube deshabilitada hasta tener backend real');
+ }catch(e){fail('Sistema · respaldo local honesto',e)}
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
