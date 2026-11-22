@@ -1066,6 +1066,39 @@ const assert = require('node:assert/strict');
     assert.equal(await page.locator('#songProgressText').innerText(),'3 / 3','La reproducción corrida no llegó al final del MIDI');
     assert.equal(await page.evaluate(() => importedSongPractice.playing),false,'La reproducción MIDI siguió activa después de terminar');
 
+    // Sistema: importar un archivo JSON real debe combinarlo con el progreso local y sobrevivir a la recarga.
+    await page.evaluate(() => {
+      changePianoLanguage('es');
+      state.lessons = { ...(state.lessons || {}), '__smoke_local_backup__': true };
+      saveState();
+      show('settings');
+    });
+    const backupInput = page.locator('input[type="file"][accept="application/json,.json"]');
+    assert.equal(await backupInput.count(), 1, 'El selector real de respaldo no aparece en Sistema');
+    const importedBackup = {
+      schemaVersion: 1,
+      profile: { lessons: { '__smoke_file_backup__': true }, day: 2, xp: 10 }
+    };
+    page.once('dialog', dialog => dialog.accept());
+    await backupInput.setInputFiles({
+      name: 'autonomia-smoke-backup.json',
+      mimeType: 'application/json',
+      buffer: Buffer.from(JSON.stringify(importedBackup))
+    });
+    await page.waitForFunction(() => state.lessons?.['__smoke_local_backup__'] === true && state.lessons?.['__smoke_file_backup__'] === true, null, { timeout: 10000 });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => typeof window.importProfile === 'function', null, { timeout: 20000 });
+    const importedBackupAfterReload = await page.evaluate(() => ({
+      local: state.lessons?.['__smoke_local_backup__'] === true,
+      file: state.lessons?.['__smoke_file_backup__'] === true
+    }));
+    assert.deepEqual(importedBackupAfterReload, { local: true, file: true }, 'La importación de archivo no combinó ambos progresos o no persistió tras recargar');
+    await page.evaluate(() => {
+      delete state.lessons['__smoke_local_backup__'];
+      delete state.lessons['__smoke_file_backup__'];
+      saveState();
+    });
+
     assert.deepEqual(pageErrors, [], 'La aplicación produjo errores JavaScript: ' + pageErrors.join(' | '));
 
     console.log('PASS: carga inicial');
