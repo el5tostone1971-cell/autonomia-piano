@@ -1075,10 +1075,13 @@ const assert = require('node:assert/strict');
     });
     const backupInput = page.locator('input[type="file"][accept="application/json,.json"]');
     assert.equal(await backupInput.count(), 1, 'El selector real de respaldo no aparece en Sistema');
-    const importedBackup = {
-      schemaVersion: 1,
-      profile: { lessons: { '__smoke_file_backup__': true }, day: 2, xp: 10 }
-    };
+    const importedBackup = await page.evaluate(() => {
+      const profile = JSON.parse(JSON.stringify(state));
+      profile.lessons = { ...(profile.lessons || {}), '__smoke_file_backup__': true };
+      profile.day = Math.max(2, profile.day || 1);
+      profile.xp = Math.max(10, profile.xp || 0);
+      return { schemaVersion: 1, profile };
+    });
     page.once('dialog', dialog => dialog.accept());
     await backupInput.setInputFiles({
       name: 'autonomia-smoke-backup.json',
