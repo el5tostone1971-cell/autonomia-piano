@@ -1080,7 +1080,7 @@ const assert = require('node:assert/strict');
       profile.lessons = { ...(profile.lessons || {}), '__smoke_file_backup__': true };
       profile.day = Math.max(2, profile.day || 1);
       profile.xp = Math.max(10, profile.xp || 0);
-      return { schemaVersion: 1, profile };
+      return { schema: 'autonomia-piano-profile', version: 40, state: profile };
     });
     page.once('dialog', dialog => dialog.accept());
     await backupInput.setInputFiles({
