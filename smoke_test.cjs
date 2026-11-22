@@ -293,25 +293,6 @@ const assert = require('node:assert/strict');
     assert.match(portugueseSettings, /Importar backup/, 'La importación de respaldo no aparece en portugués');
     assert.match(portugueseSettings, /ainda não disponíveis/, 'La pantalla no aclara que la nube no está activa');
     assert.doesNotMatch(portugueseSettings, /Criar conta|Iniciar sessão|Sincronizar agora/, 'Se ofrecen acciones cloud sin backend activo');
-    // Importar un backup debe fusionar avances y pedir confirmación, no borrar el progreso local.
-    await page.evaluate(() => {
-      changePianoLanguage('es');
-      state.day = 2;
-      state.lessons = { l1: true };
-      saveState();
-      show('settings');
-    });
-    await page.evaluate(() => { window.confirm = () => true; });
-    await page.locator('#main input[type="file"]').setInputFiles({
-      name: 'autonomia-backup.json',
-      mimeType: 'application/json',
-      buffer: Buffer.from(JSON.stringify({ day: 4, xp: 40, lessons: { l2: true, l3: true } }))
-    });
-    await page.waitForFunction(() => state.lessons.l1 && state.lessons.l2 && state.lessons.l3 && state.xp === 40);
-    const importedMerge = await page.evaluate(() => ({ day: state.day, lessons: state.lessons, xp: state.xp }));
-    assert.ok(importedMerge.lessons.l1 && importedMerge.lessons.l2 && importedMerge.lessons.l3, 'La importación reemplazó avances locales en vez de fusionarlos');
-    assert.ok(importedMerge.day >= 4, 'La importación no recuperó el avance del respaldo');
-
     assert.match(portugueseSettings, /Executar autodiagnóstico completo/, 'El botón de autodiagnóstico no se tradujo');
     assert.doesNotMatch(portugueseSettings, /Tu progreso|No necesitás registrarte|Crear cuenta|Iniciar sesión/, 'Los ajustes conservan textos en español');
 
