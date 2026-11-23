@@ -3760,8 +3760,8 @@ function parseMidiFile(buf){
    if(st===0xff){if(pos>=end)break;const type=a[pos++];let z;[z,pos]=readVL(a,pos,end);if(type===0x51&&z===3&&pos+2<end){const us=(a[pos]<<16)|(a[pos+1]<<8)|a[pos+2];if(us>0)tempos.push({tick,us})}else if(type===0x58&&z>=2&&pos+1<end){const numerator=a[pos],denominator=Math.pow(2,a[pos+1]);if(numerator>0&&denominator>0&&denominator<=32)meter={numerator,denominator}}pos+=z;continue}
    if(st===0xf0||st===0xf7){let z;[z,pos]=readVL(a,pos,end);pos+=z;continue}
    const cmd=st&240,ch=st&15;if(cmd===0xc0||cmd===0xd0){pos+=1;continue}if(pos+1>=end)break;const note=a[pos++],vel=a[pos++];
-   if(cmd===0x90&&vel>0){const key=ch+':'+note,q=active.get(key)||[];q.push({midi:note,startTick:tick,velocity:vel,track:tr,channel:ch});active.set(key,q);noteCount++}
-   else if(cmd===0x80||(cmd===0x90&&vel===0)){const key=ch+':'+note,q=active.get(key);if(q&&q.length){const on=q.shift();raw.push({...on,endTick:Math.max(tick,on.startTick+1)});if(!q.length)active.delete(key)}}
+   if(cmd===0x90&&vel>0){const key=tr+':'+ch+':'+note,q=active.get(key)||[];q.push({midi:note,startTick:tick,velocity:vel,track:tr,channel:ch});active.set(key,q);noteCount++}
+   else if(cmd===0x80||(cmd===0x90&&vel===0)){const key=tr+':'+ch+':'+note,q=active.get(key);if(q&&q.length){const on=q.shift();raw.push({...on,endTick:Math.max(tick,on.startTick+1)});if(!q.length)active.delete(key)}}
   }pos=end}
  for(const q of active.values())for(const on of q)raw.push({...on,endTick:on.startTick+Math.max(1,ppq/2)});
  tempos.sort((x,y)=>x.tick-y.tick);const tempoMap=[];for(const t of tempos){if(tempoMap.length&&tempoMap[tempoMap.length-1].tick===t.tick)tempoMap[tempoMap.length-1]=t;else tempoMap.push(t)}
