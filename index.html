@@ -2149,31 +2149,44 @@ const FREE_PRACTICE_DURATIONS={
  chromatic:[1,.5,.5],scaleG:[1,1,1,1,1,1,1,2,1,1,1,1,1,1,2],
  leftHand:[1,1,1,1,1,1,1,2]
 };
-let freePracticeActive=false,freePracticeInput=[],freePracticeExpected=[];
+let freePracticeActive=false,freePracticeInput=[],freePracticeExpected=[],freePracticeInputTimes=[];
 function freePracticeName(n){const pc=pitchClassName(n),names=pianoLanguage==='pt'?{C:'Dó',D:'Ré',E:'Mi',F:'Fá',G:'Sol',A:'Lá',B:'Si'}:{C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'};return (names[pc]||pc)+(Math.floor(n/12)-1)}
 function freePracticeLabel(es,pt){return pianoLanguage==='pt'?pt:es}
+function freePracticeTimingResult(times,durations,bpm=80){
+ if(!Array.isArray(times)||times.length<2)return {hits:0,total:0,accuracy:null,errors:[]};
+ const beat=60000/bpm,errors=[];let expected=0;
+ for(let i=1;i<times.length;i++){
+  expected+=(durations[i-1]||1)*beat;
+  const actual=times[i]-times[0],delta=Math.round(actual-expected);
+  const tolerance=Math.max(130,Math.min(220,expected*.3));
+  errors.push({delta,tolerance,ok:Math.abs(delta)<=tolerance});
+ }
+ const hits=errors.filter(x=>x.ok).length;
+ return {hits,total:errors.length,accuracy:Math.round(hits/errors.length*100),errors};
+}
 function renderFreePracticeStatus(){
+ const timing=freePracticeTimingResult(freePracticeInputTimes,FREE_PRACTICE_DURATIONS[freePracticeSelected]||[],80);
  const progress=document.getElementById('freePracticeProgress'),result=document.getElementById('freePracticeResult');
  const rows=freePracticeInput.map((n,i)=>{
   const expected=freePracticeExpected[i],correct=n===expected;
-  return (i+1)+'. '+freePracticeLabel('Tocaste ','Você tocou ')+freePracticeName(n)+' '+(correct?'✓':freePracticeLabel('✗ · se esperaba ','✗ · esperado ')+freePracticeName(expected));
+  const beatMark=i===0||timing.accuracy===null?'':(timing.errors[i-1]?.ok?' · '+freePracticeLabel('a tiempo','no tempo'):' · '+freePracticeLabel('fuera de pulso','fora do pulso'));return (i+1)+'. '+freePracticeLabel('Tocaste ','Você tocou ')+freePracticeName(n)+' '+(correct?'✓':freePracticeLabel('✗ · se esperaba ','✗ · esperado ')+freePracticeName(expected))+beatMark;
  });
  if(progress)progress.textContent=freePracticeInput.length+' / '+freePracticeExpected.length+' · '+rows.join(' | ');
  if(result&&freePracticeInput.length===freePracticeExpected.length){
   const hits=freePracticeInput.filter((n,i)=>n===freePracticeExpected[i]).length;
   const errors=freePracticeExpected.length-hits;
-  state.freePracticeHistory=state.freePracticeHistory||{};state.freePracticeHistory[freePracticeSelected]=Array.isArray(state.freePracticeHistory[freePracticeSelected])?state.freePracticeHistory[freePracticeSelected]:[];state.freePracticeHistory[freePracticeSelected].push({correct:hits,total:freePracticeExpected.length,accuracy:Math.round(hits/freePracticeExpected.length*100),notes:freePracticeInput.slice(),expected:freePracticeExpected.slice(),at:new Date().toISOString()});state.freePracticeHistory[freePracticeSelected]=state.freePracticeHistory[freePracticeSelected].slice(-30);saveState();
+  state.freePracticeHistory=state.freePracticeHistory||{};state.freePracticeHistory[freePracticeSelected]=Array.isArray(state.freePracticeHistory[freePracticeSelected])?state.freePracticeHistory[freePracticeSelected]:[];state.freePracticeHistory[freePracticeSelected].push({correct:hits,total:freePracticeExpected.length,accuracy:Math.round(hits/freePracticeExpected.length*100),rhythmAccuracy:timing.accuracy,rhythmHits:timing.hits,rhythmTotal:timing.total,timingErrorsMs:timing.errors.map(x=>x.delta),notes:freePracticeInput.slice(),expected:freePracticeExpected.slice(),at:new Date().toISOString()});state.freePracticeHistory[freePracticeSelected]=state.freePracticeHistory[freePracticeSelected].slice(-30);saveState();
   const feedback=errors
    ?freePracticeLabel(errors+(errors===1?' error. ':' errores. ')+'Compará cada nota tocada con la nota esperada que aparece arriba.',errors+(errors===1?' erro. ':' erros. ')+'Compare cada nota tocada com a nota esperada exibida acima.')
    :freePracticeLabel('Secuencia completa sin errores.','Sequência concluída sem erros.');
-  result.textContent=freePracticeLabel('Resultado: ','Resultado: ')+hits+'/'+freePracticeExpected.length+freePracticeLabel(' correctas. ',' corretas. ')+feedback;
+  result.textContent=freePracticeLabel('Resultado: ','Resultado: ')+hits+'/'+freePracticeExpected.length+freePracticeLabel(' notas correctas. ',' notas corretas. ')+feedback+(timing.accuracy===null?'':freePracticeLabel(' · Pulso: ',' · Pulso: ')+timing.hits+'/'+timing.total+' ('+timing.accuracy+'%)');
   const saved=document.getElementById('freePracticeSavedStatus');if(saved)saved.textContent=freePracticeLabel('✓ Intento guardado · ','✓ Tentativa salva · ')+Math.round(hits/freePracticeExpected.length*100)+'%';
   freePracticeActive=false;
  }
 }
 function setFreePracticeExercise(id){
  freePracticeSelected=FREE_PRACTICE.some(x=>x.id===id)?id:'technique';
- freePracticeActive=false;freePracticeInput=[];freePracticeExpected=[];
+ freePracticeActive=false;freePracticeInput=[];freePracticeExpected=[];freePracticeInputTimes=[];
  const e=FREE_PRACTICE.find(x=>x.id===freePracticeSelected);
  for(const [id2,key] of [['freePracticeTitle','title'],['freePracticeDesc','desc'],['freePracticeTask','task'],['freePracticeSeq','seq']]){const el=document.getElementById(id2);if(el)el.textContent=pianoTranslateText(e[key])}
  const progress=document.getElementById('freePracticeProgress'),result=document.getElementById('freePracticeResult');
@@ -2183,6 +2196,7 @@ function setFreePracticeExercise(id){
  document.querySelectorAll('[data-free-exercise]').forEach(b=>b.classList.toggle('primary',b.dataset.freeExercise===id));
 }
 function startFreePractice(){
+ freePracticeInputTimes=[];
  freePracticeExpected=(FREE_PRACTICE_TARGETS[freePracticeSelected]||[]).slice();
  if(freePracticeSelected==='ear'){freePracticeTarget=60+Math.floor(Math.random()*12);freePracticeExpected=[freePracticeTarget];}
  freePracticeInput=[];freePracticeActive=true;
@@ -2193,10 +2207,10 @@ function startFreePractice(){
 }
 function registerFreePracticeNote(n){
  if(!freePracticeActive||!freePracticeExpected.length||freePracticeInput.length>=freePracticeExpected.length)return;
- freePracticeInput.push(n);renderFreePracticeStatus();
+ freePracticeInput.push(n);freePracticeInputTimes.push(Date.now());renderFreePracticeStatus();
 }
 function resetFreePractice(){
- freePracticeActive=false;freePracticeInput=[];freePracticeExpected=[];
+ freePracticeActive=false;freePracticeInput=[];freePracticeExpected=[];freePracticeInputTimes=[];
  const p=document.getElementById('freePracticeProgress'),r=document.getElementById('freePracticeResult');
  if(p)p.textContent=freePracticeLabel('Ejercicio reiniciado.','Exercício reiniciado.');
  if(r)r.textContent='';
