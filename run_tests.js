@@ -659,6 +659,16 @@
   assert(arrangement.includes('for(let pass=0;pass<2;pass++)'),'La guía no ofrece dos pasadas completas');
   pass('Repertorio · melodía con banda y ritmo','La demostración principal usa melodía + bajo + acordes + batería, duraciones y dos pasadas');
  }catch(e){fail('Repertorio · melodía con banda y ritmo',e)}
+ // Imported MusicXML · preserve real note lengths, rests and simultaneous chord notes.
+ try{
+  const fixture='<score-partwise version="3.1"><part-list><score-part id="P1"><part-name>Piano</part-name></score-part></part-list><part id="P1"><measure number="1"><attributes><divisions>2</divisions></attributes><note><pitch><step>C</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice></note><note><chord/><pitch><step>E</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice></note><note><pitch><step>D</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice></note><note><rest/><duration>2</duration></note><note><pitch><step>G</step><octave>4</octave></pitch><duration>2</duration><voice>1</voice></note></measure></part></score-partwise>';
+  const parsed=parseMusicXML(fixture),times=parsed.sequence.map(n=>n.startMs);
+  assert(parsed.notes===4,'MusicXML no conservó las cuatro notas con altura');
+  assert(times.join(',')==='0,0,500,1500','MusicXML perdió simultaneidad, duración o silencio: '+times.join(','));
+  assert(parsed.sequence.every(n=>n.durationMs===500),'MusicXML no convirtió las duraciones según divisions y tempo');
+  assert(parsed.sequence[0].track===0&&parsed.sequence[0].voice==='1','MusicXML perdió pista o voz');
+  pass('MusicXML · ritmo, silencios y acordes','conserva ataques simultáneos, duración de negras y silencio de un pulso');
+ }catch(e){fail('MusicXML · ritmo, silencios y acordes',e)}
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
