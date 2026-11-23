@@ -3769,7 +3769,53 @@ function parseMidiFile(buf){
  const sequence=raw.map(n=>({midi:n.midi,startMs:Math.max(0,tickMs(n.startTick)),durationMs:Math.max(70,tickMs(n.endTick)-tickMs(n.startTick)),velocity:n.velocity,track:n.track,channel:n.channel})).sort((x,y)=>x.startMs-y.startMs||x.track-y.track).slice(0,3000);
  const firstTempo=tempoMap.find(x=>x.tick===0)||tempoMap[0];return {format:fmt,tracks,notes:noteCount,ppq,meter,tempo:Math.round(60000000/(firstTempo?.us||500000)),level:noteCount<80?'Inicial':noteCount<250?'Intermedio':'Avanzado',sequence,at:new Date().toISOString()};
 }
-function parseMusicXML(text){const xml=new DOMParser().parseFromString(text,'application/xml');if(xml.querySelector('parsererror'))throw Error('XML inválido');const noteNodes=[...xml.getElementsByTagName('note')];const notes=noteNodes.map(n=>{const p=n.getElementsByTagName('pitch')[0];if(!p)return null;const st=p.getElementsByTagName('step')[0]?.textContent||'C',oct=+(p.getElementsByTagName('octave')[0]?.textContent||4),alt=+(p.getElementsByTagName('alter')[0]?.textContent||0),idx=['C','D','E','F','G','A','B'].indexOf(st);if(idx<0)return null;return {midi:12*(oct+1)+[0,2,4,5,7,9,11][idx]+alt,step:st,alter:alt,octave:oct,duration:+(n.getElementsByTagName('duration')[0]?.textContent||0),voice:n.getElementsByTagName('voice')[0]?.textContent||'1'};}).filter(Boolean);const measures=[...xml.getElementsByTagName('measure')].map(x=>x.getAttribute('number')).filter(Boolean);return {notes:notes.length,measures:new Set(measures).size,level:notes.length<80?'Inicial':notes.length<250?'Intermedio':'Avanzado',sequence:notes.slice(0,128).map((n,i)=>({...n,startMs:i*400,durationMs:350})),at:new Date().toISOString()};}
+function parseMusicXML(text){
+ const xml=new DOMParser().parseFromString(text,'application/xml');
+ if(xml.querySelector('parsererror'))throw Error('XML inválido');
+ const direct=(el,name)=>Array.from(el?.children||[]).find(x=>x.localName===name)||null;
+ const first=(el,name)=>el?.getElementsByTagName(name)[0]||null;
+ const tempoNode=first(xml,'sound'),metronome=first(xml,'per-minute');
+ const tempo=Math.max(30,Math.min(240,Number(tempoNode?.getAttribute('tempo'))||Number(metronome?.textContent)||120));
+ const msPerQuarter=60000/tempo,sequence=[],parts=Array.from(xml.getElementsByTagName('part'));
+ let totalNotes=0,measureCount=0,partIndex=0;
+ for(const part of parts){
+  let divisions=1,partMs=0;
+  const measures=Array.from(part.children).filter(x=>x.localName==='measure');
+  for(const measure of measures){
+   measureCount++;let cursor=0,maxCursor=0,lastNoteStart=0;
+   for(const child of Array.from(measure.children)){
+    if(child.localName==='attributes'){
+     const d=direct(child,'divisions');if(d&&Number(d.textContent)>0)divisions=Number(d.textContent);
+    }else if(child.localName==='backup'||child.localName==='forward'){
+     const duration=Number(direct(child,'duration')?.textContent)||0;
+     cursor=child.localName==='backup'?Math.max(0,cursor-duration):cursor+duration;
+     maxCursor=Math.max(maxCursor,cursor);
+    }else if(child.localName==='note'){
+     const duration=Math.max(0,Number(direct(child,'duration')?.textContent)||0);
+     const chord=!!direct(child,'chord'),isRest=!!direct(child,'rest');
+     const onset=chord?lastNoteStart:cursor;
+     if(!isRest){
+      const pitch=direct(child,'pitch'),step=direct(pitch,'step')?.textContent||'C';
+      const octave=Number(direct(pitch,'octave')?.textContent||4),alter=Number(direct(pitch,'alter')?.textContent||0);
+      const idx=['C','D','E','F','G','A','B'].indexOf(step);
+      if(idx>=0){
+       const midi=12*(octave+1)+[0,2,4,5,7,9,11][idx]+alter;
+       sequence.push({midi,startMs:Math.round(partMs+onset*msPerQuarter/divisions),durationMs:Math.max(70,Math.round(duration*msPerQuarter/divisions)),velocity:80,track:partIndex,voice:direct(child,'voice')?.textContent||'1',step,alter,octave});
+       totalNotes++;lastNoteStart=onset;
+      }
+     }
+     if(!chord)cursor+=duration;
+     maxCursor=Math.max(maxCursor,cursor);
+    }
+   }
+   partMs+=maxCursor*msPerQuarter/divisions;
+  }
+  partIndex++;
+ }
+ sequence.sort((a,b)=>a.startMs-b.startMs||a.track-b.track);
+ const uniqueMeasures=new Set(Array.from(xml.getElementsByTagName('measure')).map(x=>x.getAttribute('number')).filter(Boolean));
+ return {notes:totalNotes,measures:uniqueMeasures.size||measureCount,tempo,level:totalNotes<80?'Inicial':totalNotes<250?'Intermedio':'Avanzado',sequence:sequence.slice(0,3000),at:new Date().toISOString()};
+}
 function registerMusicFile(f){
  if(!f)return;const ext=f.name.split('.').pop().toLowerCase();if(!['mid','midi','musicxml','xml','pdf'].includes(ext))return toast('Formato no compatible. Elegí MIDI o MusicXML para practicar.');
  const id='song_'+Date.now()+'_'+Math.floor(Math.random()*10000),base={id,name:f.name,type:ext,size:Math.round(f.size/1024)+' KB',at:new Date().toISOString(),status:'Procesando'};
