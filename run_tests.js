@@ -689,6 +689,7 @@
   const demo=playRhythm2Demo.toString(),view=rhythm2Lesson.toString();
   assert(demo.includes('playSeq(patternExpected,600,.42)'),'El modelo de la lección 10 no respeta el pulso evaluado de 600 ms');
   assert(view.includes('playRhythm2Demo()')&&view.includes('100 BPM'),'La lección no ofrece escuchar el modelo rítmico');
+  assert(view.includes('Ouvir modelo'),'El botón del modelo rítmico no está traducido al portugués');
   pass('Lección 10 · melodía con modelo rítmico','la frase se escucha completa a 100 BPM antes de que el alumno la reproduzca');
  }catch(e){fail('Lección 10 · melodía con modelo rítmico',e)}
  // Free practice · score both pitch correctness and the timing between attacks.
