@@ -2142,6 +2142,13 @@ const FREE_PRACTICE_TARGETS={
  scaleG:[67,69,71,72,74,76,78,79,78,76,74,72,71,69,67],
  leftHand:[48,55,48,55,48,55,48,55]
 };
+const FREE_PRACTICE_DURATIONS={
+ technique:[1,1,1,1,2],findC:[1,1,1,1,1,2],
+ scale:[1,1,1,1,1,1,1,2,1,1,1,1,1,1,2],
+ intervals:[1,1,1,1,1,2],ear:[2],arpeggio:[1,1,1,2,1,1,2],
+ chromatic:[1,.5,.5],scaleG:[1,1,1,1,1,1,1,2,1,1,1,1,1,1,2],
+ leftHand:[1,1,1,1,1,1,1,2]
+};
 let freePracticeActive=false,freePracticeInput=[],freePracticeExpected=[];
 function freePracticeName(n){const pc=pitchClassName(n),names=pianoLanguage==='pt'?{C:'Dó',D:'Ré',E:'Mi',F:'Fá',G:'Sol',A:'Lá',B:'Si'}:{C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'};return (names[pc]||pc)+(Math.floor(n/12)-1)}
 function freePracticeLabel(es,pt){return pianoLanguage==='pt'?pt:es}
@@ -2194,6 +2201,23 @@ function resetFreePractice(){
  if(p)p.textContent=freePracticeLabel('Ejercicio reiniciado.','Exercício reiniciado.');
  if(r)r.textContent='';
 }
+function playFreePracticeSequence(slow=false){
+ let notes=(FREE_PRACTICE_TARGETS[freePracticeSelected]||[]).slice();
+ if(freePracticeSelected==='ear'){
+  if(!freePracticeExpected.length)startFreePractice();
+  notes=freePracticeExpected.slice(0,1);
+ }
+ if(!notes.length)return;
+ const beat=60000/80/(slow?0.72:1),durations=FREE_PRACTICE_DURATIONS[freePracticeSelected]||notes.map(()=>1);
+ let at=0;
+ const events=notes.map((note,i)=>{
+  const span=beat*(durations[i]||1),event={note,at,duration:Math.max(.09,span*.84/1000)};
+  at+=span;return event;
+ });
+ scheduleToneEvents(events);
+ const msg=document.getElementById('freePracticeHear');
+ if(msg)msg.textContent=freePracticeLabel(slow?'♫ Modelo lento a 58 BPM: escuchá el pulso y las notas largas. Después tocá la secuencia.':'♫ Modelo a 80 BPM: escuchá el ritmo completo antes de tocar.',slow?'♫ Modelo lento a 58 BPM: ouça a pulsação e as notas longas. Depois toque a sequência.':'♫ Modelo a 80 BPM: ouça o ritmo completo antes de tocar.');
+}
 function playFreePracticeNote(){
  const el=document.getElementById('freePracticeHear');
  if(freePracticeSelected==='ear'){
@@ -2207,7 +2231,7 @@ function playFreePracticeNote(){
 }
 function practice(){
  const choices=FREE_PRACTICE.map((e,i)=>`<button class="btn small ${e.id===freePracticeSelected?'primary':''}" data-free-exercise="${e.id}" onclick="setFreePracticeExercise('${e.id}')">${i<3?freePracticeLabel('Nivel 1 · ','Nível 1 · '):freePracticeLabel('Nivel 2–3 · ','Nível 2–3 · ')}${pianoTranslateText(e.title)}</button>`).join('');
- return shell('Práctica libre','Elegí una actividad, empezá el ejercicio y tocá las notas en el teclado. Cada intento recibe una devolución.',`<div class="row-controls">${choices}</div><div class="note-box"><b id="freePracticeTitle">Técnica de hoy</b><p id="freePracticeDesc" class="muted">Dedos redondeados, hombros sueltos y movimientos mínimos.</p><p id="freePracticeTask">Tocá cinco teclas blancas seguidas, despacio y con la mano relajada.</p><div id="freePracticeSeq" class="pill">1 · 2 · 3 · 4 · 5</div><div class="row-controls"><button class="btn primary" type="button" onclick="startFreePractice()">▶ ${freePracticeLabel('Empezar ejercicio','Começar exercício')}</button><button class="btn" type="button" onclick="playFreePracticeNote()">🔊 ${freePracticeLabel('Escuchar nota','Ouvir nota')}</button><button class="btn" type="button" onclick="resetFreePractice()">↺ ${freePracticeLabel('Reiniciar','Reiniciar')}</button></div><p id="freePracticeHear" class="muted">${freePracticeLabel('Empezá para activar la comprobación de notas.','Comece para ativar a avaliação das notas.')}</p><p id="freePracticeProgress" class="target">${freePracticeLabel('Todavía no empezaste.','Você ainda não começou.')}</p><p id="freePracticeResult" class="muted" aria-live="polite"></p><p id="freePracticeSavedStatus" class="muted smalllabel">${(state.freePracticeHistory?.[freePracticeSelected]||[]).length?('Último resultado guardado: '+state.freePracticeHistory[freePracticeSelected].slice(-1)[0].accuracy+'% · '+state.freePracticeHistory[freePracticeSelected].length+' intentos'):'Todavía no hay intentos guardados para este ejercicio.'}</p></div><div class="note-box"><div class="muted">${freePracticeLabel('Última nota que tocaste','Última nota tocada')}</div><div class="score" id="lastNote">—</div><div class="muted">${state.midi?'MIDI conectado':state.mic?'Micrófono activo':'Teclado virtual'}</div></div>${keyboard()}`);
+ return shell('Práctica libre','Elegí una actividad, empezá el ejercicio y tocá las notas en el teclado. Cada intento recibe una devolución.',`<div class="row-controls">${choices}</div><div class="note-box"><b id="freePracticeTitle">Técnica de hoy</b><p id="freePracticeDesc" class="muted">Dedos redondeados, hombros sueltos y movimientos mínimos.</p><p id="freePracticeTask">Tocá cinco teclas blancas seguidas, despacio y con la mano relajada.</p><div id="freePracticeSeq" class="pill">1 · 2 · 3 · 4 · 5</div><div class="row-controls"><button class="btn primary" type="button" onclick="startFreePractice()">▶ ${freePracticeLabel('Empezar ejercicio','Começar exercício')}</button><button class="btn" type="button" onclick="playFreePracticeSequence(false)">♫ ${freePracticeLabel('Escuchar modelo','Ouvir modelo')}</button><button class="btn" type="button" onclick="playFreePracticeSequence(true)">🐢 ${freePracticeLabel('Más lento','Mais devagar')}</button><button class="btn" type="button" onclick="playFreePracticeNote()">🔊 ${freePracticeLabel('Nota de referencia','Nota de referência')}</button><button class="btn" type="button" onclick="resetFreePractice()">↺ ${freePracticeLabel('Reiniciar','Reiniciar')}</button></div><p id="freePracticeHear" class="muted">${freePracticeLabel('Empezá para activar la comprobación de notas.','Comece para ativar a avaliação das notas.')}</p><p id="freePracticeProgress" class="target">${freePracticeLabel('Todavía no empezaste.','Você ainda não começou.')}</p><p id="freePracticeResult" class="muted" aria-live="polite"></p><p id="freePracticeSavedStatus" class="muted smalllabel">${(state.freePracticeHistory?.[freePracticeSelected]||[]).length?('Último resultado guardado: '+state.freePracticeHistory[freePracticeSelected].slice(-1)[0].accuracy+'% · '+state.freePracticeHistory[freePracticeSelected].length+' intentos'):'Todavía no hay intentos guardados para este ejercicio.'}</p></div><div class="note-box"><div class="muted">${freePracticeLabel('Última nota que tocaste','Última nota tocada')}</div><div class="score" id="lastNote">—</div><div class="muted">${state.midi?'MIDI conectado':state.mic?'Micrófono activo':'Teclado virtual'}</div></div>${keyboard()}`);
 }
 function staffY(note){
  const y={C4:112,D4:104,E4:96,F4:88,G4:80,A4:72,B4:64,C5:56,D5:48,E5:40,F5:32,G5:24}[note];
