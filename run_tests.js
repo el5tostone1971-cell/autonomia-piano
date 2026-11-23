@@ -650,6 +650,15 @@
   assert(visible.includes('ainda não disponíveis'),'A tela em português não esclarece o estado da nuvem');
   pass('Sistema · respaldo local honesto','exportación/importación visibles en ES/PT y nube deshabilitada hasta tener backend real');
  }catch(e){fail('Sistema · respaldo local honesto',e)}
+ // Block C · the melody demonstration must play with a real rhythmic band, not isolated notes.
+ try{
+  const demo=playRepertoireDemo.toString(),arrangement=playFullArrangement.toString();
+  assert(demo.includes('playFullArrangement()'),'La demostración principal todavía reproduce notas aisladas');
+  assert(arrangement.includes('startBackingTrack(false)'),'La versión guía no inicia bajo, acordes y batería');
+  assert(arrangement.includes('p.dur[i]'),'La melodía no respeta las duraciones escritas');
+  assert(arrangement.includes('for(let pass=0;pass<2;pass++)'),'La guía no ofrece dos pasadas completas');
+  pass('Repertorio · melodía con banda y ritmo','La demostración principal usa melodía + bajo + acordes + batería, duraciones y dos pasadas');
+ }catch(e){fail('Repertorio · melodía con banda y ritmo',e)}
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
