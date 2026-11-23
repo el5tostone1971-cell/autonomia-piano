@@ -2179,7 +2179,7 @@ function renderFreePracticeStatus(){
   const feedback=errors
    ?freePracticeLabel(errors+(errors===1?' error. ':' errores. ')+'Compará cada nota tocada con la nota esperada que aparece arriba.',errors+(errors===1?' erro. ':' erros. ')+'Compare cada nota tocada com a nota esperada exibida acima.')
    :freePracticeLabel('Secuencia completa sin errores.','Sequência concluída sem erros.');
-  result.textContent=freePracticeLabel('Resultado: ','Resultado: ')+hits+'/'+freePracticeExpected.length+freePracticeLabel(' notas correctas. ',' notas corretas. ')+feedback+(timing.accuracy===null?'':freePracticeLabel(' · Pulso: ',' · Pulso: ')+timing.hits+'/'+timing.total+' ('+timing.accuracy+'% · '+freePracticeTempo+' BPM)');
+  result.textContent=freePracticeLabel('Resultado: ','Resultado: ')+hits+'/'+freePracticeExpected.length+freePracticeLabel(' correctas. ',' corretas. ')+feedback+(timing.accuracy===null?'':freePracticeLabel(' · Pulso: ',' · Pulso: ')+timing.hits+'/'+timing.total+' ('+timing.accuracy+'% · '+freePracticeTempo+' BPM)');
   const saved=document.getElementById('freePracticeSavedStatus');if(saved)saved.textContent=freePracticeLabel('✓ Intento guardado · ','✓ Tentativa salva · ')+Math.round(hits/freePracticeExpected.length*100)+'%';
   freePracticeActive=false;
  }
