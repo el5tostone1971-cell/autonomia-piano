@@ -699,6 +699,7 @@
   assert(register.includes('freePracticeInputTimes.push(Date.now())'),'No se registra el instante de cada nota');
   assert(render.includes('rhythmAccuracy:timing.accuracy')&&render.includes('timingErrorsMs'),'El historial no guarda el resultado rítmico');
   assert(render.includes('Pulso: '),'La devolución no muestra la precisión del pulso');
+  assert(render.includes("freePracticeLabel(' correctas. ',' corretas. ')"),'La nueva devolución rompió el formato de aciertos ya utilizado por las pruebas existentes');
   pass('Práctica libre · evaluación de ritmo real','compara ataques con el pulso de 80 BPM, marca desvíos, separa precisión de notas y guarda ambos resultados');
  }catch(e){fail('Práctica libre · evaluación de ritmo real',e)}
  // Free practice · every exercise must offer a complete rhythmic model at normal and reduced tempo.
