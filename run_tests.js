@@ -286,6 +286,7 @@
  try{
   state=clone(defaultState);state.god.library=[{id:'midi-regression',source:'midi',data:{sequence:[{midi:60,startMs:0,track:0},{midi:62,startMs:500,track:0}]}}];
   importedSongPractice={songId:'midi-regression',index:0,correct:0,errors:0,history:[],active:true,tempoScale:.75,message:'',playToken:0,playing:false,paused:false,offsetMs:0,currentNotes:[],mode:'wait',waiting:true,waitGroup:[{midi:60,startMs:0,track:0}],waitGroupStart:0,waitGroupEnd:1,phraseStart:0,phraseEnd:2,waitRemaining:new Set([0]),trackFilter:null,handFilter:'both'};
+  showHTML(godSongPractice());
   registerImportedSongPractice(61);
   assert(importedSongPractice.errors===1,'no registró el error de la nota MIDI');
   assert(importedSongPractice.history.length===1&&importedSongPractice.history[0].correct===false,'no conservó el detalle de la nota equivocada');
