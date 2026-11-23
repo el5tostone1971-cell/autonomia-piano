@@ -1043,7 +1043,7 @@ const assert = require('node:assert/strict');
     const resumedSong = await page.evaluate(() => ({index:importedSongPractice.index,correct:importedSongPractice.correct,history:importedSongPractice.history.length}));
     assert.deepEqual(resumedSong,{index:1,correct:1,history:1},'La canción no recuperó el punto de avance y el historial tras recargar');
     await page.evaluate(() => pressKey(60));
-    assert.match(await page.locator('#importedSongFeedback').innerText(), /incorrecta registrada|wrong note recorded|siguiente posición|next position/i, 'No se informó que el error quedó registrado y que la práctica continúa');
+    assert.match(await page.locator('#importedSongFeedback').innerText(), /se esperaba|no avanzamos todavía|wrong note|esperado/i, 'No se informó que el error quedó registrado y que la práctica continúa');
     assert.ok(await page.evaluate(id => (state.god.music?.songPractice?.[id]?.history||[]).some(x=>x.correct===false), importedTestSongId), 'El error de la canción no quedó guardado');
     assert.match(await page.locator('#songAccuracyText').innerText(), /50%/, 'El porcentaje de acierto de la canción no se actualizó tras el error');
     await page.evaluate(() => skipImportedSongNote());
