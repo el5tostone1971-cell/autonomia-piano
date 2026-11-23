@@ -2149,7 +2149,7 @@ const FREE_PRACTICE_DURATIONS={
  chromatic:[1,.5,.5],scaleG:[1,1,1,1,1,1,1,2,1,1,1,1,1,1,2],
  leftHand:[1,1,1,1,1,1,1,2]
 };
-let freePracticeActive=false,freePracticeInput=[],freePracticeExpected=[],freePracticeInputTimes=[];
+let freePracticeActive=false,freePracticeInput=[],freePracticeExpected=[],freePracticeInputTimes=[],freePracticeTempo=80;
 function freePracticeName(n){const pc=pitchClassName(n),names=pianoLanguage==='pt'?{C:'Dó',D:'Ré',E:'Mi',F:'Fá',G:'Sol',A:'Lá',B:'Si'}:{C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'};return (names[pc]||pc)+(Math.floor(n/12)-1)}
 function freePracticeLabel(es,pt){return pianoLanguage==='pt'?pt:es}
 function freePracticeTimingResult(times,durations,bpm=80){
@@ -2165,7 +2165,7 @@ function freePracticeTimingResult(times,durations,bpm=80){
  return {hits,total:errors.length,accuracy:Math.round(hits/errors.length*100),errors};
 }
 function renderFreePracticeStatus(){
- const timing=freePracticeTimingResult(freePracticeInputTimes,FREE_PRACTICE_DURATIONS[freePracticeSelected]||[],80);
+ const timing=freePracticeTimingResult(freePracticeInputTimes,FREE_PRACTICE_DURATIONS[freePracticeSelected]||[],freePracticeTempo);
  const progress=document.getElementById('freePracticeProgress'),result=document.getElementById('freePracticeResult');
  const rows=freePracticeInput.map((n,i)=>{
   const expected=freePracticeExpected[i],correct=n===expected;
@@ -2175,18 +2175,18 @@ function renderFreePracticeStatus(){
  if(result&&freePracticeInput.length===freePracticeExpected.length){
   const hits=freePracticeInput.filter((n,i)=>n===freePracticeExpected[i]).length;
   const errors=freePracticeExpected.length-hits;
-  state.freePracticeHistory=state.freePracticeHistory||{};state.freePracticeHistory[freePracticeSelected]=Array.isArray(state.freePracticeHistory[freePracticeSelected])?state.freePracticeHistory[freePracticeSelected]:[];state.freePracticeHistory[freePracticeSelected].push({correct:hits,total:freePracticeExpected.length,accuracy:Math.round(hits/freePracticeExpected.length*100),rhythmAccuracy:timing.accuracy,rhythmHits:timing.hits,rhythmTotal:timing.total,timingErrorsMs:timing.errors.map(x=>x.delta),notes:freePracticeInput.slice(),expected:freePracticeExpected.slice(),at:new Date().toISOString()});state.freePracticeHistory[freePracticeSelected]=state.freePracticeHistory[freePracticeSelected].slice(-30);saveState();
+  state.freePracticeHistory=state.freePracticeHistory||{};state.freePracticeHistory[freePracticeSelected]=Array.isArray(state.freePracticeHistory[freePracticeSelected])?state.freePracticeHistory[freePracticeSelected]:[];state.freePracticeHistory[freePracticeSelected].push({correct:hits,total:freePracticeExpected.length,accuracy:Math.round(hits/freePracticeExpected.length*100),tempo:freePracticeTempo,rhythmAccuracy:timing.accuracy,rhythmHits:timing.hits,rhythmTotal:timing.total,timingErrorsMs:timing.errors.map(x=>x.delta),notes:freePracticeInput.slice(),expected:freePracticeExpected.slice(),at:new Date().toISOString()});state.freePracticeHistory[freePracticeSelected]=state.freePracticeHistory[freePracticeSelected].slice(-30);saveState();
   const feedback=errors
    ?freePracticeLabel(errors+(errors===1?' error. ':' errores. ')+'Compará cada nota tocada con la nota esperada que aparece arriba.',errors+(errors===1?' erro. ':' erros. ')+'Compare cada nota tocada com a nota esperada exibida acima.')
    :freePracticeLabel('Secuencia completa sin errores.','Sequência concluída sem erros.');
-  result.textContent=freePracticeLabel('Resultado: ','Resultado: ')+hits+'/'+freePracticeExpected.length+freePracticeLabel(' notas correctas. ',' notas corretas. ')+feedback+(timing.accuracy===null?'':freePracticeLabel(' · Pulso: ',' · Pulso: ')+timing.hits+'/'+timing.total+' ('+timing.accuracy+'%)');
+  result.textContent=freePracticeLabel('Resultado: ','Resultado: ')+hits+'/'+freePracticeExpected.length+freePracticeLabel(' notas correctas. ',' notas corretas. ')+feedback+(timing.accuracy===null?'':freePracticeLabel(' · Pulso: ',' · Pulso: ')+timing.hits+'/'+timing.total+' ('+timing.accuracy+'% · '+freePracticeTempo+' BPM)');
   const saved=document.getElementById('freePracticeSavedStatus');if(saved)saved.textContent=freePracticeLabel('✓ Intento guardado · ','✓ Tentativa salva · ')+Math.round(hits/freePracticeExpected.length*100)+'%';
   freePracticeActive=false;
  }
 }
 function setFreePracticeExercise(id){
  freePracticeSelected=FREE_PRACTICE.some(x=>x.id===id)?id:'technique';
- freePracticeActive=false;freePracticeInput=[];freePracticeExpected=[];freePracticeInputTimes=[];
+ freePracticeActive=false;freePracticeInput=[];freePracticeExpected=[];freePracticeInputTimes=[];freePracticeTempo=80;
  const e=FREE_PRACTICE.find(x=>x.id===freePracticeSelected);
  for(const [id2,key] of [['freePracticeTitle','title'],['freePracticeDesc','desc'],['freePracticeTask','task'],['freePracticeSeq','seq']]){const el=document.getElementById(id2);if(el)el.textContent=pianoTranslateText(e[key])}
  const progress=document.getElementById('freePracticeProgress'),result=document.getElementById('freePracticeResult');
@@ -2216,6 +2216,7 @@ function resetFreePractice(){
  if(r)r.textContent='';
 }
 function playFreePracticeSequence(slow=false){
+ freePracticeTempo=slow?58:80;
  let notes=(FREE_PRACTICE_TARGETS[freePracticeSelected]||[]).slice();
  if(freePracticeSelected==='ear'){
   if(!freePracticeExpected.length)startFreePractice();
