@@ -684,6 +684,20 @@
   assert(Math.abs(notes[1].durationMs-500)<2,'El note-off de la pista 2 se emparejó con la pista 1: '+notes[1].durationMs);
   pass('MIDI multipista · note-on/note-off aislados','dos notas iguales en canales/pistas diferentes conservan duración y pista correctas');
  }catch(e){fail('MIDI multipista · note-on/note-off aislados',e)}
+ // Free practice · score both pitch correctness and the timing between attacks.
+ try{
+  const even=freePracticeTimingResult([1000,1750,2500],[1,1,1],80);
+  const uneven=freePracticeTimingResult([1000,2000,2500],[1,1,1],80);
+  const single=freePracticeTimingResult([1000],[1],80);
+  assert(even.accuracy===100&&even.hits===2,'Un pulso regular no obtiene 100% de precisión rítmica');
+  assert(uneven.accuracy===50&&uneven.errors[0].ok===false&&uneven.errors[1].ok===true,'No detecta el primer ataque fuera de pulso');
+  assert(single.accuracy===null,'Una sola nota no debe recibir una puntuación rítmica engañosa');
+  const register=registerFreePracticeNote.toString(),render=renderFreePracticeStatus.toString();
+  assert(register.includes('freePracticeInputTimes.push(Date.now())'),'No se registra el instante de cada nota');
+  assert(render.includes('rhythmAccuracy:timing.accuracy')&&render.includes('timingErrorsMs'),'El historial no guarda el resultado rítmico');
+  assert(render.includes('Pulso: '),'La devolución no muestra la precisión del pulso');
+  pass('Práctica libre · evaluación de ritmo real','compara ataques con el pulso de 80 BPM, marca desvíos, separa precisión de notas y guarda ambos resultados');
+ }catch(e){fail('Práctica libre · evaluación de ritmo real',e)}
  // Free practice · every exercise must offer a complete rhythmic model at normal and reduced tempo.
  try{
   const demo=playFreePracticeSequence.toString(),view=practice.toString();
