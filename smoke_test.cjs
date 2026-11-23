@@ -1048,7 +1048,7 @@ const assert = require('node:assert/strict');
     assert.match(await page.locator('#songAccuracyText').innerText(), /50%/, 'El porcentaje de acierto de la canción no se actualizó tras el error');
     await page.evaluate(() => skipImportedSongNote());
     assert.match(await page.locator('#songAccuracyText').innerText(), /33%/, 'El porcentaje de la canción no incluyó la nota omitida');
-    assert.match(await page.locator('.card').last().innerText(), /3 \/ 3|Canción completa|canción completa/, 'La canción MIDI no se completó al omitir la nota pendiente');
+    assert.match(await page.locator('.card').last().innerText(), /Frase completada|2 \/ 3|Avance total/, 'La frase MIDI no se completó al omitir la nota pendiente');
     assert.ok(await page.evaluate(id => (state.god.music?.songPractice?.[id]?.history||[]).some(x=>x.skipped), importedTestSongId), 'La nota omitida no quedó registrada en el historial');
     await page.evaluate(() => stopImportedSongPlayback());
 
