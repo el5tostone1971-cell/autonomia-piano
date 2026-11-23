@@ -669,6 +669,21 @@
   assert(parsed.sequence[0].track===0&&parsed.sequence[0].voice==='1','MusicXML perdió pista o voz');
   pass('MusicXML · ritmo, silencios y acordes','conserva ataques simultáneos, duración de negras y silencio de un pulso');
  }catch(e){fail('MusicXML · ritmo, silencios y acordes',e)}
+ // MIDI format 1 · same pitch/channel in separate tracks must never cross-pair note-off events.
+ try{
+  const ascii=x=>Array.from(x).map(c=>c.charCodeAt(0));
+  const be16=n=>[(n>>8)&255,n&255],be32=n=>[(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255];
+  const chunk=(name,data)=>[...ascii(name),...be32(data.length),...data];
+  const tr0=[0,0x90,60,90,0,0xff,0x2f,0];
+  const tr1=[0,0x90,60,90,0x83,0x60,0x80,60,0,0,0xff,0x2f,0];
+  const bytes=new Uint8Array([...ascii('MThd'),...be32(6),...be16(1),...be16(2),...be16(480),...chunk('MTrk',tr0),...chunk('MTrk',tr1)]);
+  const parsed=parseMidiFile(bytes.buffer),notes=parsed.sequence.filter(n=>n.midi===60);
+  assert(notes.length===2,'No se recuperaron las dos notas MIDI');
+  assert(notes[0].track===0&&notes[1].track===1,'Se mezclaron las pistas de origen');
+  assert(Math.abs(notes[0].durationMs-250)<2,'La nota sin note-off debería usar su duración de seguridad de 250 ms: '+notes[0].durationMs);
+  assert(Math.abs(notes[1].durationMs-500)<2,'El note-off de la pista 2 se emparejó con la pista 1: '+notes[1].durationMs);
+  pass('MIDI multipista · note-on/note-off aislados','dos notas iguales en canales/pistas diferentes conservan duración y pista correctas');
+ }catch(e){fail('MIDI multipista · note-on/note-off aislados',e)}
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
