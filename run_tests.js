@@ -684,6 +684,17 @@
   assert(Math.abs(notes[1].durationMs-500)<2,'El note-off de la pista 2 se emparejó con la pista 1: '+notes[1].durationMs);
   pass('MIDI multipista · note-on/note-off aislados','dos notas iguales en canales/pistas diferentes conservan duración y pista correctas');
  }catch(e){fail('MIDI multipista · note-on/note-off aislados',e)}
+ // Free practice · every exercise must offer a complete rhythmic model at normal and reduced tempo.
+ try{
+  const demo=playFreePracticeSequence.toString(),view=practice.toString();
+  assert(demo.includes('scheduleToneEvents(events)'),'La práctica libre no reproduce un modelo con el motor de audio');
+  assert(demo.includes('FREE_PRACTICE_DURATIONS'),'La práctica libre no aplica duraciones musicales a las secuencias');
+  assert(demo.includes('slow?0.72:1'),'No existe una versión lenta para estudiar el movimiento');
+  assert(view.includes('playFreePracticeSequence(false)')&&view.includes('playFreePracticeSequence(true)'),'La pantalla no ofrece escuchar el modelo normal y lento');
+  assert(FREE_PRACTICE_DURATIONS.chromatic.join(',')==='1,0.5,0.5','El ejercicio cromático no demuestra la subdivisión rítmica');
+  assert(FREE_PRACTICE_DURATIONS.arpeggio.length===FREE_PRACTICE_TARGETS.arpeggio.length,'El arpegio no tiene una duración asignada por nota');
+  pass('Práctica libre · modelos rítmicos y tempo lento','las nueve actividades pueden escucharse completas a 80 BPM o al 72% de velocidad, con duraciones explícitas');
+ }catch(e){fail('Práctica libre · modelos rítmicos y tempo lento',e)}
  // Technique exercises · students can hear the exact rhythmic model before playing.
  try{
   const demo=playTechniqueDemo.toString(),view=techniqueView.toString();
