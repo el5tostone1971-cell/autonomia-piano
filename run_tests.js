@@ -205,6 +205,15 @@
   pass('Repaso espaciado','crear → vencer → aprobar → fallar funciona');
  }catch(e){fail('Repaso espaciado',e)}
 
+ // MIDI pitch diagnostics: incoming note number, scientific pitch and frequency must agree.
+ try{
+  assert(midiNoteDiagnosticLabel(60).includes('MIDI 60'),'Do central no conserva el número MIDI 60');
+  assert(midiNoteDiagnosticLabel(60).includes('C4'),'Do central no se interpreta como C4');
+  assert(midiNoteDiagnosticLabel(69).includes('440.00 Hz'),'La frecuencia de A4 no es 440 Hz');
+  assert(midiNoteDiagnosticLabel(72).includes('MIDI 72'),'La octava superior no conserva MIDI 72');
+  pass('MIDI · diagnóstico de altura exacta','C4=60, A4=69/440 Hz y C5=72');
+ }catch(e){fail('MIDI · diagnóstico de altura exacta',e)}
+
  // Smoke all main exercise views.
  try{
   const views=['home','course','practice','reading','rhythmReading','twoHands','phrases','technique','midiStudio','repertoire','ear','earAdvanced','accompaniment','progress','teacher','spaced','resources','settings','finalExam'];
