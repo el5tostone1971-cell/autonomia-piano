@@ -306,7 +306,7 @@
   assert(first.start===0&&first.end===8,'la primera frase no agrupó dos compases de 4/4');
   assert(second.start===8&&second.end===16,'la segunda frase no comenzó en el siguiente límite de dos compases');
   const triple=importedSongPhraseBounds(seq,5,{tempo:120,meter:{numerator:3,denominator:4}});
-  assert(triple.start===0&&triple.end===12,'no respetó el compás de 3/4');
+  assert(triple.start===0&&triple.end===6,'no respetó el compás de 3/4');
   pass('Canciones MIDI · frases musicales','frases de dos compases alineadas a 4/4 y 3/4');
  }catch(e){fail('Canciones MIDI · frases musicales',e)}
 
