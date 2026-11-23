@@ -684,6 +684,13 @@
   assert(Math.abs(notes[1].durationMs-500)<2,'El note-off de la pista 2 se emparejó con la pista 1: '+notes[1].durationMs);
   pass('MIDI multipista · note-on/note-off aislados','dos notas iguales en canales/pistas diferentes conservan duración y pista correctas');
  }catch(e){fail('MIDI multipista · note-on/note-off aislados',e)}
+ // Lesson 10 · the learner can hear the target melody at the exact evaluated pulse.
+ try{
+  const demo=playRhythm2Demo.toString(),view=rhythm2Lesson.toString();
+  assert(demo.includes('playSeq(patternExpected,600,.42)'),'El modelo de la lección 10 no respeta el pulso evaluado de 600 ms');
+  assert(view.includes('playRhythm2Demo()')&&view.includes('100 BPM'),'La lección no ofrece escuchar el modelo rítmico');
+  pass('Lección 10 · melodía con modelo rítmico','la frase se escucha completa a 100 BPM antes de que el alumno la reproduzca');
+ }catch(e){fail('Lección 10 · melodía con modelo rítmico',e)}
  // Free practice · score both pitch correctness and the timing between attacks.
  try{
   const even=freePracticeTimingResult([1000,1750,2500],[1,1,1],80);
