@@ -298,6 +298,18 @@
   pass('Canciones MIDI · feedback correctivo','registra el error, mantiene el objetivo y avanza solamente tras la corrección');
  }catch(e){fail('Canciones MIDI · feedback correctivo',e)}
 
+ // Imported MIDI phrase segmentation follows meter and two-bar boundaries.
+ try{
+  const seq=Array.from({length:20},(_,i)=>({midi:60+(i%5),startMs:i*500,durationMs:350}));
+  const first=importedSongPhraseBounds(seq,6,{tempo:120,meter:{numerator:4,denominator:4}});
+  const second=importedSongPhraseBounds(seq,10,{tempo:120,meter:{numerator:4,denominator:4}});
+  assert(first.start===0&&first.end===8,'la primera frase no agrupó dos compases de 4/4');
+  assert(second.start===8&&second.end===16,'la segunda frase no comenzó en el siguiente límite de dos compases');
+  const triple=importedSongPhraseBounds(seq,5,{tempo:120,meter:{numerator:3,denominator:4}});
+  assert(triple.start===0&&triple.end===12,'no respetó el compás de 3/4');
+  pass('Canciones MIDI · frases musicales','frases de dos compases alineadas a 4/4 y 3/4');
+ }catch(e){fail('Canciones MIDI · frases musicales',e)}
+
  // Persistence regression: simulate closing/reopening the app using the same browser storage.
  try{
   localStorage.clear();
