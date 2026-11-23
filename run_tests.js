@@ -684,6 +684,16 @@
   assert(Math.abs(notes[1].durationMs-500)<2,'El note-off de la pista 2 se emparejó con la pista 1: '+notes[1].durationMs);
   pass('MIDI multipista · note-on/note-off aislados','dos notas iguales en canales/pistas diferentes conservan duración y pista correctas');
  }catch(e){fail('MIDI multipista · note-on/note-off aislados',e)}
+ // Technique exercises · students can hear the exact rhythmic model before playing.
+ try{
+  const demo=playTechniqueDemo.toString(),view=techniqueView.toString();
+  assert(demo.includes('scheduleToneEvents(events)'),'La demostración no usa el motor de audio programado');
+  assert(demo.includes('e.dur?.[i]'),'La demostración ignora las duraciones de cada nota');
+  assert(demo.includes('at+=duration*1000'),'La demostración no mantiene el espacio temporal entre ataques');
+  assert(view.includes('playTechniqueDemo()'),'La pantalla no ofrece escuchar el ejemplo');
+  assert(view.includes('Escuchar ejemplo'),'El botón de escucha no está visible');
+  pass('Técnica · ejemplo musical audible','reproduce la secuencia completa respetando negras, corcheas y notas sostenidas');
+ }catch(e){fail('Técnica · ejemplo musical audible',e)}
  const failed=results.filter(x=>!x.ok); document.body.innerHTML='<h1>Autonomía Piano — TEST EXHAUSTIVO v40.0</h1><pre id="results">'+results.map(x=>(x.ok?'PASS ':'FAIL ')+x.name+(x.detail?' :: '+x.detail:'')).join('\n')+'\n\nTOTAL: '+results.length+' | PASS: '+(results.length-failed.length)+' | FAIL: '+failed.length+'</pre>';
  window.__TEST_RESULTS=results;
 })();
