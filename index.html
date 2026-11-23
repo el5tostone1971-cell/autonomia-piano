@@ -3228,25 +3228,37 @@ function backingTrackStep(token){
  if(token!==backingTrackToken||!repertoirePiece)return;
  const c=audio();if(!c)return;const p=repertoirePiece,unit=60000/getRepertoireTempo(),when=c.currentTime+.025,beat=backingTrackBeat,bar=backingTrackBar;
  const chord=backingTrackChord(p,bar),bassRoot=chord[0]-12;
- // Bajo constante para sostener la armonía y ayudar a anticipar los cambios.
- backingOsc(midiToFreq(bassRoot+(beat===2?7:0)),unit/1000*.72,'triangle',.13,when);
- // Acordes con patrón propio según el estilo: síncopa brasileña, empuje de cumbia o rock.
  const brazil=['rp10','rp15','rp16','rp17'].includes(p.id);
  const cumbia=['rp13','rp18'].includes(p.id);
+ const rock=['rp12','rp14','rp19'].includes(p.id);
+ const pop=['rp11'].includes(p.id);
+ // El bajo marca la raíz y anticipa el tercer pulso con la quinta.
+ backingOsc(midiToFreq(bassRoot+(beat===2?7:0)),unit/1000*.72,'triangle',beat===0?.15:.12,when);
+ // Cada familia tiene un patrón reconocible; no todas las piezas usan el mismo bloque de acordes.
  if(brazil){
-   if(beat===0||beat===2)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.32,'triangle',.045,when+.01));
-   else chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.18,'sine',.032,when+.01));
+   if(beat===0||beat===2)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.30,'triangle',.045,when+.01));
+   else chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.16,'sine',.028,when+.01));
+   // Anticipación sincopada en el contratiempo.
+   if(beat===1||beat===3)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.12,'sine',.022,when+unit/2000));
  }else if(cumbia){
-   if(beat===0||beat===2)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.30,'triangle',.05,when+.01));
-   if(beat===1||beat===3)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.16,'sine',.026,when+.01));
+   if(beat===0||beat===2)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.28,'triangle',.05,when+.01));
+   if(beat===1||beat===3)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.15,'sine',.026,when+.01));
+   chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.10,'sine',.018,when+unit/2000));
+ }else if(rock){
+   if(beat===0||beat===2)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.38,'triangle',.052,when+.01));
+ }else if(pop){
+   if(beat===0||beat===2)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.34,'triangle',.045,when+.01));
+   if(beat===3)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.13,'sine',.022,when+.01));
  }else if(beat===0||beat===2){
    chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.42,'triangle',.055,when+.01));
  }
+ // Bombo y caja con acentos diferentes según el género.
  if(beat===0||beat===2)backingKick(when);
  if(beat===1||beat===3)backingSnare(when);
  backingHat(when);
- // Golpe intermedio para que samba/bossa y cumbia no suenen como un metrónomo genérico.
- if(brazil||cumbia)setTimeout(()=>{if(token===backingTrackToken)backingHat(audio().currentTime)},Math.max(10,unit/2));
+ // Subdivisión de corcheas: sostiene el pulso en rock/pop y refuerza la síncopa en ritmos latinos.
+ if(brazil||cumbia||rock||pop)setTimeout(()=>{if(token===backingTrackToken)backingHat(audio().currentTime)},Math.max(10,unit/2));
+ if(rock&&beat===2)setTimeout(()=>{if(token===backingTrackToken)backingKick(audio().currentTime)},Math.max(10,unit/2));
  const status=document.getElementById('backingTrackStatus');
  if(status)status.textContent='Acompañamiento · compás '+(bar+1)+' · pulso '+(beat+1)+' · '+getRepertoireTempo()+' BPM';
  backingTrackBeat++;if(backingTrackBeat>=4){backingTrackBeat=0;backingTrackBar=(backingTrackBar+1)%8}
