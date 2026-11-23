@@ -689,9 +689,12 @@
   const even=freePracticeTimingResult([1000,1750,2500],[1,1,1],80);
   const uneven=freePracticeTimingResult([1000,2000,2500],[1,1,1],80);
   const single=freePracticeTimingResult([1000],[1],80);
+  const slow=freePracticeTimingResult([1000,2034,3069],[1,1],58);
   assert(even.accuracy===100&&even.hits===2,'Un pulso regular no obtiene 100% de precisión rítmica');
   assert(uneven.accuracy===50&&uneven.errors[0].ok===false&&uneven.errors[1].ok===true,'No detecta el primer ataque fuera de pulso');
   assert(single.accuracy===null,'Una sola nota no debe recibir una puntuación rítmica engañosa');
+  assert(slow.accuracy===100,'La evaluación no respeta el tempo lento de 58 BPM');
+  assert(playFreePracticeSequence.toString().includes('freePracticeTempo=slow?58:80'),'La velocidad escuchada y la velocidad evaluada pueden quedar desincronizadas');
   const register=registerFreePracticeNote.toString(),render=renderFreePracticeStatus.toString();
   assert(register.includes('freePracticeInputTimes.push(Date.now())'),'No se registra el instante de cada nota');
   assert(render.includes('rhythmAccuracy:timing.accuracy')&&render.includes('timingErrorsMs'),'El historial no guarda el resultado rítmico');
