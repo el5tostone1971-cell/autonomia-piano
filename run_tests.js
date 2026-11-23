@@ -238,7 +238,7 @@
   pass('Dos manos · ventana y patrones variables','descarta notas dispersas y valida bloques con cantidades distintas');
  }catch(e){fail('Dos manos · ventana y patrones variables',e)}
  // Technique.
- try{newTechnique();startTechnique();const beat=60000/techniqueExercise.tempo;techniqueTimes=techniqueExercise.notes.map((_,i)=>i*beat);techniqueStep=techniqueExercise.notes.length;checkTechnique();assert(techniqueAwarded,'técnica no aprobó');pass('Técnica/digitación','secuencia + pulso aceptados')}catch(e){fail('Técnica/digitación',e)}
+ try{newTechnique();startTechnique();const beat=60000/techniqueExercise.tempo;let techniqueElapsed=0;techniqueTimes=techniqueExercise.notes.map((_,i)=>{const at=techniqueElapsed;techniqueElapsed+=(techniqueExercise.dur?.[i]||1)*beat;return at});techniqueStep=techniqueExercise.notes.length;checkTechnique();assert(techniqueAwarded,'técnica no aprobó');pass('Técnica/digitación','secuencia + pulso aceptados')}catch(e){fail('Técnica/digitación',e)}
  // Repertoire.
  try{newRepertoire();repertoireTempoOverride=null;startRepertoire();repertoireInput=repertoirePiece.notes.slice();const unit=60000/getRepertoireTempo();let elapsed=0;repertoireTimes=repertoirePiece.notes.map((_,i)=>{const at=elapsed;elapsed+=(repertoirePiece.dur[i]||1)*unit;return at});checkRepertoire();assert(repertoireAwarded,'repertorio no aprobó');pass('Repertorio','notas + timing aceptados')}catch(e){fail('Repertorio',e)}
  // Repertoire progression: learn by pitch class, read exact octave, then play from memory.
