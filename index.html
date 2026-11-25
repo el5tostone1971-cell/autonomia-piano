@@ -2335,7 +2335,7 @@ const TWO_HANDS_PHRASES=[
  {id:'th3',label:'C → Am → F → G',tempo:68,events:[{left:[48,52,55],right:[64]},{left:[45,48,52],right:[69]},{left:[41,45,48],right:[65]},{left:[43,47,50],right:[67]}]}
 ];
 let twoHandsPhrase=null,twoHandsStep=0,twoHandsWindow=[],twoHandsStarted=false,twoHandsTimes=[],twoHandsAwarded=false,twoHandsWindowTimer=null;
-function twoHandsModelEvents(phrase){const beatMs=60000/(phrase.tempo||72);return phrase.events.flatMap((event,i)=>event.left.concat(event.right).map(note=>({note,at:Math.round(i*beatMs),duration:.3})))}
+function twoHandsModelEvents(phrase){const beatMs=60000/(phrase.tempo||72),duration=Math.max(.12,beatMs/1000*.88);return phrase.events.flatMap((event,i)=>event.left.concat(event.right).map(note=>({note,at:Math.round(i*beatMs),duration,hand:event.left.includes(note)?'left':'right'})))}
 function playTwoHandsModel(){if(!twoHandsPhrase)return;scheduleToneEvents(twoHandsModelEvents(twoHandsPhrase));const m=document.getElementById('twoHandsMsg');if(m)m.textContent=courseLocal('♫ Escuchá cómo suenan juntas la armonía y la melodía antes de tocar.','♫ Ouça como a harmonia e a melodia soam juntas antes de tocar.')}
 function twoHands(){newTwoHands();return twoHandsView()}
 function newTwoHands(){clearTimeout(twoHandsWindowTimer);twoHandsWindowTimer=null;twoHandsPhrase=TWO_HANDS_PHRASES[Math.floor(Math.random()*TWO_HANDS_PHRASES.length)];twoHandsStep=0;twoHandsWindow=[];twoHandsStarted=false;twoHandsTimes=[];twoHandsAwarded=false}
