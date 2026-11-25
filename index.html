@@ -3417,7 +3417,7 @@ async function playFullArrangement(){
 }
 function stopFullArrangement(){fullArrangementToken++;if(fullArrangementTimer){clearTimeout(fullArrangementTimer);fullArrangementTimer=null}if(fullArrangementResolve){const resolve=fullArrangementResolve;fullArrangementResolve=null;resolve()}}
 function stopBackingTrack(options={}){
- if(typeof stopSequencePlayback==='function')stopSequencePlayback();stopTrackedPlaybackSources('_autonomiaBackingSources');clearBackingIdleTimer();if(typeof bandPracticeTimer!=='undefined'&&bandPracticeTimer){clearTimeout(bandPracticeTimer);bandPracticeTimer=null}stopFullArrangement();backingTrackToken++;if(backingTrackTimer){clearTimeout(backingTrackTimer);backingTrackTimer=null}
+ if(typeof stopSequencePlayback==='function')stopSequencePlayback();stopTrackedPlaybackSources('_autonomiaBackingSources');stopTrackedPlaybackSources('_autonomiaToneSources');clearBackingIdleTimer();if(typeof bandPracticeTimer!=='undefined'&&bandPracticeTimer){clearTimeout(bandPracticeTimer);bandPracticeTimer=null}stopFullArrangement();backingTrackToken++;if(backingTrackTimer){clearTimeout(backingTrackTimer);backingTrackTimer=null}
  document.querySelectorAll('.keys .key').forEach(k=>{k.classList.remove('target-note');k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
  const status=document.getElementById('backingTrackStatus');if(status)status.textContent=pianoLanguage==='pt'?'Todo o áudio foi interrompido':'Todo el audio detenido';
  if(!options.keepPractice){if(typeof bandPracticeActive!=='undefined')bandPracticeActive=false;if(typeof repertoireStarted!=='undefined')repertoireStarted=false;if(typeof bandPracticeTotalBeats!=='undefined')bandPracticeTotalBeats=0}
