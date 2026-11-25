@@ -3,6 +3,8 @@
  const assert=(c,m)=>{if(!c)throw Error(m)};
  window._testMode=true;
  try{
+  // Audio stop: las fuentes de piano deben poder cortarse junto con la banda.
+  try{let stopped=0;window._autonomiaToneSources=new Set([{stop(){stopped++}}]);stopTrackedPlaybackSources('_autonomiaToneSources');assert(stopped===1&&window._autonomiaToneSources.size===0,'stopTrackedPlaybackSources no detuvo y limpió las notas de piano');pass('Corte de audio del piano','las fuentes activas se detienen y se limpian')}catch(e){fail('Corte de audio del piano',e)}
   // Clean deterministic state.
   localStorage.clear(); state=clone(defaultState); state.day=1; state.lessons={}; state.god.spaced.queue=[]; saveState();
   const midi=(pc,oct=4)=>12*(oct+1)+NOTE_NAMES.indexOf(pc);
