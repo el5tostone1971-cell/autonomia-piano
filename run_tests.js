@@ -597,6 +597,8 @@
    assert(session?.mode==='band-play'&&session.index===2,'la sesión con banda no se guardó como reanudable');
    assert(session.notes.join(',')==='60,62'&&session.results.length===2&&!session.results[0].correct&&session.results[1].correct,'se perdieron notas o errores intermedios de la banda');
    assert(String(startBandPractice).includes("savedSession.mode==='band-play'"),'la práctica con banda no reconoce una sesión guardada para reanudar');
+   assert(String(startBandPractice).includes('const completedBeats=bandPracticeResults.reduce'),'la reanudación no descuenta los pulsos ya practicados');
+   assert(String(startBandPractice).includes("if(resume)history.classList.add('band-feedback-list')"),'la reanudación no restaura el registro de notas anteriores');
    pass('Persistencia · repertorio con banda','guarda cada nota/error y permite reanudar una sesión interrumpida');
   }finally{
    state=originalState;repertoirePiece=originalPiece;bandPracticeResults=originalResults;repertoireInput=originalInput;saveState();
