@@ -458,6 +458,21 @@
   (typeof window.stopBackingTrack==='function'&&window.stopBackingTrack());assert(!bandPracticeActive&&!repertoireStarted&&bandPracticeTotalBeats===0,'detener la base dejó activa la práctica');repertoireTempoOverride=oldTempoOverride;
   pass('Práctica con banda · duración completa','registra errores, permite completar las dos frases sin cortar la base, cierra al final programado y conserva el resultado');
  }catch(e){fail('Práctica con banda · duración completa',e);bandPracticeActive=false;repertoireStarted=false;(typeof window.stopBackingTrack==='function'&&window.stopBackingTrack())}
+ // Block 3 · MIDI input/output must preserve the exact incoming pitch.
+ try{
+  const previousPressKey=pressKey,previousOutput=midiOutput,events=[];
+  try{
+   pressKey=(note,source)=>events.push({note,source});
+   midiNoteOn(61,100,0);onMidi({data:[0x90,61,100]});
+   assert(events.length===1&&events[0].note===61&&events[0].source==='midi','la entrada MIDI cambió la altura antes de llegar al ejercicio');
+   assert(midiTelemetry.lastOn.note===61,'el diagnóstico MIDI no conservó la nota recibida');
+   const sent=[];midiOutput={send:(message)=>sent.push(message)};
+   playPianoNote(61,.2);
+   assert(sent.length===2&&sent[0][0]===0x90&&sent[0][1]===61&&sent[1][0]===0x80&&sent[1][1]===61,'la salida MIDI no envió note-on/note-off con la misma altura');
+   midiNoteOff(61);
+   pass('Bloque 3 · exactitud MIDI entrada/salida','la nota MIDI 61 llega sin transposición y la salida devuelve la misma altura');
+  }finally{pressKey=previousPressKey;midiOutput=previousOutput}
+ }catch(e){fail('Bloque 3 · exactitud MIDI entrada/salida',e)}
  // Block 3 · repertorio: groove, subdivisión y sincronización armónica.
  try{
   const patterns={
