@@ -3201,6 +3201,8 @@ function setRepertoireTempo(value){
  repertoireTempoOverride=Math.max(45,Math.min(140,Number(value)||90));
  if(bandPracticeActive)updateBandPracticeTempo(repertoireTempoOverride);
  if(repertoireStarted&&!bandPracticeActive){stopRepertoirePulse();window._repBeatTimer=setInterval(repertoirePulse,60000/repertoireTempoOverride);}
+ // El siguiente pulso usa el BPM nuevo sin esperar el intervalo anterior completo.
+ if(backingTrackTimer){clearTimeout(backingTrackTimer);backingTrackTimer=setTimeout(()=>backingTrackStep(backingTrackToken),Math.min(80,60000/repertoireTempoOverride));}
  const label=document.getElementById('repertoireTempoLabel');if(label)label.textContent=repertoireTempoOverride+' BPM';
  const status=document.getElementById('backingTrackStatus');if(status&&backingTrackTimer)status.textContent='Acompañamiento en '+repertoireTempoOverride+' BPM · podés ajustar la velocidad mientras tocás';
 }
@@ -3274,44 +3276,40 @@ function backingHat(when){
  const c=audio();if(!c)return;const len=Math.floor(c.sampleRate*.035),buf=c.createBuffer(1,len,c.sampleRate),data=buf.getChannelData(0);for(let i=0;i<len;i++)data[i]=(Math.random()*2-1)*(1-i/len);
  const src=c.createBufferSource(),g=c.createGain();src.buffer=buf;g.gain.setValueAtTime(.0001,when);g.gain.exponentialRampToValueAtTime(.035,when+.003);g.gain.exponentialRampToValueAtTime(.0001,when+.03);src.connect(g).connect(c.destination);trackPlaybackSource(src,'_autonomiaBackingSources');src.start(when);
 }
+function repertoireGroove(pieceId,beat,eighth){
+ // Patrones de compás 4/4: cada valor representa un ataque de corchea (0 y 1 = pulso).
+ const patterns={
+  rp1:{kick:[0,4],snare:[2,6],hat:[0,1,2,3,4,5,6,7],chord:[0,4,7],bass:[0,2,4,6]},
+  rp2:{kick:[0,4],snare:[2,6],hat:[0,2,4,6],chord:[0,2,4,6],bass:[0,4]},
+  rp3:{kick:[0],snare:[4],hat:[0,2,4,6],chord:[0,4],bass:[0,4]}
+ };
+ const p=patterns[pieceId]||patterns.rp1,step=beat*2+eighth;
+ return {kick:p.kick.includes(step),snare:p.snare.includes(step),hat:p.hat.includes(step),chord:p.chord.includes(step),bass:p.bass.includes(step),step};
+}
 function backingTrackStep(token){
  if(token!==backingTrackToken||!repertoirePiece)return;
- const c=audio();if(!c)return;const p=repertoirePiece,unit=60000/getRepertoireTempo(),when=c.currentTime+.025,beat=backingTrackBeat,bar=backingTrackBar;
+ const c=audio();if(!c)return;
+ const p=repertoirePiece,unit=60000/getRepertoireTempo(),when=c.currentTime+.025,beat=backingTrackBeat,bar=backingTrackBar;
  const chord=backingTrackChord(p,bar),bassRoot=chord[0]-12;
- const brazil=['rp10','rp15','rp16','rp17'].includes(p.id);
- const cumbia=['rp13','rp18'].includes(p.id);
- const rock=['rp12','rp14','rp19'].includes(p.id);
- const pop=['rp11'].includes(p.id);
- // El bajo marca la raíz y anticipa el tercer pulso con la quinta.
- backingOsc(midiToFreq(bassRoot+(beat===2?7:0)),unit/1000*.72,'triangle',beat===0?.15:.12,when);
- // Cada familia tiene un patrón reconocible; no todas las piezas usan el mismo bloque de acordes.
- if(brazil){
-   if(beat===0||beat===2)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.30,'triangle',.045,when+.01));
-   else chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.16,'sine',.028,when+.01));
-   // Anticipación sincopada en el contratiempo.
-   if(beat===1||beat===3)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.12,'sine',.022,when+unit/2000));
- }else if(cumbia){
-   if(beat===0||beat===2)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.28,'triangle',.05,when+.01));
-   if(beat===1||beat===3)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.15,'sine',.026,when+.01));
-   chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.10,'sine',.018,when+unit/2000));
- }else if(rock){
-   if(beat===0||beat===2)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.38,'triangle',.052,when+.01));
- }else if(pop){
-   if(beat===0||beat===2)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.34,'triangle',.045,when+.01));
-   if(beat===3)chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.13,'sine',.022,when+.01));
- }else if(beat===0||beat===2){
-   chord.forEach(n=>backingOsc(midiToFreq(n+12),unit/1000*.42,'triangle',.055,when+.01));
+ // Dos subdivisiones por pulso: el acompañamiento deja de sonar como notas aisladas.
+ for(let eighth=0;eighth<2;eighth++){
+  const groove=repertoireGroove(p.id,beat,eighth),at=when+unit/2000*eighth;
+  if(groove.bass){
+   const fifth=beat===2&&eighth===0;
+   backingOsc(midiToFreq(bassRoot+(fifth?7:0)),unit/1000*(eighth===0?.72:.38),'triangle',eighth===0?.14:.095,at);
+  }
+  if(groove.chord){
+   const duration=unit/1000*(eighth===0?.34:.19),volume=eighth===0?.046:.026;
+   chord.forEach(n=>backingOsc(midiToFreq(n+12),duration,eighth===0?'triangle':'sine',volume,at+.008));
+  }
+  if(groove.kick)backingKick(at);
+  if(groove.snare)backingSnare(at);
+  if(groove.hat)backingHat(at);
  }
- // Bombo y caja con acentos diferentes según el género.
- if(beat===0||beat===2)backingKick(when);
- if(beat===1||beat===3)backingSnare(when);
- backingHat(when);
- // Subdivisión de corcheas: sostiene el pulso en rock/pop y refuerza la síncopa en ritmos latinos.
- if(brazil||cumbia||rock||pop)setTimeout(()=>{if(token===backingTrackToken)backingHat(audio().currentTime)},Math.max(10,unit/2));
- if(rock&&beat===2)setTimeout(()=>{if(token===backingTrackToken)backingKick(audio().currentTime)},Math.max(10,unit/2));
  const status=document.getElementById('backingTrackStatus');
  if(status)status.textContent='Acompañamiento · compás '+(bar+1)+' · pulso '+(beat+1)+' · '+getRepertoireTempo()+' BPM';
- backingTrackBeat++;if(backingTrackBeat>=4){backingTrackBeat=0;backingTrackBar=(backingTrackBar+1)%8}
+ backingTrackBeat++;
+ if(backingTrackBeat>=4){backingTrackBeat=0;backingTrackBar=(backingTrackBar+1)%8}
  backingTrackTimer=setTimeout(()=>backingTrackStep(token),unit);
 }
 let bandPracticeTimer=null,bandPracticeActive=false,bandPracticeResults=[],bandPracticeTotalBeats=0,bandPracticeElapsedBeats=0,bandPracticeTempoAt=0,bandPracticeCurrentTempo=90;
