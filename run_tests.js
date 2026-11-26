@@ -458,6 +458,25 @@
   (typeof window.stopBackingTrack==='function'&&window.stopBackingTrack());assert(!bandPracticeActive&&!repertoireStarted&&bandPracticeTotalBeats===0,'detener la base dejó activa la práctica');repertoireTempoOverride=oldTempoOverride;
   pass('Práctica con banda · duración completa','registra errores, permite completar las dos frases sin cortar la base, cierra al final programado y conserva el resultado');
  }catch(e){fail('Práctica con banda · duración completa',e);bandPracticeActive=false;repertoireStarted=false;(typeof window.stopBackingTrack==='function'&&window.stopBackingTrack())}
+ // Block 3 · repertorio: groove, subdivisión y sincronización armónica.
+ try{
+  const patterns={
+   rp1:{kick:[0,4],snare:[2,6],hat:[0,1,2,3,4,5,6,7],chord:[0,4,7],bass:[0,2,4,6]},
+   rp2:{kick:[0,4],snare:[2,6],hat:[0,2,4,6],chord:[0,2,4,6],bass:[0,4]},
+   rp3:{kick:[0],snare:[4],hat:[0,2,4,6],chord:[0,4],bass:[0,4]}
+  };
+  for(const [id,p] of Object.entries(patterns)){
+   const steps=Array.from({length:8},(_,i)=>repertoireGroove(id,Math.floor(i/2),i%2));
+   for(const key of ['kick','snare','hat','chord','bass'])assert(steps.every((x,i)=>x[key]===p[key].includes(i)),id+' patrón '+key+' no respeta la cuadrícula de corcheas');
+  }
+  assert(backingTrackChord({id:'rp1'},0).join(',')==='48,52,55','Amanecer no comienza en Do mayor');
+  assert(backingTrackChord({id:'rp1'},1).join(',')==='43,47,50','Amanecer no pasa a Sol mayor en el segundo compás');
+  assert(backingTrackChord({id:'rp1'},2).join(',')==='45,48,52','Amanecer no pasa a La menor en el tercer compás');
+  assert(backingTrackChord({id:'rp1'},3).join(',')==='41,45,48','Amanecer no cierra la vuelta en Fa mayor');
+  assert(setRepertoireTempo.toString().includes('backingTrackTimer=setTimeout(()=>backingTrackStep(backingTrackToken)'),'El cambio de BPM no reprograma el siguiente pulso del acompañamiento');
+  assert(backingTrackStep.toString().includes('for(let eighth=0;eighth<2;eighth++)'),'El acompañamiento no programa las dos subdivisiones por pulso');
+  pass('Bloque 3 · sincronismo del repertorio','tres grooves 4/4 con patrones distintos, corcheas explícitas, progresión armónica y actualización de tempo');
+ }catch(e){fail('Bloque 3 · sincronismo del repertorio',e)}
  // Point 3: the accompaniment control must start, stop and stop automatically when leaving its screen.
  try{
   const savedAccomp={...accomp},savedTick=accTick;
