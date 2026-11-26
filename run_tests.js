@@ -444,6 +444,7 @@
   registerRepertoireNote(62);registerRepertoireNote(60);registerRepertoireNote(62);
   assert(bandPracticeActive&&repertoireStarted,'la banda se detuvo antes de completar su duración musical');
   assert(bandPracticeResults.length===4,'no registró los cuatro ataques de las dos pasadas');
+  registerRepertoireNote(60);assert(bandPracticeResults.length===4,'aceptó notas extra después de completar las dos pasadas');
   const originalStopBacking=stopBackingTrack;
   stopBackingTrack=()=>{bandPracticeActive=false;repertoireStarted=false};
   try{finishBandPractice()}finally{stopBackingTrack=originalStopBacking}
