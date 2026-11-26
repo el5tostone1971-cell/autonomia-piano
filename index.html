@@ -3337,8 +3337,17 @@ function finishBandPractice(){
  stopBackingTrack();
  const piece=repertoirePiece;if(!piece)return;
  const keys=document.querySelectorAll('.repertoireKeys .key');keys.forEach(k=>{k.classList.remove('target-note');k.style.outline='';k.style.boxShadow='';k.style.transform='';k.style.zIndex=''});
- const attempted=bandPracticeResults.length,hits=bandPracticeResults.filter(x=>x.correct).length,pct=Math.round(hits/Math.max(1,attempted)*100);
- state.repertoireAttempts=state.repertoireAttempts||{};state.repertoireAttempts[piece.id]=Array.isArray(state.repertoireAttempts[piece.id])?state.repertoireAttempts[piece.id]:[];state.repertoireAttempts[piece.id].push({accuracy:pct,correct:hits,total:attempted,mode:'band-two-pass',at:new Date().toISOString(),results:bandPracticeResults.slice(-128)});state.repertoireAttempts[piece.id]=state.repertoireAttempts[piece.id].slice(-20);saveState();
+ const target=piece.notes.length*2,attempted=bandPracticeResults.length,hits=bandPracticeResults.filter(x=>x.correct).length,pct=Math.round(hits/Math.max(1,attempted)*100),completed=attempted>=target;
+ state.repertoireAttempts=state.repertoireAttempts||{};state.repertoireAttempts[piece.id]=Array.isArray(state.repertoireAttempts[piece.id])?state.repertoireAttempts[piece.id]:[];state.repertoireAttempts[piece.id].push({accuracy:pct,correct:hits,total:attempted,mode:'band-two-pass',at:new Date().toISOString(),results:bandPracticeResults.slice(-128)});state.repertoireAttempts[piece.id]=state.repertoireAttempts[piece.id].slice(-20);
+ state.repertoireSessions=state.repertoireSessions||{};
+ if(completed){
+  state.repertoireSessions[piece.id]={mode:'band-complete',index:piece.notes.length,notes:bandPracticeResults.map(x=>x.played),results:bandPracticeResults.slice(-128),updatedAt:new Date().toISOString()};
+  state.repertoireMilestones=state.repertoireMilestones||{};state.repertoireMilestones[piece.id]=state.repertoireMilestones[piece.id]||{};
+  if(pct>=80&&!state.repertoireMilestones[piece.id].play){state.repertoireMilestones[piece.id].play=true;state.repertoireProgress=state.repertoireProgress||{};state.repertoireProgress[piece.id]=Math.max(state.repertoireProgress[piece.id]||0,50)}
+ }else{
+  state.repertoireSessions[piece.id]={mode:'band-play',index:attempted,notes:bandPracticeResults.map(x=>x.played),results:bandPracticeResults.slice(-128),updatedAt:new Date().toISOString()};
+ }
+ saveState();
  const help=document.getElementById('repertoireCurrentNoteHelp');if(help)help.textContent=pianoLanguage==='pt'?'A sessão terminou. Você pode voltar a praticar com a banda quando quiser.':'La sesión terminó. Podés volver a practicar con la banda cuando quieras.';
  const done=document.getElementById('repertoireMsg');if(done)done.textContent=pianoLanguage==='pt'?'✓ A prática com banda terminou. Resultado: '+hits+'/'+attempted+' acertos ('+pct+'%). Revise cada nota na lista.':'✓ Terminó la práctica con banda. Resultado: '+hits+'/'+attempted+' aciertos ('+pct+'%). Revisá cada nota en el registro.';
  const beat=document.getElementById('repertoireBeat');if(beat)beat.textContent=pianoLanguage==='pt'?'✓ Prática concluída':'✓ Práctica terminada';
@@ -3478,14 +3487,10 @@ function registerRepertoireNote(n){
   }).join('\n');
   if(history){history.textContent=summary;history.classList.add('band-feedback-list')}
   if(bandPracticeResults.length>=target){
-   bandPracticeActive=false;repertoireStarted=false;
-   if(bandPracticeTimer){clearTimeout(bandPracticeTimer);bandPracticeTimer=null}
-   stopBackingTrack();
-   state.repertoireAttempts=state.repertoireAttempts||{};state.repertoireAttempts[repertoirePiece.id]=Array.isArray(state.repertoireAttempts[repertoirePiece.id])?state.repertoireAttempts[repertoirePiece.id]:[];state.repertoireAttempts[repertoirePiece.id].push({accuracy:pct,correct:hits,total:bandPracticeResults.length,mode:'band-two-pass',at:new Date().toISOString(),results:bandPracticeResults.slice(-128)});state.repertoireAttempts[repertoirePiece.id]=state.repertoireAttempts[repertoirePiece.id].slice(-20);state.repertoireSessions=state.repertoireSessions||{};state.repertoireSessions[repertoirePiece.id]={mode:'band-complete',index:repertoirePiece.notes.length,notes:bandPracticeResults.map(x=>x.played),results:bandPracticeResults.slice(-128),updatedAt:new Date().toISOString()};if(pct>=80&&!state.repertoireMilestones?.[repertoirePiece.id]?.play)markRepertoireMilestone('play');saveState();
    const st=document.getElementById('backingTrackStatus');
-   if(st)st.textContent=pianoLanguage==='pt'?'✓ Prática concluída · áudio interrompido':'✓ Práctica terminada · audio detenido';
-   if(msg)msg.textContent=pianoLanguage==='pt'?'Resultado das duas passagens: '+hits+'/'+bandPracticeResults.length+' acertos ('+pct+'%). ✓ acerto · ✗ erro. Revise a lista completa.':'Resultado de las dos pasadas: '+hits+'/'+bandPracticeResults.length+' aciertos ('+pct+'%). ✓ acierto · ✗ error. Revisá el registro completo.';
-   const beat=document.getElementById('repertoireBeat');if(beat)beat.textContent=pianoLanguage==='pt'?'✓ Prática concluída':'✓ Práctica terminada';
+   if(st)st.textContent=pianoLanguage==='pt'?'Melodia completa · ouça o final do acompanhamento':'Melodía completa · escuchá el cierre del acompañamiento';
+   if(msg)msg.textContent=pianoLanguage==='pt'?'Você tocou as duas passagens. Continue ouvindo até o acompanhamento terminar; o resultado será fechado no final.':'Ya tocaste las dos pasadas. Seguí escuchando hasta que termine el acompañamiento; el resultado se cerrará al final.';
+   const beat=document.getElementById('repertoireBeat');if(beat)beat.textContent=pianoLanguage==='pt'?'✓ Melodia completa · final da banda':'✓ Melodía completa · cierre de banda';
    return;
   }
   updateRepertoirePracticeTarget();return;
