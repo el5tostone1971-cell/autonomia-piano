@@ -3462,6 +3462,7 @@ function advanceRepertoireStage(){if(repertoireStage<3){cancelRepertoireModes();
 let repertoirePlayedHistory=[];
 function registerRepertoireNote(n){
  if(!repertoireStarted||!repertoirePiece)return;
+ if(bandPracticeActive&&bandPracticeResults.length>=repertoirePiece.notes.length*2)return;
  const pc=pitchClassName(n),name=localizedPianoNoteName(n),oct=Math.floor(n/12)-1;
  const expected=repertoirePiece.notes[bandPracticeActive?(bandPracticeResults.length%repertoirePiece.notes.length):repertoireInput.length];
  const correct=expected!=null&&n===expected;
