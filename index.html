@@ -3343,7 +3343,7 @@ function finishBandPractice(){
  if(completed){
   state.repertoireSessions[piece.id]={mode:'band-complete',index:piece.notes.length,notes:bandPracticeResults.map(x=>x.played),results:bandPracticeResults.slice(-128),updatedAt:new Date().toISOString()};
   state.repertoireMilestones=state.repertoireMilestones||{};state.repertoireMilestones[piece.id]=state.repertoireMilestones[piece.id]||{};
-  if(pct>=80&&!state.repertoireMilestones[piece.id].play){state.repertoireMilestones[piece.id].play=true;state.repertoireProgress=state.repertoireProgress||{};state.repertoireProgress[piece.id]=Math.max(state.repertoireProgress[piece.id]||0,50)}
+  if(pct>=80&&!state.repertoireMilestones[piece.id].play){state.repertoireMilestones[piece.id].play=true;state.repertoireProgress=state.repertoireProgress||{};state.repertoireProgress[piece.id]=(state.repertoireMilestones[piece.id].learn?25:0)+(state.repertoireMilestones[piece.id].read?25:0)+50}
  }else{
   state.repertoireSessions[piece.id]={mode:'band-play',index:attempted,notes:bandPracticeResults.map(x=>x.played),results:bandPracticeResults.slice(-128),updatedAt:new Date().toISOString()};
  }
