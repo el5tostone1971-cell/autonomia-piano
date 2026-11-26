@@ -434,24 +434,29 @@
   pass('Repertorio · recuperación de las tres etapas','aprendizaje, lectura e interpretación retoman índice/notas y guardan 25/50/100%');
  }catch(e){fail('Repertorio · recuperación de las tres etapas',e);if(typeof window.stopRepertoirePractice==='function')window.stopRepertoirePractice();else if(typeof window.stopBackingTrack==='function')window.stopBackingTrack();}
 
- // Point 3: band practice records errors, advances, completes two passes and stops the backing.
+ // Point 3: band practice records errors, preserves the full backing duration and closes at the scheduled end.
  try{
   state=clone(defaultState);state.repertoireAttempts={};state.repertoireSessions={};state.repertoireMilestones={};
   repertoirePiece={id:'band-test',title:'Prueba de banda',notes:[60,62],dur:[1,1],tempo:72};
-  repertoireStage=0;repertoireInput=[];repertoireTimes=[];repertoirePlayedHistory=[];bandPracticeResults=[];bandPracticeActive=true;repertoireStarted=true;bandPracticeTimer=null;
+  repertoireStage=0;repertoireInput=[];repertoireTimes=[];repertoirePlayedHistory=[];bandPracticeResults=[];bandPracticeActive=true;repertoireStarted=true;bandPracticeTimer=null;bandPracticeTotalBeats=8;bandPracticeElapsedBeats=0;bandPracticeCurrentTempo=72;bandPracticeTempoAt=performance.now();
   registerRepertoireNote(61);
   assert(bandPracticeResults.length===1&&!bandPracticeResults[0].correct&&bandPracticeResults[0].expected===60,'un error bloqueó o no registró la primera posición');
   registerRepertoireNote(62);registerRepertoireNote(60);registerRepertoireNote(62);
-  assert(!bandPracticeActive&&!repertoireStarted,'la banda no se detuvo al completar dos pasadas');
-  const attempt=state.repertoireAttempts['band-test']?.[0];
+  assert(bandPracticeActive&&repertoireStarted,'la banda se detuvo antes de completar su duración musical');
+  assert(bandPracticeResults.length===4,'no registró los cuatro ataques de las dos pasadas');
+  const originalStopBacking=stopBackingTrack;
+  stopBackingTrack=()=>{bandPracticeActive=false;repertoireStarted=false};
+  try{finishBandPractice()}finally{stopBackingTrack=originalStopBacking}
+  assert(!bandPracticeActive&&!repertoireStarted&&bandPracticeTotalBeats===0,'la sesión no se cerró al terminar la duración programada');
+  const attempt=state.repertoireAttempts['band-test']?.[0],session=state.repertoireSessions['band-test'];
   assert(attempt&&attempt.results.length===4&&attempt.correct===3&&attempt.total===4,'no guardó los cuatro ataques y el porcentaje de dos pasadas');
   assert(attempt.results[0].correct===false&&attempt.results[0].expected===60&&attempt.results[1].correct===true,'el historial no distingue nota incorrecta y correcta');
+  assert(session?.mode==='band-complete'&&session.results.length===4,'la sesión completa no quedó persistida como completada');
   const oldTempoOverride=repertoireTempoOverride;bandPracticeActive=true;repertoireStarted=true;bandPracticeTotalBeats=12;bandPracticeElapsedBeats=0;bandPracticeCurrentTempo=60;bandPracticeTempoAt=performance.now()-1000;setRepertoireTempo(120);
   assert(bandPracticeElapsedBeats>=.9&&bandPracticeCurrentTempo===120&&bandPracticeTimer!==null,'el cambio de BPM no recalculó el tiempo restante de la sesión');
   (typeof window.stopBackingTrack==='function'&&window.stopBackingTrack());assert(!bandPracticeActive&&!repertoireStarted&&bandPracticeTotalBeats===0,'detener la base dejó activa la práctica');repertoireTempoOverride=oldTempoOverride;
-  pass('Práctica con banda · dos pasadas','registra errores sin bloquear, avanza a la nota siguiente, adapta la duración al BPM y detiene el audio al completar dos vueltas');
- }catch(e){fail('Práctica con banda · dos pasadas',e);bandPracticeActive=false;repertoireStarted=false;(typeof window.stopBackingTrack==='function'&&window.stopBackingTrack())}
-
+  pass('Práctica con banda · duración completa','registra errores, permite completar las dos frases sin cortar la base, cierra al final programado y conserva el resultado');
+ }catch(e){fail('Práctica con banda · duración completa',e);bandPracticeActive=false;repertoireStarted=false;(typeof window.stopBackingTrack==='function'&&window.stopBackingTrack())}
  // Point 3: the accompaniment control must start, stop and stop automatically when leaving its screen.
  try{
   const savedAccomp={...accomp},savedTick=accTick;
